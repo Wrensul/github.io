@@ -1,10 +1,68 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Untitled Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Field Thistles</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
+
+  <!-- Header -->
+  <header>
+    <!-- Your existing project header -->
+  </header>
+
+  <!-- Main Content -->
+  <main class="page">
+    <div class="intro">
+      <div class="square-placeholder"></div>
+      <div class="title-block">
+        <h1>Field Thistles</h1>
+        <p class="tagline">leaves that bite and heal. . .</p>
+      </div>
+    </div>
+
+    <!-- Gallery -->
+    <section class="gallery">
+      <img src="https://via.placeholder.com/200" alt="Poem Image 1" class="gallery-img" data-poem="This is where poem 1 goes." />
+      <img src="https://via.placeholder.com/200" alt="Poem Image 2" class="gallery-img" data-poem="Here’s poem 2, waiting in quiet grass." />
+      <img src="https://via.placeholder.com/200" alt="Poem Image 3" class="gallery-img" data-poem="And poem 3, thistled with teeth." />
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modal" class="hidden">
+    <div class="modal-content">
+      <span id="modal-close">&times;</span>
+      <img id="modal-img" src="" alt="Expanded image" />
+      <div id="modal-poem"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <!-- Your existing project footer -->
+  </footer>
+
+  <script>
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modal-img");
+    const modalPoem = document.getElementById("modal-poem");
+    const closeBtn = document.getElementById("modal-close");
+
+    document.querySelectorAll(".gallery-img").forEach(img => {
+      img.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+        modalImg.src = img.src;
+        modalPoem.textContent = img.dataset.poem;
+      });
+    });
+
+    closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
+    modal.addEventListener("click", e => {
+      if (e.target === modal) modal.classList.add("hidden");
+    });
+  </script>
 </body>
 </html>

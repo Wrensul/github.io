@@ -115,6 +115,112 @@ nav a:hover {
   height: 60px;
 }
 
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 4px ridge #333;
+  box-shadow: 6px 6px 10px #444;
+}
+
+.intro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+}
+
+.square-placeholder {
+  width: 200px;
+  height: 200px;
+  background: black;
+  border: 2px solid #444;
+  box-shadow: 3px 3px 8px #888;
+}
+
+.title-block {
+  flex-grow: 1;
+}
+
+.tagline {
+  font-style: italic;
+  margin-top: 5px;
+  color: #333;
+}
+
+.gallery {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.gallery-img {
+  width: 200px;
+  border: 1px solid #888;
+  box-shadow: 2px 2px 6px #aaa;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.gallery-img:hover {
+  transform: scale(1.02);
+}
+
+#modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fffefc;
+  padding: 20px;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 0 20px #000;
+  position: relative;
+  border: 4px double #333;
+}
+
+.modal-content img {
+  max-width: 50%;
+  max-height: 80vh;
+}
+
+#modal-poem {
+  font-style: italic;
+  max-width: 40%;
+  overflow-y: auto;
+  line-height: 1.4em;
+  color: #111;
+}
+
+#modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #900;
+  background: #fff;
+  padding: 2px 8px;
+  border: 2px outset #999;
+}
+
 @media (max-width: 700px) {
   nav ul {
     flex-direction: column;
@@ -129,5 +235,15 @@ nav a:hover {
   img[alt="dragon left"],
   img[alt="dragon right"] {
     display: none;
+  }
+
+  .modal-content {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .modal-content img,
+  #modal-poem {
+    max-width: 100%;
   }
 }
