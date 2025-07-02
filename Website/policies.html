@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Art by Wren Willow</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <!-- Dragon flanked galaxy box -->
+<div style="display: flex; justify-content: center; align-items: center; gap: 60px; margin: 60px auto; max-width: 1000px;">
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 40px;">
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+    <img src="https://blob.gifcities.org/gifcities/ZJZF3Y3X2WQLXABBLDRWF7ANKI4D2WY6.gif" alt="guardian left"
+         style="transform: scaleX(-1) scale(2.5); height: 120px; margin-top: 60px; margin-bottom: 60px;" />
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+  </div>
+
+  <div class="content">
+    <div style="background-color: rgba(255,255,255,0.85); padding: 30px; border: 4px groove #222; box-shadow: 4px 4px 8px #555; font-size: 1em; line-height: 1.6;">
+      <h2 style="text-align: center; margin-top: 0;">Content Usage and Rights:</h2>
+      <p style="margin-bottom: 1em;">
+        ALL CONTENTS INCLUDING ARTWORK, DESIGNS, AND FICTIONAL CONCEPTS ON THIS WEBSITE ARE THE EXCLUSIVE INTELLECTUAL PROPERTY OF ZOEE CROCKETT VIA WILLOWHISPER.SPACE. CONCEPTS AND IMAGES MAY BE USED FOR NON-COMMERCIAL PURPOSES ONLY AND MUST INCLUDE PROPER ATTRIBUTION. FOR ANY OTHER USE, PLEASE SEEK EXPLICIT WRITTEN PERMISSION.
+      </p>
+      <p style="margin-bottom: 1em;">
+        PROPER ATTRIBUTION INCLUDES CREDITING IN CLEAR, TEXTUAL FORM THE NAME OF “ZOEE CROCKETT” AND PROVIDING REFERENCE TO “WILLOWHISPER.SPACE” FOR ANY VIEWING AUDIENCES. EXPLICIT CREDIT IS NECCESARY FOR ANY MEDIUM, OR FORM IN WHICH THE CONTENT OF THIS WEBSITE IS SHARED. CREDITS MUST BE PROVIDED IN AN ARTWORK’S DESCRIPTION OR TAGS. IN THE CASE OF PHYSICAL MEDIUMS CREDIT MUST BE PLACED IN AN OBVIOUS, ACCESSIBLE FORM AT ALL TIMES ON THE ITEM. FORMS OF SHARING INCLUDE BUT ARE NOT LIMITED TO CONTENT INSPIRED TEXTS AND VISUAL REPRESENTATIONS OF ANY ARTISTIC MEDIUM, DIGITAL OR PHYSICAL.
+      </p>
+      <p><strong>ALL RIGHTS RESERVED.</strong></p>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 40px;">
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+    <img src="https://blob.gifcities.org/gifcities/ZJZF3Y3X2WQLXABBLDRWF7ANKI4D2WY6.gif" alt="guardian right"
+         style="transform: scale(2.5); height: 120px; margin-top: 60px; margin-bottom: 60px;" />
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+  </div>
+
+</div>
+
+      
+  </div>
+
+  <div class="decogifs">
+  <img src="https://blob.gifcities.org/gifcities/ODENFFKFF3OS2OSXF2MYA7LSZ5TGJ43W.gif" alt="starburst gif" />
+</div>
+
+  <div id="footer"></div>
+
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("header").innerHTML = data);
+
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("footer").innerHTML = data);
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Art by Wren Willow</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <!-- Dragon flanked galaxy box -->
+<div style="display: flex; justify-content: center; align-items: center; gap: 60px; margin: 60px auto; max-width: 1000px;">
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 40px;">
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px;" />
+    <img src="https://www.animatedimages.org/data/media/188/animated-dragon-image-0126.gif" alt="dragon left"
+         style="transform: scaleX(-1) scale(1.5); height: 120px;" />
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px;" />
+  </div>
+
+    <div class="content">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0;">
+        <img src="https://blob.gifcities.org/gifcities/WEKBFC2B3T7P43NURDKNYZNSU2LPK3FS.gif" alt="spark gif left"
+             style="transform: scaleX(-1); height: 40px;" />
+        <h2 style="margin: 0; padding: 10px 20px; border-left: 3px double #444; border-right: 3px double #444;
+                   background-color: rgba(255, 255, 255, 0.85); box-shadow: 2px 2px 6px #888;">
+          - Table of Contents -
+        </h2>
+        <img src="https://blob.gifcities.org/gifcities/WEKBFC2B3T7P43NURDKNYZNSU2LPK3FS.gif" alt="spark gif right"
+             style="height: 40px;" />
+      </div>
+
+      <ul class="toc" style="margin-top: 20px;">
+        <li><a href="gallery.html">Talisman Hall <img src="https://blob.gifcities.org/gifcities/6DZ2PBCAR55FWRTOK5POBN7R5246IS7M.gif" alt="gallery sparkle" style="height: 40px; vertical-align: middle; margin-left: 6px;" /></a></li>
+        <li><a href="site-policies.html">Site Policies<img src="https://blob.gifcities.org/gifcities/6XA625LGI3EUZJLSKTDDEB7ATPXQKPZ4.gif" alt="gallery sparkle" style="height: 40px; vertical-align: middle; margin-left: 6px;" /></a></li>
+        <li><a href="good-animals.html">Good Animals<img src="https://blob.gifcities.org/gifcities/3VMBJJ6DNZIWYFG4NQPKCT67CLNEKS34.gif" alt="gallery sparkle" style="height: 40px; vertical-align: middle; margin-left: 6px;" /></a></li>
+        <li><a href="field-thistles.html">Field Thistles<img src="https://blob.gifcities.org/gifcities/Y2ZQJWSQ24J56W6EEEG7U26G35EIIFYH.gif" alt="gallery sparkle" style="height: 40px; vertical-align: middle; margin-left: 6px;" /></a></li>
+        <li><a href="parsklands.html">The Parsklands<img src="https://blob.gifcities.org/gifcities/XW3KMSJJFTF3ENE7OTFKSYECOPKCM2QP.gif" alt="gallery sparkle" style="height: 40px; vertical-align: middle; margin-left: 6px;" /></a></li>
+      </ul>
+    </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 40px;">
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px;" />
+    <img src="https://www.animatedimages.org/data/media/188/animated-dragon-image-0126.gif" alt="dragon right"
+         style="transform: scale(1.5); height: 120px;" />
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px;" />
+  </div>
+  </div>
+
+  <div class="decogifs">
+  <img src="https://blob.gifcities.org/gifcities/ODENFFKFF3OS2OSXF2MYA7LSZ5TGJ43W.gif" alt="starburst gif" />
+</div>
+
+  <div id="footer"></div>
+
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("header").innerHTML = data);
+
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("footer").innerHTML = data);
+</script>
+</body>
+</html>

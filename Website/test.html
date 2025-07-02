@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Art by Wren Willow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column !important;
+        gap: 40px !important;
+        padding: 0 20px;
+      }
+      .gallery {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin: 60px auto;
+      max-width: 1200px;
+      padding: 0 20px;
+      justify-items: center;
+    }
+    .gallery-item {
+      width: 100%;
+      max-width: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      font-family: 'Baskervville', serif;
+      font-size: 0.95em;
+      color: #333;
+    }
+    .gallery-item .box {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background-color: #111;
+      border: 4px solid #999;
+      box-sizing: border-box;
+    }
+    .caption {
+      margin-top: 10px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <div class="content" style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 60px; max-width: 1000px; margin: 40px auto;">
+    <div style="flex: 1; background-color: rgba(255, 255, 255, 0.85); padding: 30px; border: 4px groove #222; box-shadow: 4px 4px 8px #555;">
+      <p style="font-size: 1.2em; line-height: 1.6;">
+        Welcome to my humble portfolio.
+      </p>
+      <p style="font-size: 1.2em; line-height: 1.6;">
+        Here you’ll find my artwork across all stages of production. I’m an instinctual sculptor, though my curiosity pulls me in many directions. Fifteen years of practice and study have brought me here, and I’m still learning.
+      </p>
+      <p style="font-size: 1.2em; line-height: 1.6;">
+        I love creatures, and critters, and magical curiosities. Forms that are innate yet mysterious in the human mind. If I can achieve the path between sophistication and the crude psyche of living things, I will be content.
+      </p>
+      <p style="font-size: 1.2em; line-height: 1.6;">
+        If you’d like to see my work in person, visit
+        <a href="https://usingart.org/" target="_blank" style="color: #000066; font-weight: bold;">Terra Studios</a>.
+        Ask the staff to point you to my booth, and feel free to browse or sign the guest book. If I’m in the studio, come say hello. :^)
+      </p>
+    </div>
+    <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <img src="https://i.imgur.com/e4l7Zbu.jpeg"
+           alt="Terra creature"
+           style="height: 300px; max-width: 100%; border: 3px dotted #333; background-color: #fff; padding: 6px;" />
+      <div style="margin-top: 20px; padding: 10px 20px; border: 2px dotted #333; font-family: 'Baskervville', serif; font-size: 1.6em; font-weight: bold; background-color: rgba(255,255,255,0.9);">
+        from Talisman Hall
+      </div>
+    </div>
+  </div>
+
+  <div class="gallery">
+    <div class="gallery-item">
+      <div class="box"></div>
+      <div class="caption">low fire ceramic: beagle portrait</div>
+    </div>
+    <div class="gallery-item">
+      <div class="box"></div>
+      <div class="caption">low fire ceramic: beagle paws</div>
+    </div>
+    <div class="gallery-item">
+      <div class="box"></div>
+      <div class="caption">high fire ceramic: dog busts</div>
+    </div>
+    <div class="gallery-item">
+      <div class="box"></div>
+      <div class="caption">high fire ceramic: friendly dragon</div>
+    </div>
+  </div>
+
+  <div id="footer"></div>
+
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => document.getElementById("header").innerHTML = data);
+
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(data => document.getElementById("footer").innerHTML = data);
+  </script>
+</body>
+</html>
