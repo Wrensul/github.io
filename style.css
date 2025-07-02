@@ -151,13 +151,14 @@ nav a:hover {
 
 .gallery {
   margin-top: 40px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
 }
 
 .gallery-img {
-  width: 200px;
+  aspect-ratio: 1 / 1;
+  background-color: black;
   border: 1px solid #888;
   box-shadow: 2px 2px 6px #aaa;
   cursor: pointer;
@@ -245,5 +246,9 @@ nav a:hover {
   .modal-content img,
   #modal-poem {
     max-width: 100%;
+  }
+
+  .gallery {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

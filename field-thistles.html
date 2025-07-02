@@ -5,16 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Field Thistles</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    @media (max-width: 700px) {
+  section.gallery {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 30px !important;
+  }
+}
+    }
+  </style>
 </head>
 <body>
 
   <!-- Header -->
-  <header>
-    <!-- Your existing project header -->
-  </header>
+  <div id="site-header"></div>
 
   <!-- Main Content -->
-  <main class="page">
+  <main class="page" style="margin-top: 40px; background-image: url('https://i.imgur.com/SiSbdVZ.jpg'); background-size: cover; background-position: center;">
     <div class="intro">
       <div class="square-placeholder"></div>
       <div class="title-block">
@@ -23,12 +32,21 @@
       </div>
     </div>
 
-    <!-- Gallery -->
-    <section class="gallery">
-      <img src="https://via.placeholder.com/200" alt="Poem Image 1" class="gallery-img" data-poem="This is where poem 1 goes." />
-      <img src="https://via.placeholder.com/200" alt="Poem Image 2" class="gallery-img" data-poem="Here’s poem 2, waiting in quiet grass." />
-      <img src="https://via.placeholder.com/200" alt="Poem Image 3" class="gallery-img" data-poem="And poem 3, thistled with teeth." />
-    </section>
+    </main>
+
+<!-- Poem Gallery (outside main box) -->
+<section class="gallery" style="
+  display: grid;
+  grid-template-columns: repeat(4, 250px);
+  gap: 40px;
+  margin: 40px auto;
+  justify-content: center;
+">
+  <div class="gallery-img" data-poem="This is where poem 1 goes." style="background:black; width:250px; height:250px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
+  <div class="gallery-img" data-poem="Here’s poem 2, waiting in quiet grass." style="background:black; width:250px; height:250px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
+  <div class="gallery-img" data-poem="And poem 3, thistled with teeth." style="background:black; width:250px; height:250px;"></div>
+  <div class="gallery-img" data-poem="Poem 4 hides in nettles and dusk." style="background:black; width:250px; height:250px;"></div>
+</section>
   </main>
 
   <!-- Modal -->
@@ -41,10 +59,9 @@
   </div>
 
   <!-- Footer -->
-  <footer>
-    <!-- Your existing project footer -->
-  </footer>
+  <footer id="site-footer"></footer>
 
+  
   <script>
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modal-img");
@@ -63,6 +80,15 @@
     modal.addEventListener("click", e => {
       if (e.target === modal) modal.classList.add("hidden");
     });
+
+    // Restore header and footer includes
+    fetch("header.html")
+      .then(res => res.text())
+      .then(text => document.getElementById("site-header").innerHTML = text);
+
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(text => document.getElementById("site-footer").innerHTML = text);
   </script>
 </body>
 </html>
