@@ -6,8 +6,35 @@
   <title>Blog Gallery</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 40px;
+      margin: 40px auto;
+      justify-content: center;
+      padding: 0 20px;
+      max-width: 1200px;
+    }
+
+    .thumb {
+      width: 100%;
+      height: auto;
+      border: 2px solid #444;
+      box-shadow: 3px 3px 8px #888;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery a {
+      display: block;
+    }
+
+    .gallery video.thumb {
+      max-height: 180px;
+    }
+
     @media (max-width: 700px) {
-      section.gallery {
+      .gallery {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -38,23 +65,21 @@
       </div>
     </div>
     <section class="blog-intro" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
-      <p>This is the little life I live with all of my wonderful, fuzzy pals. I hope we can all be good animals.</p>
+      <p>This is the little life I live with all of my wonderful, fuzzy pals. I hope we are good animals.</p>
     </section>
   </main>
 
   <!-- Media Gallery -->
-  <section class="gallery" style="
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 40px;
-    margin: 40px auto;
-    justify-content: center;
-    padding: 0 20px;
-  ">
-    <a href="entry1.html"><img src="thumbs/thumb1.jpg" alt="Thumbnail 1" class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;" /></a>
-    <a href="entry2.html"><img src="thumbs/thumb2.jpg" alt="Thumbnail 2" class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;" /></a>
-    <a href="entry3.html"><video src="thumbs/thumb3.mov" muted playsinline class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></video></a>
-    <a href="entry4.html"><img src="thumbs/thumb4.jpg" alt="Thumbnail 4" class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;" /></a>
+  <section class="gallery">
+    <a href="entry1.html">
+      <video class="thumb" muted playsinline>
+        <source src="https://drive.google.com/uc?export=preview&id=1gAxczFZ2NUKgKZwk5vJILVDBmsXcJn8U" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </a>
+    <a href="entry2.html"><img src="thumbs/thumb2.jpg" alt="Thumbnail 2" class="thumb" /></a>
+    <a href="entry3.html"><video src="thumbs/thumb3.mov" muted playsinline class="thumb"></video></a>
+    <a href="entry4.html"><img src="thumbs/thumb4.jpg" alt="Thumbnail 4" class="thumb" /></a>
   </section>
 
   <!-- Footer -->
