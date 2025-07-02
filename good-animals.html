@@ -1,10 +1,74 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Untitled Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blog Gallery</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    @media (max-width: 700px) {
+      section.gallery {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 30px !important;
+      }
+    }
+  </style>
 </head>
-
 <body>
+
+  <!-- Header -->
+  <div id="site-header"></div>
+
+  <!-- Main Content -->
+  <main class="page" style="margin-top: 40px; background-image: url('https://i.imgur.com/SiSbdVZ.jpg'); background-size: cover; background-position: center;">
+    <div class="intro">
+      <div class="square-placeholder" style="
+        background-image: url('https://i.imgur.com/NEW_IMAGE_URL.jpg');
+        background-size: cover;
+        background-position: center;
+        width: 200px;
+        height: 200px;
+        border: 2px solid #444;
+        box-shadow: 3px 3px 8px #888;
+      "></div>
+      <div class="title-block">
+        <h1>Blog Gallery</h1>
+      </div>
+    </div>
+    <section class="blog-intro" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
+      <p>Welcome to the visual blog—a collection of images and videos from studio life, strange adventures, and fleeting fascinations. Click any thumbnail to dive deeper.</p>
+    </section>
+  </main>
+
+  <!-- Media Gallery -->
+  <section class="gallery" style="
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 40px;
+    margin: 40px auto;
+    justify-content: center;
+    padding: 0 20px;
+  ">
+    <a href="entry1.html"><img src="thumbs/thumb1.jpg" alt="Thumbnail 1" class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;" /></a>
+    <a href="entry2.html"><img src="thumbs/thumb2.jpg" alt="Thumbnail 2" class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;" /></a>
+    <a href="entry3.html"><video src="thumbs/thumb3.mov" muted playsinline class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></video></a>
+    <a href="entry4.html"><img src="thumbs/thumb4.jpg" alt="Thumbnail 4" class="thumb" style="width:100%; height:auto; border: 2px solid #444; box-shadow: 3px 3px 8px #888;" /></a>
+  </section>
+
+  <!-- Footer -->
+  <footer id="site-footer"></footer>
+
+  <script>
+    // Restore header and footer includes
+    fetch("header.html")
+      .then(res => res.text())
+      .then(text => document.getElementById("site-header").innerHTML = text);
+
+    fetch("footer.html")
+      .then(res => res.text())
+      .then(text => document.getElementById("site-footer").innerHTML = text);
+  </script>
 </body>
 </html>
