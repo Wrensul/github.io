@@ -41,6 +41,12 @@
         gap: 30px !important;
       }
     }
+
+    .gif-inline {
+      vertical-align: middle;
+      margin-left: 10px;
+      height: 28px;
+    }
   </style>
 </head>
 <body>
@@ -50,21 +56,26 @@
 
   <!-- Main Content -->
   <main class="page" style="margin-top: 40px; background-image: url('https://i.imgur.com/SiSbdVZ.jpg'); background-size: cover; background-position: center;">
-    <div class="intro">
-      <div class="square-placeholder" style="
-        width: 200px;
-        height: 200px;
-        border: 2px solid #444;
-        box-shadow: 3px 3px 8px #888;
-        background-image: url('https://i.imgur.com/IsDymom.jpg');
-        background-size: cover;
-        background-position: center;
-      "></div>
-      <div class="title-block">
-  <h1>Good Animals</h1>
-  <p style="font-size: 1rem; margin-top: 5px; color: #222; max-width: 300px;">This is the little life I live with all of my wonderful, fuzzy pals. We are good animals. Click thumbnials to view images and videos in a larger format at their original links.</p>
+    <div class="intro" style="display: flex; align-items: center; gap: 30px;">
+  <div class="square-placeholder" style="
+    width: 200px;
+    height: 200px;
+    border: 2px solid #444;
+    box-shadow: 3px 3px 8px #888;
+    background-image: url('https://i.imgur.com/IsDymom.jpg');
+    background-size: cover;
+    background-position: center;
+  "></div>
+  <div class="title-block">
+    <h1 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+      Good Animals
+      <img src="https://blob.gifcities.org/gifcities/7G2RZT6RXUEGZNEUR6GJHXDCQ5IXPCGW.gif" alt="Dancing Animal Gif" class="gif-inline" />
+    </h1>
+    <p style="font-size: 1rem; margin-top: 5px; color: #222; max-width: 300px;">
+      This is the little life I live with all of my wonderful, fuzzy pals. We are good animals. Click thumbnials to view images and videos in a larger format at their original links.
+    </p>
+  </div>
 </div>
-    </div>
     
   </main>
 
@@ -73,7 +84,7 @@
     <a href="entry1.html">
       <iframe src="https://drive.google.com/file/d/1gAxczFZ2NUKgKZwk5vJILVDBmsXcJn8U/preview" width="100%" height="180" class="thumb" allow="autoplay" style="border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></iframe>
     </a>
-     <a href="entry2.html">
+    <a href="entry2.html">
       <iframe src="https://drive.google.com/file/d/1Rm-SV0e8rx3eM1siReK5y27rBY-1sb9z/preview" width="100%" height="180" class="thumb" allow="autoplay" style="border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></iframe>
     </a>
     <a href="entry3.html"><video src="thumbs/thumb3.mov" muted playsinline class="thumb"></video></a>
