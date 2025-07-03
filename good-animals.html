@@ -47,7 +47,28 @@
       margin-left: 10px;
       height: 28px;
     }
-  </style>
+    .intro {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: nowrap;
+    max-width: 1000px;
+    width: 100%;
+    padding: 40px 20px;
+  }
+
+  @media (max-width: 700px) {
+    .intro {
+      flex-direction: column;
+      text-align: center;
+    }
+    .intro .title-block {
+      max-width: 100%;
+    }
+  }
+</style>
 </head>
 <body>
 
@@ -55,8 +76,8 @@
   <div id="site-header"></div>
 
   <!-- Main Content -->
-  <main class="page" style="margin-top: 40px; background-image: url('https://i.imgur.com/SiSbdVZ.jpg'); background-size: cover; background-position: center;">
-    <div class="intro" style="display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 40px; max-width: 1000px; margin: 0 auto; padding: 40px 20px;">
+  <main class="page" style="margin-top: 40px; background-image: url('https://i.imgur.com/SiSbdVZ.jpg'); background-size: cover; background-position: center; display: flex; justify-content: center;">
+    <div class="intro">
   <div class="square-placeholder" style="
     width: 200px;
     height: 200px;
