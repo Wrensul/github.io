@@ -30,6 +30,15 @@
       border: 2px solid #333;
       padding: 6px;
       box-shadow: 4px 4px 8px #555;
+      overflow: hidden; /* ensure image stays inside */
+    }
+
+    /* make images fill the box cleanly */
+    .gallery-item .box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .gallery-item .caption {
@@ -84,8 +93,10 @@
 
   <div class="gallery">
     <div class="gallery-item">
-      <div class="box"></div>
-      <div class="caption">low fire ceramic: beagle portrait</div>
+      <div class="box">
+        <img src="https://i.imgur.com/1xmJSjj.jpeg" alt="party frog">
+      </div>
+      <div class="caption">3D resin print | Party Frog</div>
     </div>
     <div class="gallery-item">
       <div class="box"></div>
