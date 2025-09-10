@@ -30,10 +30,10 @@
       border: 2px solid #333;
       padding: 6px;
       box-shadow: 4px 4px 8px #555;
-      overflow: hidden; /* ensure image stays inside */
+      overflow: hidden;
+      cursor: pointer;
     }
 
-    /* make images fill the box cleanly */
     .gallery-item .box img {
       width: 100%;
       height: 100%;
@@ -48,6 +48,39 @@
       font-size: 1em;
       color: #222;
     }
+
+    /* Modal */
+    .hidden { display: none !important; }
+    #modal {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,.8);
+      display: grid; place-items: center;
+      padding: 20px;
+    }
+    .modal-content {
+      max-width: min(1000px, 92vw);
+      max-height: 92vh;
+      background: #111;
+      color: #eee;
+      border: 1px solid #333;
+      box-shadow: 0 10px 30px rgba(0,0,0,.6);
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .modal-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 12px; background:#0b0b0b; border-bottom:1px solid #222;
+    }
+    .modal-actions { display: flex; gap: 8px; }
+    .icon-btn { background: #1a1a1a; color:#ddd; border:1px solid #2a2a2a; padding:6px 10px; border-radius:6px; cursor:pointer; }
+    .icon-btn:hover { background:#222; }
+    .modal-body { display:grid; place-items:center; background:#000; }
+    #modal-img { max-width: 100%; max-height: 80vh; display:block; }
+    #modal-caption { padding: 10px 12px; font: 14px/1.45 Georgia, 'Times New Roman', serif; color:#ddd; background:#0b0b0b; border-top:1px solid #222; }
+
+    body.no-scroll { overflow: hidden; }
   </style>
 </head>
 <body>
@@ -71,9 +104,7 @@
       </p>
     </div>
     <div style="flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-      <img src="https://i.imgur.com/e4l7Zbu.jpeg"
-           alt="Terra creature"
-           style="height: 300px; max-width: 100%; border: 3px dotted #333; background-color: #fff; padding: 6px;" />
+      <img src="https://i.imgur.com/e4l7Zbu.jpeg" alt="Terra creature" style="height: 300px; max-width: 100%; border: 3px dotted #333; background-color: #fff; padding: 6px;" />
       <div style="margin-top: 20px; padding: 10px 20px; border: 2px dotted #333; font-family: 'Baskervville', serif; font-size: 1.6em; font-weight: bold; background-color: rgba(255,255,255,0.9);">
         from Talisman Hall
       </div>
@@ -168,16 +199,82 @@
     </div>
   </div>
 
+  <!-- Modal -->
+  <div id="modal" class="hidden" aria-hidden="true" aria-modal="true" role="dialog">
+    <div class="modal-content">
+      <div class="modal-bar">
+        <div class="modal-title" id="modal-title">Image</div>
+        <div class="modal-actions">
+          <button id="prev-btn" class="icon-btn" aria-label="Previous image">◀</button>
+          <button id="next-btn" class="icon-btn" aria-label="Next image">▶</button>
+          <button id="modal-close" class="icon-btn" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" src="" alt="Expanded image" />
+      </div>
+      <div id="modal-caption"></div>
+    </div>
+  </div>
+
   <div id="footer"></div>
 
   <script>
-    fetch("header.html")
-      .then(res => res.text())
-      .then(data => document.getElementById("header").innerHTML = data);
+    const body = document.body;
+    const items = Array.from(document.querySelectorAll('.gallery-item'));
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalCaption = document.getElementById('modal-caption');
+    const titleEl = document.getElementById('modal-title');
+    const closeBtn = document.getElementById('modal-close');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
 
-    fetch("footer.html")
-      .then(res => res.text())
-      .then(data => document.getElementById("footer").innerHTML = data);
+    let currentIndex = -1;
+
+    function openModal(index){
+      currentIndex = index;
+      const img = items[currentIndex].querySelector('img');
+      modalImg.src = img.src;
+      modalImg.alt = img.alt;
+      modalCaption.textContent = items[currentIndex].querySelector('.caption').textContent;
+      titleEl.textContent = `Image ${currentIndex+1} of ${items.length}`;
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden','false');
+      body.classList.add('no-scroll');
+    }
+
+    function closeModal(){
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden','true');
+      body.classList.remove('no-scroll');
+      currentIndex = -1;
+    }
+
+    function showNext(dir){
+      if (currentIndex < 0) return;
+      currentIndex = (currentIndex + dir + items.length) % items.length;
+      openModal(currentIndex);
+    }
+
+    items.forEach((item, i) => {
+      item.querySelector('.box').addEventListener('click', () => openModal(i));
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    prevBtn.addEventListener('click', () => showNext(-1));
+    nextBtn.addEventListener('click', () => showNext(1));
+
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    window.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') showNext(1);
+      if (e.key === 'ArrowLeft') showNext(-1);
+    });
+
+    fetch("header.html").then(res=>res.text()).then(data=>document.getElementById("header").innerHTML=data);
+    fetch("footer.html").then(res=>res.text()).then(data=>document.getElementById("footer").innerHTML=data);
   </script>
 </body>
 </html>

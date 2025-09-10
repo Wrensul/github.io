@@ -6,14 +6,68 @@
   <title>Field Thistles</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    :root {
+      --overlay-bg: rgba(0,0,0,.75);
+      --card-border: #444;
+      --shadow: 3px 3px 8px #888;
+    }
+
+    /* Mobile tweak the user already had */
     @media (max-width: 700px) {
-  section.gallery {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 30px !important;
-  }
-}
+      section.gallery {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 30px !important;
+      }
+    }
+
+    /* Gallery tiles are focusable buttons for a11y */
+    .gallery-img {
+      width: 250px; height: 250px;
+      background-size: cover; background-position: center;
+      border: 2px solid var(--card-border);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      outline: none;
+      border-radius: 4px;
+      position: relative;
+    }
+    .gallery-img:focus-visible { box-shadow: 0 0 0 3px rgba(255,255,255,.6); }
+
+    /* Modal */
+    .hidden { display: none !important; }
+    #modal {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--overlay-bg);
+      display: grid; place-items: center;
+      padding: 20px;
+    }
+    .modal-content {
+      max-width: min(1000px, 92vw);
+      max-height: 92vh;
+      background: #111;
+      color: #eee;
+      border: 1px solid #333;
+      box-shadow: 0 10px 30px rgba(0,0,0,.6);
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .modal-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; padding: 8px 12px; background:#0b0b0b; border-bottom:1px solid #222;
+    }
+    .modal-title { font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; opacity:.9; }
+    .modal-actions { display: flex; gap: 8px; }
+    .icon-btn { background: #1a1a1a; color:#ddd; border:1px solid #2a2a2a; padding:6px 10px; border-radius:6px; cursor:pointer; }
+    .icon-btn:hover { background:#222; }
+    .modal-body { display:grid; place-items:center; background:#000; }
+    #modal-img { max-width: 100%; max-height: 80vh; display:block; }
+    #modal-poem { padding: 10px 12px; font: 14px/1.45 Georgia, 'Times New Roman', serif; color:#ddd; background:#0b0b0b; border-top:1px solid #222; }
+
+    body.no-scroll { overflow: hidden; }
   </style>
 </head>
 <body>
@@ -31,8 +85,7 @@
   width: 200px;
   height: 200px;
   border: 2px solid #444;
-  box-shadow: 3px 3px 8px #888;
-"></div>
+  box-shadow: 3px 3px 8px #888;"></div>
       <div class="title-block">
         <h1>Field Thistles</h1>
         <p class="tagline">leaves that bite and heal. . .</p>
@@ -48,21 +101,43 @@
   margin: 40px auto;
   justify-content: center;
 ">
-  <div class="gallery-img" data-poem="These are bugs. The window is a glass skull. My mind feels blurry. Things are adding up, one insect thought at a time." style="background-image: url('https://i.imgur.com/aSyfYMA.jpeg'); background-size: cover; background-position: center; width:250px; height:250px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
-	
-  <div class="gallery-img" data-poem="The day wasn’t over yet. Something was there. Smiling through and through. Feeling less than a ghost." style="background-image: url('https://i.imgur.com/d2w9YH1.jpeg'); background-size: cover; background-position: center; width:250px; height:250px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
-	
-  <div class="gallery-img" data-poem="These are bugs. The window is a glass skull. My mind feels blurry. Things are adding up, one insect thought at a time." style="background-image: url('https://i.imgur.com/aSyfYMA.jpeg'); background-size: cover; background-position: center; width:250px; height:250px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
-	
-  <div class="gallery-img" data-poem="These are bugs. The window is a glass skull. My mind feels blurry. Things are adding up, one insect thought at a time." style="background-image: url('https://i.imgur.com/aSyfYMA.jpeg'); background-size: cover; background-position: center; width:250px; height:250px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
+  <!-- Each tile includes data-src for the full image URL -->
+  <div class="gallery-img" tabindex="0" role="button" aria-label="Open image 1"
+       data-src="https://i.imgur.com/aSyfYMA.jpeg"
+       data-poem="These are bugs. The window is a glass skull. My mind feels blurry. Things are adding up, one insect thought at a time."
+       style="background-image: url('https://i.imgur.com/aSyfYMA.jpeg');"></div>
+
+  <div class="gallery-img" tabindex="0" role="button" aria-label="Open image 2"
+       data-src="https://i.imgur.com/d2w9YH1.jpeg"
+       data-poem="The day wasn’t over yet. Something was there. Smiling through and through. Feeling less than a ghost."
+       style="background-image: url('https://i.imgur.com/d2w9YH1.jpeg');"></div>
+
+  <div class="gallery-img" tabindex="0" role="button" aria-label="Open image 3"
+       data-src="https://i.imgur.com/th1aPIX.jpeg"
+       data-poem="THouse on the bridge. It was morning, the dew was heavy. And I only saw as far as I always do. The river moved below."
+       style="background-image: url('https://i.imgur.com/th1aPIX.jpeg');"></div>
+
+  <div class="gallery-img" tabindex="0" role="button" aria-label="Open image 4"
+       data-src="https://i.imgur.com/aSyfYMA.jpeg"
+       data-poem="These are bugs. The window is a glass skull. My mind feels blurry. Things are adding up, one insect thought at a time."
+       style="background-image: url('https://i.imgur.com/aSyfYMA.jpeg');"></div>
 
 </section>
 
   <!-- Modal -->
-  <div id="modal" class="hidden">
+  <div id="modal" class="hidden" aria-hidden="true" aria-modal="true" role="dialog">
     <div class="modal-content">
-      <span id="modal-close">&times;</span>
-      <img id="modal-img" src="" alt="Expanded image" />
+      <div class="modal-bar">
+        <div class="modal-title" id="modal-title">Image</div>
+        <div class="modal-actions">
+          <button id="prev-btn" class="icon-btn" aria-label="Previous image">◀</button>
+          <button id="next-btn" class="icon-btn" aria-label="Next image">▶</button>
+          <button id="modal-close" class="icon-btn" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" src="" alt="Expanded image" />
+      </div>
       <div id="modal-poem"></div>
     </div>
   </div>
@@ -70,34 +145,80 @@
   <!-- Footer -->
   <footer id="site-footer"></footer>
 
-  
   <script>
-    const modal = document.getElementById("modal");
-    const modalImg = document.getElementById("modal-img");
-    const modalPoem = document.getElementById("modal-poem");
-    const closeBtn = document.getElementById("modal-close");
+    const body = document.body;
+    const tiles = Array.from(document.querySelectorAll('.gallery-img'));
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalPoem = document.getElementById('modal-poem');
+    const titleEl = document.getElementById('modal-title');
+    const closeBtn = document.getElementById('modal-close');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
 
-    document.querySelectorAll(".gallery-img").forEach(img => {
-      img.addEventListener("click", () => {
-        modal.classList.remove("hidden");
-        modalImg.src = img.src;
-        modalPoem.textContent = img.dataset.poem;
+    let currentIndex = -1;
+
+    function openModal(index){
+      currentIndex = index;
+      const tile = tiles[currentIndex];
+      const src = tile.dataset.src || extractBg(tile);
+      const poem = tile.dataset.poem || '';
+      modalImg.src = src;
+      modalImg.alt = poem ? poem.slice(0, 80) : 'Expanded image';
+      modalPoem.textContent = poem;
+      titleEl.textContent = `${currentIndex+1} of ${tiles.length}`;
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden','false');
+      body.classList.add('no-scroll');
+    }
+
+    function closeModal(){
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden','true');
+      body.classList.remove('no-scroll');
+      currentIndex = -1;
+    }
+
+    function extractBg(el){
+      const bg = getComputedStyle(el).backgroundImage; // url("...")
+      const match = bg.match(/url\(["']?(.*?)["']?\)/);
+      return match ? match[1] : '';
+    }
+
+    function showNext(dir){
+      if (currentIndex < 0) return;
+      currentIndex = (currentIndex + dir + tiles.length) % tiles.length;
+      openModal(currentIndex);
+    }
+
+    // Click + keyboard on tiles
+    tiles.forEach((tile, i) => {
+      tile.addEventListener('click', () => openModal(i));
+      tile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(i); }
       });
     });
 
-    closeBtn.addEventListener("click", () => modal.classList.add("hidden"));
-    modal.addEventListener("click", e => {
-      if (e.target === modal) modal.classList.add("hidden");
+    // Modal controls
+    closeBtn.addEventListener('click', closeModal);
+    prevBtn.addEventListener('click', () => showNext(-1));
+    nextBtn.addEventListener('click', () => showNext(1));
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Esc/Arrows
+    window.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') showNext(1);
+      if (e.key === 'ArrowLeft') showNext(-1);
     });
 
     // Restore header and footer includes
-    fetch("header.html")
-      .then(res => res.text())
-      .then(text => document.getElementById("site-header").innerHTML = text);
-
-    fetch("footer.html")
-      .then(res => res.text())
-      .then(text => document.getElementById("site-footer").innerHTML = text);
+    fetch('header.html').then(r=>r.text()).then(html=>{ document.getElementById('site-header').innerHTML = html; });
+    fetch('footer.html').then(r=>r.text()).then(html=>{ document.getElementById('site-footer').innerHTML = html; });
   </script>
 </body>
 </html>
