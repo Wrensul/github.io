@@ -22,12 +22,12 @@
 
     .thumb {
       width: 100%;
-      height: auto;
+      aspect-ratio: 16 / 9;  /* uniform video-style shape */
+      object-fit: cover;     /* crop without distortion */
       border: 2px solid #444;
       box-shadow: 3px 3px 8px #888;
-      object-fit: cover;
-      display: block;
       cursor: pointer;
+      display: block;
     }
 
     .gif-inline {
@@ -99,13 +99,13 @@
           <img src="https://blob.gifcities.org/gifcities/7G2RZT6RXUEGZNEUR6GJHXDCQ5IXPCGW.gif" alt="Dancing Animal Gif" class="gif-inline" />
         </h1>
         <p style="font-size: 1rem; margin-top: 5px; color: #222; max-width: 300px;">
-          This is the little life I live with all of my wonderful, fuzzy pals. We are good animals. Click on thumbnails to view videos in a larger format.
+          This is the little life I live with all of my wonderful, fuzzy pals. We are good animals. Click thumbnails to view images and videos in a larger format at their original links. If you have any issues loading, try refreshing.
         </p>
       </div>
     </div>
   </main>
 
-  <!-- Media Gallery (now thumbs) -->
+  <!-- Media Gallery (thumbnails + modal) -->
   <section class="gallery">
     <img src="" alt="Video 1 thumbnail" class="thumb" data-video="https://drive.google.com/file/d/1gAxczFZ2NUKgKZwk5vJILVDBmsXcJn8U/preview">
     <img src="" alt="Video 2 thumbnail" class="thumb" data-video="https://drive.google.com/file/d/1Rm-SV0e8rx3eM1siReK5y27rBY-1sb9z/preview">
