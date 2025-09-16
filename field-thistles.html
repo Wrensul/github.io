@@ -63,9 +63,39 @@
     .modal-actions { display: flex; gap: 8px; }
     .icon-btn { background: #1a1a1a; color:#ddd; border:1px solid #2a2a2a; padding:6px 10px; border-radius:6px; cursor:pointer; }
     .icon-btn:hover { background:#222; }
-    .modal-body { display:grid; place-items:center; background:#000; }
-    #modal-img { max-width: 100%; max-height: 80vh; display:block; }
-    #modal-poem { padding: 10px 12px; font: 14px/1.45 Georgia, 'Times New Roman', serif; color:#ddd; background:#0b0b0b; border-top:1px solid #222; }
+
+    /* FIXED BODY / IMAGE AREA */
+    .modal-body {
+      min-height: 0;           /* allows shrink */
+      overflow: auto;          /* scroll if too tall */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:#000;
+    }
+    #modal-img {
+      max-width: 100%;
+      height: auto;
+      max-height: 100%;        /* respects modal-body */
+      display:block;
+    }
+
+    /* Poem area */
+    #modal-poem {
+      padding: 10px 12px;
+      font: 14px/1.45 Georgia, 'Times New Roman', serif;
+      color:#ddd;
+      background:#0b0b0b;
+      border-top:1px solid #222;
+      max-height: 30vh;        /* optional cap */
+      overflow: auto;          /* scroll long poems */
+      white-space: pre-wrap;
+    }
+
+    /* Optional tighter constraint for mobile */
+    @media (max-width: 700px) {
+      .modal-body { max-height: 55vh; }
+    }
 
     body.no-scroll { overflow: hidden; }
   </style>
@@ -119,7 +149,7 @@
 
   <div class="gallery-img" tabindex="0" role="button" aria-label="Open image 4"
        data-src="https://i.imgur.com/aSyfYMA.jpeg"
-       data-poem="Creations come from this place like mice come from hay. Is this really what I have to work with?"
+       data-poem="Creations come from this place like mice come from grain. Is this really what I have to work with?"
        style="background-image: url('https://i.imgur.com/48HuXty.jpeg');"></div>
 
 </section>
