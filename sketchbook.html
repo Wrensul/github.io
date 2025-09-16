@@ -163,6 +163,97 @@
   <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
     <img id="lightbox-img" src="" alt="full view">
   </div>
+	
+	<!-- =============================
+Process Work — same-size images + single-column captions + sparkle gif
+Matches Baskervville + box/shadow and existing openLightbox()
+============================= -->
+
+<div class="section-title">
+  My Usual Process
+  <img src="https://blob.gifcities.org/gifcities/YRKPAA3CH6A3XV6KREOK6PVFCJ7TMKGZ.gif" alt="sparkle gif" style="height: 30px; margin-left: 24px; vertical-align: middle;" />
+</div>
+
+<section class="process-grid" aria-label="Process Work Steps">
+  <article class="process-card">
+    <h3 class="process-step-title">Step 1 — Concept & Inspiration</h3>
+    <div class="box process-box"><img src="https://i.imgur.com/kol9o8b.jpeg" alt="Concept and inspiration board" onclick="openLightbox(this.src)" /></div>
+    <p class="process-caption">Briefly explain the idea, references, and the mood you’re aiming for. What sparked it? What do you want the audience to feel?</p>
+  </article>
+
+  <article class="process-card">
+    <h3 class="process-step-title">Step 2 — Sketching & Reflecting</h3>
+    <div class="box process-box"><img src="https://i.imgur.com/lPOCBQn.jpeg" alt="Sketching stage" onclick="openLightbox(this.src)" /></div>
+    <p class="process-caption">Fast studies and turnarounds to lock pose and proportions.</p>
+  </article>
+
+  <article class="process-card">
+    <h3 class="process-step-title">Step 3 — Prototype & Editing</h3>
+    <div class="box process-box"><img src="https://i.imgur.com/p0zH6pt.jpeg" alt="Prototype test and tweaks" onclick="openLightbox(this.src)" /></div>
+    <p class="process-caption">Test prints, support strategy, articulation, and small fixes. Adjust silhouette/read from arm’s length.</p>
+  </article>
+
+  <article class="process-card">
+    <h3 class="process-step-title">Step 4 — Final Making</h3>
+    <div class="box process-box"><img src="https://i.imgur.com/vOF4pVT.jpeg" alt="Final print at optimal angle and paint" onclick="openLightbox(this.src)" /></div>
+    <p class="process-caption">Print one last time at the optimal print angle. Clean, cure, and paint the master with the intended finish.</p>
+  </article>
+
+  <article class="process-card">
+    <h3 class="process-step-title">Step 5 — Merchandising</h3>
+    <div class="box process-box"><img src="https://i.imgur.com/UJryWbB.jpeg" alt="Product cards and price tags" onclick="openLightbox(this.src)" /></div>
+    <p class="process-caption">Prepare labels, product cards, and price tags. Stage a small phone‑vertical scene for shop or web display.</p>
+  </article>
+</section>
+
+<style>
+  /* Fixed card & image box sizes so all five match exactly */
+  .process-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 220px); /* fixed card width */
+    gap: 20px;
+    margin: 24px auto 50px;
+    max-width: calc(5 * 220px + 4 * 20px);
+    justify-content: center;
+  }
+  .process-card {
+    display: flex; flex-direction: column; align-items: stretch;
+    font-family: 'Baskervville', serif; /* match site font */
+    box-sizing: border-box;
+  }
+  .process-step-title { 
+    margin: 0 0 8px; font-size: 1.05em; text-align: center;
+    min-height: 2.6em; display: flex; align-items: flex-end; justify-content: center;
+  }
+
+  /* EXACT image box size: identical for all, cropping allowed */
+  .process-box {
+    width: 220px; height: 392px; /* ~9:16 at 220px */
+    background: #fff; border: 2px solid #333; box-shadow: 4px 4px 8px #555;
+    padding: 6px; margin: 0; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .process-box img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; cursor: pointer; margin: 0;
+  }
+
+  /* Captions: force single column, consistent bottom baseline */
+  .process-caption { 
+    margin: 8px 0 0; padding: 0 4px; width: 100%;
+    font-size: 0.95em; line-height: 1.4; color: #222; text-align: center; font-style: italic;
+    min-height: 4.2em; display: flex; align-items: flex-start; justify-content: center;
+    /* override any global multi-column styles */
+    -webkit-columns: 1 !important; columns: 1 !important; -moz-columns: 1 !important;
+    break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid;
+  }
+
+  /* Responsive: keep cards identical, just wrap */
+  @media (max-width: 1200px) { .process-grid { grid-template-columns: repeat(4, 220px); max-width: calc(4 * 220px + 3 * 20px); } }
+  @media (max-width: 900px)  { .process-grid { grid-template-columns: repeat(3, 220px); max-width: calc(3 * 220px + 2 * 20px); } }
+  @media (max-width: 660px)  { .process-grid { grid-template-columns: repeat(2, 220px); max-width: calc(2 * 220px + 1 * 20px); } }
+  @media (max-width: 460px)  { .process-grid { grid-template-columns: 1fr; max-width: 220px; } }
+</style>
+
 
   <div id="footer"></div>
 
