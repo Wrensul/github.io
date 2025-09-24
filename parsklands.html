@@ -4,68 +4,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Virtual Book — Simple</title>
+
+  <!-- Use your site styles (background image + header styles come from here) -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Optional body font just for the book area -->
   <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
 
   <style>
-    :root{
-      --bg:#0f0f10;
-      --paper:#ffffff;
-      --ink:#1b1b1b;
-      --groove:#222;
-      --shadow: 4px 4px 8px #555;
-      --blue:#000066;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:'Baskervville',serif;
-      color:var(--ink);
-      background: radial-gradient(1200px 800px at 50% -10%, #1a1a1d 0%, #0f0f10 60%);
-    }
+    /* We DO NOT set a body background or global font here. Your style.css wins. */
+    * { box-sizing: border-box; }
 
-    /* Header/Footer placeholders (same include pattern you use elsewhere) */
-    #header,#footer{width:100%}
-
-    /* Layout */
-    main{
-      min-height: calc(100vh - 40px);
-      padding: 32px 16px 48px;
+    main {
+      min-height: 100vh;
+      padding: 48px 16px 64px;
       position: relative;
     }
 
-    /* Floating title box (styled like your intro panel) */
-    .title-float{
-      position: absolute;
-      left: 50%;
-      top: 12px;
-      transform: translateX(-50%);
+    /* Floating title box — styled like your intro panel */
+    .title-float {
+      position: sticky;          /* stays visible near the top */
+      top: 10px;
+      margin: 0 auto 16px;
+      max-width: min(90vw, 760px);
       background: rgba(255,255,255,0.92);
       padding: 12px 18px;
-      border: 4px groove var(--groove);
-      box-shadow: var(--shadow);
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
       text-align: center;
       z-index: 5;
-      max-width: min(90vw, 720px);
+      font-family: 'Baskervville', serif;
     }
-    .title-float h1{
-      margin:0;
+    .title-float h1 {
+      margin: 0;
       font-size: clamp(18px, 2.4vw, 26px);
-      line-height:1.15;
+      line-height: 1.15;
     }
 
-    /* Row with arrows + page */
-    .book-row{
+    /* Row: left arrow | page | right arrow */
+    .book-row {
       max-width: 980px;
-      margin: 80px auto 0; /* leaves room for the floating title */
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: auto 1fr auto; /* left arrow | page | right arrow */
+      grid-template-columns: auto 1fr auto;
       align-items: stretch;
       gap: 18px;
     }
 
     /* Arrows */
-    .nav-btn{
+    .nav-btn {
       align-self: center;
       background: #fff;
       border: 2px solid #333;
@@ -73,127 +60,116 @@
       border-radius: 10px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: var(--shadow);
+      box-shadow: 4px 4px 8px #555;
       user-select: none;
+      font-family: 'Baskervville', serif;
     }
-    .nav-btn[disabled]{opacity:.35; cursor:not-allowed}
-    .nav-btn:hover{background:#f6f6f6}
-    .nav-left{justify-self:end}
-    .nav-right{justify-self:start}
+    .nav-btn:hover { background: #f6f6f6; }
+    .nav-btn[disabled] { opacity: .35; cursor: not-allowed; }
 
-    /* The “page” (styled like your intro panel) */
-    .page-viewport{
+    /* The single “page” panel — intro-panel vibe */
+    .page-viewport {
       position: relative;
-      background: var(--paper);
-      border: 4px groove var(--groove);
-      box-shadow: var(--shadow);
+      background: #fff;
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
       padding: clamp(18px, 2.4vw, 28px);
-      min-height: 70vh;                 /* tall page; grows with content */
+      min-height: 70vh;                 /* tall and flexible */
       max-width: 760px;
       margin: 0 auto;
+      font-family: 'Baskervville', serif; /* limit font to book area */
     }
 
-    /* Inside each page */
-    [data-page]{
-      display: none;
-    }
-    [data-page].active{
-      display: block;
-    }
-    [data-page] h2{ margin:0 0 .6em; line-height:1.15 }
-    [data-page] p{ margin:0 0 1em; line-height:1.6 }
-    [data-page] a{ color: var(--blue); font-weight: bold; text-decoration: none }
-    [data-page] a:hover{ text-decoration: underline }
+    /* Pages */
+    [data-page] { display: none; }
+    [data-page].active { display: block; }
 
-    /* Small counter under page */
-    .counter{
-      text-align:center;
-      color:#ddd;
-      margin-top: 8px;
+    [data-page] h2 { margin: 0 0 .6em; line-height: 1.15; }
+    [data-page] p { margin: 0 0 1em; line-height: 1.6; }
+    [data-page] a { color: #000066; font-weight: bold; text-decoration: none; }
+    [data-page] a:hover { text-decoration: underline; }
+    [data-page] img {
+      max-width: 100%; height: auto; display: block;
+      border: 2px solid #444;
+      box-shadow: 3px 3px 8px #888;
+      margin: 12px auto 18px;
+    }
+
+    .counter {
+      text-align: center;
+      color: #eee;
+      margin-top: 10px;
       font-variant-numeric: tabular-nums;
       letter-spacing: .04em;
     }
 
-    /* Click edges of page to turn */
+    /* Click edges to turn page */
     .page-viewport::before,
-    .page-viewport::after{
-      content:"";
-      position:absolute; top:0; bottom:0; width:22%;
-      cursor:pointer;
+    .page-viewport::after {
+      content: "";
+      position: absolute; top: 0; bottom: 0; width: 22%;
+      cursor: pointer;
     }
-    .page-viewport::before{ left:0; }
-    .page-viewport::after{ right:0; }
+    .page-viewport::before { left: 0; }
+    .page-viewport::after  { right: 0; }
 
     /* Mobile */
-    @media (max-width: 700px){
-      .book-row{ gap:10px }
-      .nav-btn{ padding: 8px 12px; border-radius: 8px }
-      .page-viewport{ min-height: 60vh }
-      .title-float{ top: 8px; padding: 10px 14px }
+    @media (max-width: 700px) {
+      .book-row { gap: 10px; }
+      .nav-btn { padding: 8px 12px; border-radius: 8px; }
+      .page-viewport { min-height: 60vh; }
+      .title-float { padding: 10px 14px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header include -->
+  <!-- Header include (unchanged so it matches other pages) -->
   <div id="header"></div>
 
   <main>
-    <!-- Floating title -->
     <div class="title-float">
       <h1>UNDER CONSTRUCTION</h1>
     </div>
 
     <div class="book-row" aria-label="Virtual book">
-      <!-- Left arrow -->
-      <button id="prevBtn" class="nav-btn nav-left" aria-label="Previous page">⟵</button>
+      <button id="prevBtn" class="nav-btn" aria-label="Previous page">⟵</button>
 
-      <!-- Page -->
       <div class="page-viewport" id="viewport" aria-live="polite" aria-atomic="true">
-        <!-- Five blank pages to start -->
+        <!-- Five blank pages -->
         <section class="active" data-page id="page-1">
-          <!-- Page 1 content goes here -->
-          <h2> </h2>
+          <h2></h2>
           <p></p>
         </section>
-
         <section data-page id="page-2">
-          <!-- Page 2 content goes here -->
-          <h2> </h2>
+          <h2></h2>
           <p></p>
         </section>
-
         <section data-page id="page-3">
-          <!-- Page 3 content goes here -->
-          <h2> </h2>
+          <h2></h2>
           <p></p>
         </section>
-
         <section data-page id="page-4">
-          <!-- Page 4 content goes here -->
-          <h2> </h2>
+          <h2></h2>
           <p></p>
         </section>
-
         <section data-page id="page-5">
-          <!-- Page 5 content goes here -->
-          <h2> </h2>
+          <h2></h2>
           <p></p>
         </section>
       </div>
 
-      <!-- Right arrow -->
-      <button id="nextBtn" class="nav-btn nav-right" aria-label="Next page">⟶</button>
+      <button id="nextBtn" class="nav-btn" aria-label="Next page">⟶</button>
     </div>
 
     <div class="counter" id="pageCounter">Page 1 / 5</div>
   </main>
 
-  <!-- Footer include -->
+  <!-- Footer include (unchanged) -->
   <div id="footer"></div>
 
   <script>
-    // Match your include pattern
+    // Keep your site header/footer consistent
     fetch("header.html").then(r => r.text()).then(t => document.getElementById("header").innerHTML = t);
     fetch("footer.html").then(r => r.text()).then(t => document.getElementById("footer").innerHTML = t);
 
@@ -229,7 +205,7 @@
         if (e.key === 'ArrowLeft')  prev();
       });
 
-      // Click page edges to turn
+      // Click page edges
       viewport.addEventListener('click', (e) => {
         const b = viewport.getBoundingClientRect();
         const x = e.clientX - b.left;
