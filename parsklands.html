@@ -1,10 +1,244 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Untitled Document</title>
-</head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Virtual Book — Simple</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
 
+  <style>
+    :root{
+      --bg:#0f0f10;
+      --paper:#ffffff;
+      --ink:#1b1b1b;
+      --groove:#222;
+      --shadow: 4px 4px 8px #555;
+      --blue:#000066;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Baskervville',serif;
+      color:var(--ink);
+      background: radial-gradient(1200px 800px at 50% -10%, #1a1a1d 0%, #0f0f10 60%);
+    }
+
+    /* Header/Footer placeholders (same include pattern you use elsewhere) */
+    #header,#footer{width:100%}
+
+    /* Layout */
+    main{
+      min-height: calc(100vh - 40px);
+      padding: 32px 16px 48px;
+      position: relative;
+    }
+
+    /* Floating title box (styled like your intro panel) */
+    .title-float{
+      position: absolute;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.92);
+      padding: 12px 18px;
+      border: 4px groove var(--groove);
+      box-shadow: var(--shadow);
+      text-align: center;
+      z-index: 5;
+      max-width: min(90vw, 720px);
+    }
+    .title-float h1{
+      margin:0;
+      font-size: clamp(18px, 2.4vw, 26px);
+      line-height:1.15;
+    }
+
+    /* Row with arrows + page */
+    .book-row{
+      max-width: 980px;
+      margin: 80px auto 0; /* leaves room for the floating title */
+      display: grid;
+      grid-template-columns: auto 1fr auto; /* left arrow | page | right arrow */
+      align-items: stretch;
+      gap: 18px;
+    }
+
+    /* Arrows */
+    .nav-btn{
+      align-self: center;
+      background: #fff;
+      border: 2px solid #333;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      user-select: none;
+    }
+    .nav-btn[disabled]{opacity:.35; cursor:not-allowed}
+    .nav-btn:hover{background:#f6f6f6}
+    .nav-left{justify-self:end}
+    .nav-right{justify-self:start}
+
+    /* The “page” (styled like your intro panel) */
+    .page-viewport{
+      position: relative;
+      background: var(--paper);
+      border: 4px groove var(--groove);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 2.4vw, 28px);
+      min-height: 70vh;                 /* tall page; grows with content */
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Inside each page */
+    [data-page]{
+      display: none;
+    }
+    [data-page].active{
+      display: block;
+    }
+    [data-page] h2{ margin:0 0 .6em; line-height:1.15 }
+    [data-page] p{ margin:0 0 1em; line-height:1.6 }
+    [data-page] a{ color: var(--blue); font-weight: bold; text-decoration: none }
+    [data-page] a:hover{ text-decoration: underline }
+
+    /* Small counter under page */
+    .counter{
+      text-align:center;
+      color:#ddd;
+      margin-top: 8px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .04em;
+    }
+
+    /* Click edges of page to turn */
+    .page-viewport::before,
+    .page-viewport::after{
+      content:"";
+      position:absolute; top:0; bottom:0; width:22%;
+      cursor:pointer;
+    }
+    .page-viewport::before{ left:0; }
+    .page-viewport::after{ right:0; }
+
+    /* Mobile */
+    @media (max-width: 700px){
+      .book-row{ gap:10px }
+      .nav-btn{ padding: 8px 12px; border-radius: 8px }
+      .page-viewport{ min-height: 60vh }
+      .title-float{ top: 8px; padding: 10px 14px }
+    }
+  </style>
+</head>
 <body>
+
+  <!-- Header include -->
+  <div id="header"></div>
+
+  <main>
+    <!-- Floating title -->
+    <div class="title-float">
+      <h1>Thales Museum of Worldly Wonders — Archives</h1>
+    </div>
+
+    <div class="book-row" aria-label="Virtual book">
+      <!-- Left arrow -->
+      <button id="prevBtn" class="nav-btn nav-left" aria-label="Previous page">⟵</button>
+
+      <!-- Page -->
+      <div class="page-viewport" id="viewport" aria-live="polite" aria-atomic="true">
+        <!-- Five blank pages to start -->
+        <section class="active" data-page id="page-1">
+          <!-- Page 1 content goes here -->
+          <h2> </h2>
+          <p></p>
+        </section>
+
+        <section data-page id="page-2">
+          <!-- Page 2 content goes here -->
+          <h2> </h2>
+          <p></p>
+        </section>
+
+        <section data-page id="page-3">
+          <!-- Page 3 content goes here -->
+          <h2> </h2>
+          <p></p>
+        </section>
+
+        <section data-page id="page-4">
+          <!-- Page 4 content goes here -->
+          <h2> </h2>
+          <p></p>
+        </section>
+
+        <section data-page id="page-5">
+          <!-- Page 5 content goes here -->
+          <h2> </h2>
+          <p></p>
+        </section>
+      </div>
+
+      <!-- Right arrow -->
+      <button id="nextBtn" class="nav-btn nav-right" aria-label="Next page">⟶</button>
+    </div>
+
+    <div class="counter" id="pageCounter">Page 1 / 5</div>
+  </main>
+
+  <!-- Footer include -->
+  <div id="footer"></div>
+
+  <script>
+    // Match your include pattern
+    fetch("header.html").then(r => r.text()).then(t => document.getElementById("header").innerHTML = t);
+    fetch("footer.html").then(r => r.text()).then(t => document.getElementById("footer").innerHTML = t);
+
+    (function(){
+      const pages = Array.from(document.querySelectorAll('[data-page]'));
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const counter = document.getElementById('pageCounter');
+      const viewport = document.getElementById('viewport');
+      const total = pages.length;
+
+      // Start from #p=... if present
+      const hash = new URLSearchParams(location.hash.replace('#','?'));
+      let index = Math.max(0, Math.min(total - 1, (parseInt(hash.get('p'), 10) || 1) - 1));
+
+      function render(){
+        pages.forEach((el, i) => el.classList.toggle('active', i === index));
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === total - 1;
+        counter.textContent = `Page ${index + 1} / ${total}`;
+        const newHash = `#p=${index + 1}`;
+        if (location.hash !== newHash) history.replaceState(null, '', newHash);
+      }
+      function next(){ if(index < total - 1){ index++; render(); } }
+      function prev(){ if(index > 0){ index--; render(); } }
+
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+
+      // Keyboard arrows
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') next();
+        if (e.key === 'ArrowLeft')  prev();
+      });
+
+      // Click page edges to turn
+      viewport.addEventListener('click', (e) => {
+        const b = viewport.getBoundingClientRect();
+        const x = e.clientX - b.left;
+        if (x < b.width * 0.22) prev();
+        else if (x > b.width * 0.78) next();
+      });
+
+      render();
+    })();
+  </script>
 </body>
 </html>
