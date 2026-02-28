@@ -100,24 +100,40 @@
   align-items: stretch;       /* makes spacer match month height */
 }
 
-/* Season spacer: a full-height divider "box" */
-.owcal .owcal-spacer{
-  flex: 0 0 40px;
-  max-width: 40px;
+/* Special single-day page (start / between seasons / end) */
+.owcal .owcal-specialPage{
+  flex: 0 0 46%;
+  max-width: 46%;
   scroll-snap-align: start;
   border: 4px ridge #333;
   box-shadow: 6px 6px 10px #444;
-  background: rgba(255,255,255,0.65);
-  position: relative;
+  background: rgba(255,255,255,0.88);
+  display:flex;
+  flex-direction: column;
 }
-.owcal .owcal-spacer::after{
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.25;
+
+.owcal .owcal-specialHead{
   background-image: url("https://blob.gifcities.org/gifcities/BXSEWKELIKS4QP5GD7IBTDUHN22ZPTTI.gif");
   background-repeat: repeat;
-  pointer-events: none;
+  border-bottom: 3px double #000;
+  padding: 14px 12px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.owcal .owcal-specialTitle{
+  font-weight: bold;
+  color: #ffffff;
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.owcal .owcal-specialBody{
+  padding: 12px;
+  font-size: 0.95em;
 }
 
 /* Each month is one “page” */
@@ -188,7 +204,9 @@
   min-height: 46px;
 }
 .owcal .owcal-day:hover{ outline: 2px dashed #900; outline-offset: 1px; }
-.owcal .owcal-dayMain{ display:block; font-weight: bold; margin-top: 2px; }
+/* Two-line locked layout for day tiles */
+.owcal .owcal-dayName{ display:block; font-weight: bold; }
+.owcal .owcal-dayNum{ display:block; margin-top: 2px; font-weight: bold; }
 
 .owcal .owcal-today{ box-shadow: inset 0 0 0 2px #900; }
 .owcal .owcal-holiday{ background: #fffae0; border-color: #900; }
@@ -198,7 +216,7 @@
   .owcal .owcal-topbar{ flex-direction: column; align-items: stretch; }
   .owcal .owcal-top-right{ justify-content: flex-start; text-align: left; }
   .owcal .owcal-monthPage{ flex-basis: 98%; max-width: 98%; }
-  .owcal .owcal-spacer{ flex-basis: 18px; max-width: 18px; }
+  .owcal .owcal-specialPage{ flex-basis: 80%; max-width: 80%; }
 }
 </style>
 
@@ -215,36 +233,38 @@ const CFG = {
   weekdayNames: ["Affday", "Yuleday", "Tolsday", "Thursday", "Sealday"],
   weekNames: ["Inn", "Uon", "Dres", "Virse", "Vess", "Vix"],
 
+  // Single-day pages (edit these labels/blurbs)
+  specialDays: {
+    start: { name: "Year Dawning", blurb: "The year begins." },
+    springSummer: { name: "Between Spring & Summer", blurb: "" },
+    summerFall: { name: "Between Summer & Fall", blurb: "" },
+    fallWinter: { name: "Between Fall & Winter", blurb: "" },
+    end: { name: "Year’s End", blurb: "The year closes." }
+  },
+
   seasons: [
     { name:"Sprimmul", months:[
         { name:"Month I",   zodiac:"Zodiac I" },
         { name:"Month II",  zodiac:"Zodiac II" },
         { name:"Month III", zodiac:"Zodiac III" }
-      ],
-      betweenDay:{ name:"Between Sprimmul & Summern", blurb:"" }
+      ]
     },
     { name:"Summern", months:[
         { name:"Month IV", zodiac:"Zodiac IV" },
         { name:"Month V",  zodiac:"Zodiac V" },
         { name:"Month VI", zodiac:"Zodiac VI" }
-      ],
-      betweenDay:{ name:"Between Summern & Auntaell", blurb:"" }
+      ]
     },
     { name:"Auntaell", months:[
         { name:"Month VII",  zodiac:"Zodiac VII" },
         { name:"Month VIII", zodiac:"Zodiac VIII" },
         { name:"Month IX",   zodiac:"Zodiac IX" }
-      ],
-      betweenDay:{ name:"Between Auntaell & Wintern", blurb:"" }
+      ]
     },
     { name:"Wintern", months:[
         { name:"Month X",  zodiac:"Zodiac X" },
         { name:"Month XI", zodiac:"Zodiac XI" },
         { name:"Month XII",zodiac:"Zodiac XII" }
-      ],
-      yearEndDays:[
-        { name:"Year’s End", blurb:"" },
-        { name:"New Year’s Day", blurb:"" }
       ]
     }
   ],
@@ -287,13 +307,30 @@ function fictionalTodayAbs(now=new Date()){
   const a = toUTCDate(CFG.anchor.year, CFG.anchor.month, CFG.anchor.day);
   const t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
   const diff = Math.floor((t - a) / 86400000);
-  // Keep 365 for now because you said you don’t care.
-  return ((diff % 365) + 365) % 365 + 1;
+
+  // IMPORTANT: use the actual generated calendar length so between-days + year-end days count.
+  // Day 1 is exactly the anchor date (e.g., 2026-03-20).
+  const yearLen = (typeof YEAR !== "undefined" && YEAR && YEAR.length) ? YEAR.length : 365;
+
+  return ((diff % yearLen) + yearLen) % yearLen + 1;
 }
 
 function buildYear(){
   const out = [];
   let abs = 1;
+
+  // START single-day page (this is Day 1 / Abs 1)
+  out.push({
+    abs,
+    type:"special",
+    key:"start",
+    label: CFG.specialDays.start.name,
+    blurb: CFG.specialDays.start.blurb || "",
+    seasonIndex: 0,
+    season: CFG.seasons[0].name,
+    holiday: CFG.holidays[abs] || null
+  });
+  abs++;
 
   for (let si=0; si<CFG.seasons.length; si++){
     const season = CFG.seasons[si];
@@ -324,34 +361,54 @@ function buildYear(){
       }
     }
 
-    if (season.betweenDay){
+    // BETWEEN season single-day pages after seasons 0,1,2
+    if (si === 0){
       out.push({
-        abs,
-        type:"between",
+        abs, type:"special", key:"springSummer",
+        label: CFG.specialDays.springSummer.name,
+        blurb: CFG.specialDays.springSummer.blurb || "",
         seasonIndex: si,
         season: season.name,
-        label: season.betweenDay.name,
-        blurb: season.betweenDay.blurb || "",
         holiday: CFG.holidays[abs] || null
       });
       abs++;
     }
-
-    if (season.yearEndDays){
-      for (const e of season.yearEndDays){
-        out.push({
-          abs,
-          type:"yearend",
-          seasonIndex: si,
-          season: season.name,
-          label: e.name,
-          blurb: e.blurb || "",
-          holiday: CFG.holidays[abs] || null
-        });
-        abs++;
-      }
+    if (si === 1){
+      out.push({
+        abs, type:"special", key:"summerFall",
+        label: CFG.specialDays.summerFall.name,
+        blurb: CFG.specialDays.summerFall.blurb || "",
+        seasonIndex: si,
+        season: season.name,
+        holiday: CFG.holidays[abs] || null
+      });
+      abs++;
+    }
+    if (si === 2){
+      out.push({
+        abs, type:"special", key:"fallWinter",
+        label: CFG.specialDays.fallWinter.name,
+        blurb: CFG.specialDays.fallWinter.blurb || "",
+        seasonIndex: si,
+        season: season.name,
+        holiday: CFG.holidays[abs] || null
+      });
+      abs++;
     }
   }
+
+  // END single-day page
+  out.push({
+    abs,
+    type:"special",
+    key:"end",
+    label: CFG.specialDays.end.name,
+    blurb: CFG.specialDays.end.blurb || "",
+    seasonIndex: 3,
+    season: CFG.seasons[3].name,
+    holiday: CFG.holidays[abs] || null
+  });
+  abs++;
 
   return out;
 }
@@ -431,15 +488,46 @@ function render(){
   const root = document.getElementById("calendar");
   root.innerHTML = "";
 
-  // Helper: add a full-height spacer "box"
-  const addSpacer = () => {
-    const sp = document.createElement("div");
-    sp.className = "owcal-spacer";
-    root.appendChild(sp);
+  // Helper: build a clickable special single-day page
+  const makeSpecialPage = (obj) => {
+    const page = document.createElement("div");
+    page.className = "owcal-specialPage";
+    page.setAttribute("data-abs", obj.abs);
+
+    if (obj.abs === TODAY_ABS) page.classList.add("owcal-today");
+    if (obj.holiday) page.classList.add("owcal-holiday");
+
+    const head = document.createElement("div");
+    head.className = "owcal-specialHead";
+    head.innerHTML = `<div class="owcal-specialTitle">${esc(obj.label)}</div>`;
+
+    const body = document.createElement("div");
+    body.className = "owcal-specialBody";
+    const holidayTxt = obj.holiday
+      ? `<div><b>${esc(obj.holiday.name)}</b>${obj.holiday.blurb ? ": " + esc(obj.holiday.blurb) : ""}</div>`
+      : "";
+    body.innerHTML = `${holidayTxt}${esc(obj.blurb || "")}`;
+
+    page.appendChild(head);
+    page.appendChild(body);
+
+    page.addEventListener("click", () => {
+      selectedAbs = obj.abs;
+      setTopBar(obj, "Selected");
+      markSelected();
+    });
+
+    return page;
   };
 
-  // Requested spacers: before Month 1, between 3&4, 6&7, 10&11, and after 12
-  addSpacer();
+  // Special pages by key
+  const startObj = YEAR.find(x => x.type === "special" && x.key === "start");
+  const spSuObj  = YEAR.find(x => x.type === "special" && x.key === "springSummer");
+  const suFaObj  = YEAR.find(x => x.type === "special" && x.key === "summerFall");
+  const faWiObj  = YEAR.find(x => x.type === "special" && x.key === "fallWinter");
+  const endObj   = YEAR.find(x => x.type === "special" && x.key === "end");
+
+  if (startObj) root.appendChild(makeSpecialPage(startObj));
 
   // Build 12 month pages, each with 30 day tiles
   for (let m=0; m<MONTHS.length; m++){
@@ -487,7 +575,8 @@ function render(){
 
       // Show weekday + day-in-month number, no Abs label
       tile.innerHTML = `
-        <span class="owcal-dayMain">${esc(obj.weekday)} (${obj.dayInMonth})</span>
+        <span class="owcal-dayName">${esc(obj.weekday)}</span>
+        <span class="owcal-dayNum">(${obj.dayInMonth})</span>
       `;
 
       tile.addEventListener("click", () => {
@@ -502,13 +591,14 @@ function render(){
     page.appendChild(grid);
     root.appendChild(page);
 
-    // Spacers at specific boundaries (0-based month index):
-    // after Month 3 (m=2), after Month 6 (m=5), after Month 9 (m=8)
-    if (m === 2 || m === 5 || m === 8) addSpacer();
+    // Insert between-season special pages after months 3, 6, 9
+    if (m === 2 && spSuObj) root.appendChild(makeSpecialPage(spSuObj));
+    if (m === 5 && suFaObj) root.appendChild(makeSpecialPage(suFaObj));
+    if (m === 8 && faWiObj) root.appendChild(makeSpecialPage(faWiObj));
   }
 
-  // Spacer after Month 12
-  addSpacer();
+  // End-of-year special page after Month 12
+  if (endObj) root.appendChild(makeSpecialPage(endObj));
 
   // Init top bar
   const todayObj = findByAbs(TODAY_ABS);
