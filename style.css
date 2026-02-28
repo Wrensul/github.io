@@ -13,9 +13,8 @@ body {
 header {
   background-color: #000;
   background-image: url("https://blob.gifcities.org/gifcities/BXSEWKELIKS4QP5GD7IBTDUHN22ZPTTI.gif");
-  background-repeat: no-repeat;
-  background-size: 180px auto;   /* smaller, crisp */
-  background-position: left center;
+  background-repeat: repeat;
+  background-position: left top;
   border-bottom: 3px double #000;
   padding: 40px;
   text-align: center;
@@ -25,9 +24,8 @@ header {
 footer {
   background-color: #000;
   background-image: url("https://blob.gifcities.org/gifcities/BXSEWKELIKS4QP5GD7IBTDUHN22ZPTTI.gif");
-  background-repeat: no-repeat;
-  background-size: 180px auto;   /* same size */
-  background-position: right center;
+  background-repeat: repeat;
+  background-position: right top;
   border-top: 3px double #000;
   padding: 30px;
   text-align: center;
