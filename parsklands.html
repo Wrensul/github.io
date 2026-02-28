@@ -5,14 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Virtual Book — Simple</title>
 
-  <!-- Use your site styles (background image + header styles come from here) -->
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Optional body font just for the book area -->
   <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
 
   <style>
-    /* We DO NOT set a body background or global font here. Your style.css wins. */
     * { box-sizing: border-box; }
 
     main {
@@ -21,9 +17,8 @@
       position: relative;
     }
 
-    /* Floating title box — styled like your intro panel */
     .title-float {
-      position: sticky;          /* stays visible near the top */
+      position: sticky;
       top: 10px;
       margin: 0 auto 16px;
       max-width: min(90vw, 760px);
@@ -41,90 +36,103 @@
       line-height: 1.15;
     }
 
-    /* Row: left arrow | page | right arrow */
-    .book-row {
+    /* Center the open-book spread */
+    .book-shell {
       max-width: 980px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: stretch;
-      gap: 18px;
     }
 
-    /* Arrows */
-    .nav-btn {
-      align-self: center;
-      background: #fff;
-      border: 2px solid #333;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 4px 4px 8px #555;
-      user-select: none;
-      font-family: 'Baskervville', serif;
-    }
-    .nav-btn:hover { background: #f6f6f6; }
-    .nav-btn[disabled] { opacity: .35; cursor: not-allowed; }
-
-    /* The single “page” panel — intro-panel vibe */
-    .page-viewport {
+    .spread {
       position: relative;
       background: #fff;
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
-      padding: clamp(18px, 2.4vw, 28px);
-      min-height: 70vh;                 /* tall and flexible */
-      max-width: 760px;
+      max-width: 900px;
       margin: 0 auto;
-      font-family: 'Baskervville', serif; /* limit font to book area */
+      font-family: 'Baskervville', serif;
+      overflow: hidden;
     }
 
-    /* Pages */
-    [data-page] { display: none; }
-    [data-page].active { display: block; }
-
-    [data-page] h2 { margin: 0 0 .6em; line-height: 1.15; }
-    [data-page] p { margin: 0 0 1em; line-height: 1.6; }
-    [data-page] a { color: #000066; font-weight: bold; text-decoration: none; }
-    [data-page] a:hover { text-decoration: underline; }
-    [data-page] img {
-      max-width: 100%; height: auto; display: block;
-      border: 2px solid #444;
-      box-shadow: 3px 3px 8px #888;
-      margin: 12px auto 18px;
+    /* two-page layout */
+    .spread-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 70vh;
     }
 
-    .counter {
-      text-align: center;
-      color: #eee;
-      margin-top: 10px;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: .04em;
+    .page {
+      padding: clamp(18px, 2.4vw, 28px);
+      position: relative;
     }
 
-    /* Click edges to turn page */
-    .page-viewport::before,
-    .page-viewport::after {
-      content: "";
-      position: absolute; top: 0; bottom: 0; width: 22%;
-      cursor: pointer;
+    /* middle seam + subtle gutter shadows */
+    .page.left {
+      border-right: 1px solid rgba(0,0,0,0.18);
+      box-shadow: inset -18px 0 24px rgba(0,0,0,0.08);
     }
-    .page-viewport::before { left: 0; }
-    .page-viewport::after  { right: 0; }
+    .page.right {
+      box-shadow: inset 18px 0 24px rgba(0,0,0,0.08);
+    }
 
-    /* Mobile */
-    @media (max-width: 700px) {
-      .book-row { gap: 10px; }
-      .nav-btn { padding: 8px 12px; border-radius: 8px; }
-      .page-viewport { min-height: 60vh; }
-      .title-float { padding: 10px 14px; }
+    .page h2 {
+      margin: 0 0 .65em;
+      line-height: 1.15;
+      font-size: clamp(18px, 2.2vw, 24px);
+    }
+
+    .left-message {
+      font-size: clamp(16px, 1.8vw, 18px);
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    /* TOC styling */
+    .toc h3 {
+      margin: 0 0 .4em;
+      font-size: clamp(18px, 2vw, 22px);
+    }
+
+    .toc ul {
+      margin: 0 0 1em 1.1em;
+      padding: 0;
+      line-height: 1.75;
+    }
+
+    .toc a {
+      color: #000066;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+
+    .toc .indent {
+      list-style: none;
+      margin-left: .9em;
+      padding-left: 0;
+    }
+    .toc .indent li::before {
+      content: "• ";
+    }
+
+    /* Mobile: stack pages */
+    @media (max-width: 800px) {
+      .spread-inner {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .page.left {
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.18);
+        box-shadow: inset 0 -18px 24px rgba(0,0,0,0.08);
+      }
+      .page.right {
+        box-shadow: inset 0 18px 24px rgba(0,0,0,0.08);
+      }
     }
   </style>
 </head>
-<body>
 
-  <!-- Header include (unchanged so it matches other pages) -->
+<body>
   <div id="header"></div>
 
   <main>
@@ -132,89 +140,56 @@
       <h1>UNDER CONSTRUCTION</h1>
     </div>
 
-    <div class="book-row" aria-label="Virtual book">
-      <button id="prevBtn" class="nav-btn" aria-label="Previous page">⟵</button>
+    <div class="book-shell" aria-label="Virtual book open spread">
+      <div class="spread" role="region" aria-label="Open book">
+        <div class="spread-inner">
+          <!-- LEFT PAGE -->
+          <section class="page left" aria-label="Left page message">
+            <h2></h2>
+            <div class="left-message">
+The Parsklands are a home of mine. Ever blooming.
+And so, my discoveries are continuous.
+As time is granted, entries will be updated.
+            </div>
+          </section>
 
-      <div class="page-viewport" id="viewport" aria-live="polite" aria-atomic="true">
-        <!-- Five blank pages -->
-        <section class="active" data-page id="page-1">
-          <h2></h2>
-          <p></p>
-        </section>
-        <section data-page id="page-2">
-          <h2></h2>
-          <p></p>
-        </section>
-        <section data-page id="page-3">
-          <h2></h2>
-          <p></p>
-        </section>
-        <section data-page id="page-4">
-          <h2></h2>
-          <p></p>
-        </section>
-        <section data-page id="page-5">
-          <h2></h2>
-          <p></p>
-        </section>
+          <!-- RIGHT PAGE -->
+          <section class="page right toc" aria-label="Table of contents">
+            <h2>Table of Contents</h2>
+
+            <h3>Field Guides -</h3>
+            <ul>
+              <li><a href="atlas.html">Atlas</a></li>
+              <li><a href="magic.html">Magic (Languages listed here)</a></li>
+              <li><a href="creatures.html">Creatures</a></li>
+              <li><a href="gods.html">Gods</a></li>
+              <li><a href="timeline.html">Timeline</a></li>
+              <li><a href="glossary.html">Glossary</a></li>
+            </ul>
+
+            <h3>Writing -</h3>
+            <ul>
+              <li><a href="words-of-parsk.html">Words of Parsk</a>
+                <ul class="indent">
+                  <li><a href="book-of-gold.html">Book of Gold (creation story and list of toils)</a></li>
+                  <li><a href="book-of-silver.html">Book of Silver (tales of the time saints and end times)</a></li>
+                </ul>
+              </li>
+              <li><a href="fables.html">Fables (Voices of the Parsklands)</a></li>
+              <li><a href="small-memories.html">Small Memories (Short Stories)</a></li>
+              <li><a href="old-friends.html">Old Friends (novel-style)</a></li>
+            </ul>
+          </section>
+        </div>
       </div>
-
-      <button id="nextBtn" class="nav-btn" aria-label="Next page">⟶</button>
     </div>
-
-    <div class="counter" id="pageCounter">Page 1 / 5</div>
   </main>
 
-  <!-- Footer include (unchanged) -->
   <div id="footer"></div>
 
   <script>
-    // Keep your site header/footer consistent
     fetch("header.html").then(r => r.text()).then(t => document.getElementById("header").innerHTML = t);
     fetch("footer.html").then(r => r.text()).then(t => document.getElementById("footer").innerHTML = t);
-
-    (function(){
-      const pages = Array.from(document.querySelectorAll('[data-page]'));
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const counter = document.getElementById('pageCounter');
-      const viewport = document.getElementById('viewport');
-      const total = pages.length;
-
-      // Start from #p=... if present
-      const hash = new URLSearchParams(location.hash.replace('#','?'));
-      let index = Math.max(0, Math.min(total - 1, (parseInt(hash.get('p'), 10) || 1) - 1));
-
-      function render(){
-        pages.forEach((el, i) => el.classList.toggle('active', i === index));
-        prevBtn.disabled = index === 0;
-        nextBtn.disabled = index === total - 1;
-        counter.textContent = `Page ${index + 1} / ${total}`;
-        const newHash = `#p=${index + 1}`;
-        if (location.hash !== newHash) history.replaceState(null, '', newHash);
-      }
-      function next(){ if(index < total - 1){ index++; render(); } }
-      function prev(){ if(index > 0){ index--; render(); } }
-
-      prevBtn.addEventListener('click', prev);
-      nextBtn.addEventListener('click', next);
-
-      // Keyboard arrows
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') next();
-        if (e.key === 'ArrowLeft')  prev();
-      });
-
-      // Click page edges
-      viewport.addEventListener('click', (e) => {
-        const b = viewport.getBoundingClientRect();
-        const x = e.clientX - b.left;
-        if (x < b.width * 0.22) prev();
-        else if (x > b.width * 0.78) next();
-      });
-
-      render();
-    })();
   </script>
 </body>
 </html>
