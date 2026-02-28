@@ -13,11 +13,10 @@
 
     main{
       min-height: 100vh;
-      padding: 36px 16px 64px; /* slightly less top padding */
+      padding: 36px 16px 64px;
       position: relative;
     }
 
-    /* Spacer so content never touches your header include */
     .top-gap{
       height: 22px;
     }
@@ -35,6 +34,7 @@
       z-index: 5;
       font-family: 'Baskervville', serif;
     }
+
     .title-float h1{
       margin: 0;
       font-size: clamp(18px, 2.4vw, 26px);
@@ -64,34 +64,38 @@
       overflow: hidden;
     }
 
+    /* FIXED GRID */
     .spread-inner{
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       min-height: 70vh;
     }
 
     .page{
       padding: clamp(18px, 2.6vw, 34px);
       position: relative;
+      min-width: 0; /* prevents squeeze */
     }
 
     .page.left{
       border-right: 1px solid rgba(0,0,0,0.18);
       box-shadow: inset -18px 0 24px rgba(0,0,0,0.08);
     }
+
     .page.right{
       box-shadow: inset 18px 0 24px rgba(0,0,0,0.08);
     }
 
-    /* LEFT PAGE */
     .left-quote{
       margin-top: 6px;
       font-size: clamp(18px, 2.2vw, 26px);
       line-height: 1.45;
       color: #000;
     }
+
     .left-quote .line{ margin: 0; }
     .left-quote .line.indent{ margin-left: 52px; }
+
     .left-quote .sig{
       margin-top: 28px;
       display: flex;
@@ -100,15 +104,15 @@
       gap: 18px;
       font-size: clamp(18px, 2.2vw, 26px);
     }
+
     .left-quote .dash{ margin-right: 10px; }
 
-    /* RIGHT PAGE (closer to your screenshot) */
     .toc{ padding-top: clamp(22px, 2.4vw, 34px); }
 
     .toc .section-title{
       font-weight: 800;
       font-size: clamp(20px, 2.2vw, 28px);
-      margin: 0 0 18px;         /* more breathing room */
+      margin: 0 0 18px;
       text-decoration: underline;
       text-underline-offset: 6px;
       text-decoration-thickness: 2px;
@@ -117,11 +121,12 @@
     .toc .list{
       list-style: none;
       padding: 0;
-      margin: 0 0 50px;         /* bigger gap between groups */
+      margin: 0 0 50px;
       font-size: clamp(22px, 2.4vw, 32px);
       line-height: 1.28;
       text-align: center;
     }
+
     .toc .list li{ margin: 4px 0; }
 
     .toc a{
@@ -129,32 +134,26 @@
       text-decoration: none;
       font-weight: 500;
     }
+
     .toc a:hover{ text-decoration: underline; }
 
-    .toc .subwrap{
-      display: inline-block;
-      text-align: left;
-      margin-top: 6px;
-      margin-left: 72px; /* slightly more like your screenshot */
-    }
-    .toc .sublist{
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      font-size: clamp(20px, 2.2vw, 30px);
-      line-height: 1.18;
-    }
-
     @media (max-width: 800px){
-      .spread-inner{ grid-template-columns: 1fr; min-height: auto; }
+      .spread-inner{
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
       .page.left{
         border-right: none;
         border-bottom: 1px solid rgba(0,0,0,0.18);
         box-shadow: inset 0 -18px 24px rgba(0,0,0,0.08);
       }
-      .page.right{ box-shadow: inset 0 18px 24px rgba(0,0,0,0.08); }
+
+      .page.right{
+        box-shadow: inset 0 18px 24px rgba(0,0,0,0.08);
+      }
+
       .left-quote .line.indent{ margin-left: 28px; }
-      .toc .subwrap{ margin-left: 34px; }
       .top-gap{ height: 14px; }
     }
   </style>
@@ -166,21 +165,19 @@
   <main>
     <div class="top-gap"></div>
 
-    <!-- UNDER CONSTRUCTION should be above the calendar -->
     <div class="title-float">
       <h1>UNDER CONSTRUCTION</h1>
     </div>
 
-    <!-- Calendar include now below the title -->
     <div class="calendar-wrap">
       <div id="calendar"></div>
     </div>
 
-    <div class="book-shell" aria-label="Virtual book open spread">
-      <div class="spread" role="region" aria-label="Open book">
+    <div class="book-shell">
+      <div class="spread">
         <div class="spread-inner">
 
-          <section class="page left" aria-label="Left page message">
+          <section class="page left">
             <div class="left-quote">
               <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
               <p class="line indent">And so, my discoveries are continuous.</p>
@@ -193,7 +190,7 @@
             </div>
           </section>
 
-          <section class="page right toc" aria-label="Table of contents">
+          <section class="page right toc">
             <div class="section-title">Field Guides -</div>
             <ul class="list">
               <li><a href="atlas.html">Atlas</a></li>
