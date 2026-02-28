@@ -36,11 +36,18 @@
       line-height: 1.15;
     }
 
-    /* Center the open-book spread */
-    .book-shell {
-      max-width: 980px;
-      margin: 0 auto;
+    /* Optional: calendar wrapper styled like your panel */
+    .calendar-wrap {
+      margin: 0 auto 16px;
+      max-width: min(90vw, 760px);
+      background: rgba(255,255,255,0.92);
+      padding: 12px 18px;
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      font-family: 'Baskervville', serif;
     }
+
+    .book-shell { max-width: 980px; margin: 0 auto; }
 
     .spread {
       position: relative;
@@ -53,7 +60,6 @@
       overflow: hidden;
     }
 
-    /* two-page layout */
     .spread-inner {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -61,11 +67,10 @@
     }
 
     .page {
-      padding: clamp(18px, 2.4vw, 28px);
+      padding: clamp(18px, 2.6vw, 34px);
       position: relative;
     }
 
-    /* middle seam + subtle gutter shadows */
     .page.left {
       border-right: 1px solid rgba(0,0,0,0.18);
       box-shadow: inset -18px 0 24px rgba(0,0,0,0.08);
@@ -74,66 +79,87 @@
       box-shadow: inset 18px 0 24px rgba(0,0,0,0.08);
     }
 
-    .page h2 {
-      margin: 0 0 .65em;
-      line-height: 1.15;
-      font-size: clamp(18px, 2.2vw, 24px);
+    /* --- LEFT PAGE (match screenshot) --- */
+    .left-quote {
+      margin-top: 4px;
+      font-size: clamp(18px, 2.2vw, 26px);
+      line-height: 1.45;
+      color: #000;
+    }
+    .left-quote .line { margin: 0; }
+    .left-quote .line.indent { margin-left: 52px; } /* the “And so…” indent */
+    .left-quote .sig {
+      margin-top: 26px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 18px;
+      font-size: clamp(18px, 2.2vw, 26px);
+    }
+    .left-quote .dash { margin-right: 10px; }
+
+    /* --- RIGHT PAGE (TOC match screenshot) --- */
+    .toc { padding-top: clamp(22px, 2.4vw, 34px); }
+    .toc .section-title {
+      font-weight: 800;
+      font-size: clamp(20px, 2.2vw, 28px);
+      margin: 0 0 10px;
     }
 
-    .left-message {
-      font-size: clamp(16px, 1.8vw, 18px);
-      line-height: 1.7;
-      white-space: pre-line;
-    }
-
-    /* TOC styling */
-    .toc h3 {
-      margin: 0 0 .4em;
-      font-size: clamp(18px, 2vw, 22px);
-    }
-
-    .toc ul {
-      margin: 0 0 1em 1.1em;
+    /* Center the lists under each heading */
+    .toc .list {
+      list-style: none;
       padding: 0;
-      line-height: 1.75;
+      margin: 0 0 38px;
+      font-size: clamp(20px, 2.3vw, 30px);
+      line-height: 1.35;
+      text-align: center;
     }
+    .toc .list li { margin: 2px 0; }
 
     .toc a {
-      color: #000066;
-      font-weight: 700;
+      color: #000;
       text-decoration: none;
+      font-weight: 500;
     }
     .toc a:hover { text-decoration: underline; }
 
-    .toc .indent {
-      list-style: none;
-      margin-left: .9em;
-      padding-left: 0;
+    /* Nested list for Book of Gold/Silver with the “shift right” feel */
+    .toc .subwrap {
+      display: inline-block;          /* keeps sublist compact, like screenshot */
+      text-align: left;
+      margin-top: 6px;
+      margin-left: 60px;              /* the extra indent under Words of Parsk */
     }
-    .toc .indent li::before {
-      content: "• ";
+    .toc .sublist {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: clamp(18px, 2.0vw, 28px);
+      line-height: 1.25;
     }
 
-    /* Mobile: stack pages */
     @media (max-width: 800px) {
-      .spread-inner {
-        grid-template-columns: 1fr;
-        min-height: auto;
-      }
+      .spread-inner { grid-template-columns: 1fr; min-height: auto; }
       .page.left {
         border-right: none;
         border-bottom: 1px solid rgba(0,0,0,0.18);
         box-shadow: inset 0 -18px 24px rgba(0,0,0,0.08);
       }
-      .page.right {
-        box-shadow: inset 0 18px 24px rgba(0,0,0,0.08);
-      }
+      .page.right { box-shadow: inset 0 18px 24px rgba(0,0,0,0.08); }
+      .left-quote .line.indent { margin-left: 28px; }
+      .toc .subwrap { margin-left: 34px; }
     }
   </style>
 </head>
 
 <body>
   <div id="header"></div>
+
+  <!-- Calendar include -->
+  <div class="calendar-wrap">
+    <div id="calendar"></div>
+  </div>
 
   <main>
     <div class="title-float">
@@ -143,43 +169,50 @@
     <div class="book-shell" aria-label="Virtual book open spread">
       <div class="spread" role="region" aria-label="Open book">
         <div class="spread-inner">
+
           <!-- LEFT PAGE -->
           <section class="page left" aria-label="Left page message">
-            <h2></h2>
-            <div class="left-message">
-The Parsklands are a home of mine. Ever blooming.
-And so, my discoveries are continuous.
-As time is granted, entries will be updated.
+            <div class="left-quote">
+              <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
+              <p class="line indent">And so, my discoveries are continuous.</p>
+              <p class="line">As time is granted, entries will be updated.</p>
+
+              <div class="sig">
+                <span class="dash">-</span>
+                <span>Wrensul</span>
+              </div>
             </div>
           </section>
 
           <!-- RIGHT PAGE -->
           <section class="page right toc" aria-label="Table of contents">
-            <h2>Table of Contents</h2>
-
-            <h3>Field Guides -</h3>
-            <ul>
+            <div class="section-title">Field Guides -</div>
+            <ul class="list">
               <li><a href="atlas.html">Atlas</a></li>
-              <li><a href="magic.html">Magic (Languages listed here)</a></li>
+              <li><a href="magic.html">Magic</a></li>
               <li><a href="creatures.html">Creatures</a></li>
               <li><a href="gods.html">Gods</a></li>
               <li><a href="timeline.html">Timeline</a></li>
               <li><a href="glossary.html">Glossary</a></li>
             </ul>
 
-            <h3>Writing -</h3>
-            <ul>
-              <li><a href="words-of-parsk.html">Words of Parsk</a>
-                <ul class="indent">
-                  <li><a href="book-of-gold.html">Book of Gold (creation story and list of toils)</a></li>
-                  <li><a href="book-of-silver.html">Book of Silver (tales of the time saints and end times)</a></li>
-                </ul>
+            <div class="section-title">Writing -</div>
+            <ul class="list">
+              <li>
+                <a href="words-of-parsk.html">Words of Parsk</a>
+                <div class="subwrap">
+                  <ul class="sublist">
+                    <li><a href="book-of-gold.html">Book of Gold</a></li>
+                    <li><a href="book-of-silver.html">Book of Silver</a></li>
+                  </ul>
+                </div>
               </li>
-              <li><a href="fables.html">Fables (Voices of the Parsklands)</a></li>
-              <li><a href="small-memories.html">Small Memories (Short Stories)</a></li>
-              <li><a href="old-friends.html">Old Friends (novel-style)</a></li>
+              <li><a href="fables.html">Fables</a></li>
+              <li><a href="small-memories.html">Small Memories</a></li>
+              <li><a href="old-friends.html">Old Friends</a></li>
             </ul>
           </section>
+
         </div>
       </div>
     </div>
@@ -189,6 +222,7 @@ As time is granted, entries will be updated.
 
   <script>
     fetch("header.html").then(r => r.text()).then(t => document.getElementById("header").innerHTML = t);
+    fetch("calendar.html").then(r => r.text()).then(t => document.getElementById("calendar").innerHTML = t);
     fetch("footer.html").then(r => r.text()).then(t => document.getElementById("footer").innerHTML = t);
   </script>
 </body>
