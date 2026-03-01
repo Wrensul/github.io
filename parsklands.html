@@ -53,7 +53,7 @@
 
     /* NEW: calendar left, book right (desktop), stack (mobile) */
     .home-grid{
-      max-width: 1180px;
+      max-width: 1280px;
       margin: 0 auto 18px;
       display: flex;
       align-items: flex-start;
@@ -62,8 +62,8 @@
 
     .home-grid > *{ min-width: 0; } /* critical: prevents right-side squish/overflow issues */
 
-    .home-grid .calendar-wrap{ flex: 0 0 clamp(260px, 28vw, 360px); }
-    .home-grid .book-shell{ flex: 1 1 auto; }
+    .home-grid .calendar-wrap{ flex: 1 1 0; }
+    .home-grid .book-shell{ flex: 1 1 0; }
 
     .book-shell{ max-width: none; margin: 0; }
 
