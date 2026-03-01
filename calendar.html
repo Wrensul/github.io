@@ -620,11 +620,5 @@ document.getElementById("jumpToday").addEventListener("click", () => {
   scrollToAbs(TODAY_ABS);
 });
 
-document.getElementById("jumpMonth").addEventListener("click", () => {
-  const obj = findByAbs(selectedAbs) || findByAbs(TODAY_ABS);
-  const m = (obj && obj.type === "day") ? obj.monthIndexAbs : 0;
-  scrollToMonth(m);
-});
-
 render();
 </script>
