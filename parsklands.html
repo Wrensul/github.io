@@ -9,305 +9,406 @@
 <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
 
 <style>
-*{ box-sizing:border-box; }
+  *{ box-sizing:border-box; }
 
-main{
-  min-height:100vh;
-  padding:36px 8px 64px;
-}
+  main{
+    min-height:100vh;
+    padding:36px 8px 64px;
+    position:relative;
+  }
 
-.top-gap{ height:22px; }
+  .top-gap{ height:22px; }
 
-.title-float{
-  position:sticky;
-  top:10px;
-  margin:0 auto 16px;
-  max-width:min(90vw,760px);
-  background:rgba(255,255,255,0.92);
-  padding:12px 18px;
-  border:4px groove #222;
-  box-shadow:4px 4px 8px #555;
-  text-align:center;
-  z-index:5;
-}
+  .title-float{
+    position:sticky;
+    top:10px;
+    margin:0 auto 16px;
+    max-width:min(90vw,760px);
+    background:rgba(255,255,255,0.92);
+    padding:12px 18px;
+    border:4px groove #222;
+    box-shadow:4px 4px 8px #555;
+    text-align:center;
+    z-index:5;
+    font-family:'Baskervville',serif;
+  }
 
-.title-float h1{
-  margin:0;
-  font-size:clamp(18px,2.4vw,26px);
-}
+  .title-float h1{
+    margin:0;
+    font-size:clamp(18px,2.4vw,26px);
+    line-height:1.15;
+  }
 
-/* ================= LAYOUT ================= */
-
-.home-grid{
-  max-width:1700px;
-  margin:0 auto 18px;        /* centers entire block */
-  display:flex;
-  justify-content:center;    /* centers columns */
-  align-items:flex-start;
-  gap:18px;
-}
-
-.home-grid > *{ min-width:0; }
-
-.calendar-wrap{
-  flex:0 0 clamp(420px,38vw,560px);
-  background:rgba(255,255,255,0.92);
-  padding:12px 18px;
-  border:4px groove #222;
-  box-shadow:4px 4px 8px #555;
-  overflow:visible;
-}
-
-/* Calendar safety without breaking it */
-#calendarMount{
-  width:100%;
-  overflow-x:auto;
-  overflow-y:visible;
-}
-
-#calendarMount table{
-  width:100% !important;
-  table-layout:fixed !important;
-  border-collapse:collapse;
-}
-
-#calendarMount th,
-#calendarMount td{
-  min-width:0 !important;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  padding:6px 4px;
-}
-
-/* ================= BOOK ================= */
-
-.book-shell{
-  flex:1 1 0;
-  min-width:520px;
-  display:flex;
-}
-
-.book-scale-wrap{
-  width:100%;
-  overflow:hidden;
-  display:flex;
-  justify-content:center;  /* centers scaled book */
-}
-
-.spread{
-  background:#fff;
-  border:4px groove #222;
-  box-shadow:4px 4px 8px #555;
-  width:100%;
-  font-family:'Baskervville',serif;
-  transform-origin:top center; /* key change */
-  will-change:transform;
-}
-
-.spread-inner{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-}
-
-.book-page{
-  padding:clamp(18px,2.6vw,34px);
-  min-width:0;
-}
-
-.book-page.left{
-  border-right:1px solid rgba(0,0,0,0.18);
-  box-shadow:inset -18px 0 24px rgba(0,0,0,0.08);
-}
-
-.book-page.right{
-  box-shadow:inset 18px 0 24px rgba(0,0,0,0.08);
-}
-
-.left-quote{
-  font-size:clamp(18px,2.2vw,26px);
-  line-height:1.45;
-}
-
-.left-quote .line{ margin:0; }
-.left-quote .line.indent{ margin-left:52px; }
-
-.left-quote .sig{
-  margin-top:28px;
-  display:flex;
-  justify-content:flex-end;
-  gap:18px;
-}
-
-.toc .section-title{
-  font-weight:800;
-  font-size:clamp(20px,2.2vw,28px);
-  margin:0 0 18px;
-  text-decoration:underline;
-}
-
-.toc .list{
-  list-style:none;
-  padding:0;
-  margin:0 0 50px;
-  font-size:clamp(22px,2.4vw,32px);
-  text-align:center;
-}
-
-.toc .list li{ margin:4px 0; }
-
-.toc a{
-  color:#000;
-  text-decoration:none;
-}
-
-.toc a:hover{ text-decoration:underline; }
-
-/* ================= MOBILE ================= */
-
-@media (max-width:900px){
+  /* ======== CENTERED TWO-COLUMN LAYOUT ======== */
   .home-grid{
-    flex-direction:column;
-    align-items:stretch;
+    max-width:1700px;
+    margin:0 auto 18px;        /* centers the whole block */
+    display:flex;
+    justify-content:center;    /* centers the pair inside */
+    align-items:flex-start;
+    gap:18px;
   }
-  .spread{
-    transform:none !important;
-    width:100% !important;
-  }
-}
+  .home-grid > *{ min-width:0; }
 
-@media (max-width:800px){
-  .spread-inner{ grid-template-columns:1fr; }
-  .book-page.left{
-    border-right:none;
-    border-bottom:1px solid rgba(0,0,0,0.18);
+  .calendar-wrap{
+    flex:0 0 clamp(420px,38vw,560px);
+    background:rgba(255,255,255,0.92);
+    padding:12px 18px;
+    border:4px groove #222;
+    box-shadow:4px 4px 8px #555;
+    font-family:'Baskervville',serif;
+    overflow:visible; /* do NOT clip dropdowns/UI */
   }
-}
+
+  /* Put scrolling on mount, not wrapper */
+  #calendarMount{
+    width:100%;
+    max-width:100%;
+    overflow-x:auto;
+    overflow-y:visible;
+    -webkit-overflow-scrolling:touch;
+
+    /* important: vertical stack (today above month) */
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  /* “be helpful” without strangling the calendar */
+  #calendarMount table{
+    width:100% !important;
+    max-width:100% !important;
+    table-layout:fixed !important;
+    border-collapse:collapse;
+  }
+  #calendarMount th, #calendarMount td{
+    min-width:0 !important;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:6px 4px;
+  }
+
+  /* If calendar is div/grid based */
+  #calendarMount .week, #calendarMount .weeks, #calendarMount .row{
+    display:grid;
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    width:100% !important;
+    min-width:0 !important;
+  }
+  #calendarMount .day, #calendarMount .date, #calendarMount .cell{
+    min-width:0 !important;
+    overflow:hidden;
+  }
+
+  /* ======== BOOK ======== */
+  .book-shell{
+    flex:1 1 0;
+    min-width:520px;
+    width:100%;
+    display:flex;
+  }
+
+  .book-scale-wrap{
+    width:100%;
+    overflow:hidden;
+    display:flex;
+    justify-content:center; /* centers scaled book visually */
+  }
+
+  .spread{
+    position:relative;
+    background:#fff;
+    border:4px groove #222;
+    box-shadow:4px 4px 8px #555;
+    width:100%;
+    max-width:100%;
+    margin:0;
+    font-family:'Baskervville',serif;
+    overflow:hidden;
+
+    transform-origin:top center; /* center scaling */
+    will-change:transform;
+  }
+
+  .spread-inner{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  }
+
+  .book-page{
+    padding:clamp(18px,2.6vw,34px);
+    position:relative;
+    min-width:0;
+  }
+  .book-page.left{
+    border-right:1px solid rgba(0,0,0,0.18);
+    box-shadow:inset -18px 0 24px rgba(0,0,0,0.08);
+  }
+  .book-page.right{
+    box-shadow:inset 18px 0 24px rgba(0,0,0,0.08);
+  }
+
+  .left-quote{
+    margin-top:6px;
+    font-size:clamp(18px,2.2vw,26px);
+    line-height:1.45;
+    color:#000;
+  }
+  .left-quote .line{ margin:0; }
+  .left-quote .line.indent{ margin-left:52px; }
+
+  .left-quote .sig{
+    margin-top:28px;
+    display:flex;
+    justify-content:flex-end;
+    align-items:baseline;
+    gap:18px;
+    font-size:clamp(18px,2.2vw,26px);
+  }
+
+  .toc{ padding-top:clamp(22px,2.4vw,34px); }
+
+  .toc .section-title{
+    font-weight:800;
+    font-size:clamp(20px,2.2vw,28px);
+    margin:0 0 18px;
+    text-decoration:underline;
+    text-underline-offset:6px;
+    text-decoration-thickness:2px;
+  }
+
+  .toc .list{
+    list-style:none;
+    padding:0;
+    margin:0 0 50px;
+    font-size:clamp(22px,2.4vw,32px);
+    line-height:1.28;
+    text-align:center;
+  }
+  .toc .list li{ margin:4px 0; }
+
+  .toc a{
+    color:#000;
+    text-decoration:none;
+    font-weight:500;
+  }
+  .toc a:hover{ text-decoration:underline; }
+
+  html, body{ max-width:100%; overflow-x:hidden; }
+  img, iframe{ max-width:100%; height:auto; }
+
+  @media (max-width:900px){
+    .home-grid{ flex-direction:column; align-items:stretch; gap:12px; }
+    .book-shell{ min-width:0; }
+    .spread{ transform:none !important; width:100% !important; }
+  }
+
+  @media (max-width:800px){
+    .top-gap{ height:14px; }
+    .spread-inner{ grid-template-columns:1fr; }
+    .book-page.left{
+      border-right:none;
+      border-bottom:1px solid rgba(0,0,0,0.18);
+      box-shadow:inset 0 -18px 24px rgba(0,0,0,0.08);
+    }
+    .book-page.right{
+      box-shadow:inset 0 18px 24px rgba(0,0,0,0.08);
+    }
+    .left-quote .line.indent{ margin-left:28px; }
+  }
 </style>
 </head>
 
 <body>
+  <div id="header"></div>
 
-<div id="header"></div>
+  <main>
+    <div class="top-gap"></div>
 
-<main>
+    <div class="title-float">
+      <h1>UNDER CONSTRUCTION</h1>
+    </div>
 
-<div class="top-gap"></div>
+    <div class="home-grid">
 
-<div class="title-float">
-<h1>UNDER CONSTRUCTION</h1>
-</div>
+      <div class="calendar-wrap">
+        <div id="calendarMount">Loading calendar…</div>
+      </div>
 
-<div class="home-grid">
+      <div class="book-shell">
+        <div class="book-scale-wrap">
+          <div class="spread" id="bookSpread">
+            <div class="spread-inner">
 
-<div class="calendar-wrap">
-<div id="calendarMount">Loading calendar…</div>
-</div>
+              <section class="book-page left">
+                <div class="left-quote">
+                  <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
+                  <p class="line indent">And so, my discoveries are continuous.</p>
+                  <p class="line">As time is granted, entries will be updated.</p>
 
-<div class="book-shell">
-<div class="book-scale-wrap">
-<div class="spread" id="bookSpread">
-<div class="spread-inner">
+                  <div class="sig">
+                    <span class="dash">-</span>
+                    <span>Wrensul</span>
+                  </div>
+                </div>
+              </section>
 
-<section class="book-page left">
-<div class="left-quote">
-<p class="line">The Parsklands are a home of mine. Ever blooming.</p>
-<p class="line indent">And so, my discoveries are continuous.</p>
-<p class="line">As time is granted, entries will be updated.</p>
-<div class="sig">
-<span>-</span>
-<span>Wrensul</span>
-</div>
-</div>
-</section>
+              <section class="book-page right toc">
+                <div class="section-title">Field Guides -</div>
+                <ul class="list">
+                  <li><a href="atlas.html">Atlas</a></li>
+                  <li><a href="magic.html">Magic</a></li>
+                  <li><a href="creatures.html">Creatures</a></li>
+                  <li><a href="gods.html">Gods</a></li>
+                  <li><a href="timeline.html">Timeline</a></li>
+                  <li><a href="glossary.html">Glossary</a></li>
+                </ul>
 
-<section class="book-page right toc">
-<div class="section-title">Field Guides -</div>
-<ul class="list">
-<li><a href="atlas.html">Atlas</a></li>
-<li><a href="magic.html">Magic</a></li>
-<li><a href="creatures.html">Creatures</a></li>
-<li><a href="gods.html">Gods</a></li>
-<li><a href="timeline.html">Timeline</a></li>
-<li><a href="glossary.html">Glossary</a></li>
-</ul>
+                <div class="section-title">Story Telling -</div>
+                <ul class="list">
+                  <li><a href="words-of-parsk.html">Words of Parsk</a></li>
+                  <li><a href="fables.html">Fables</a></li>
+                  <li><a href="small-memories.html">Small Memories</a></li>
+                  <li><a href="old-friends.html">Old Friends</a></li>
+                </ul>
+              </section>
 
-<div class="section-title">Story Telling -</div>
-<ul class="list">
-<li><a href="words-of-parsk.html">Words of Parsk</a></li>
-<li><a href="fables.html">Fables</a></li>
-<li><a href="small-memories.html">Small Memories</a></li>
-<li><a href="old-friends.html">Old Friends</a></li>
-</ul>
-</section>
+            </div>
+          </div>
+        </div>
+      </div>
 
-</div>
-</div>
-</div>
-</div>
+    </div> <!-- /home-grid -->
+  </main>
 
-</div>
-
-</main>
-
-<div id="footer"></div>
+  <div id="footer"></div>
 
 <script>
-fetch("header.html")
-.then(r=>r.text())
-.then(html=>{document.getElementById("header").innerHTML=html;});
+  // header + footer
+  fetch("header.html")
+    .then(r => r.text())
+    .then(html => { document.getElementById("header").innerHTML = html; })
+    .catch(err => console.error("Header failed to load.", err));
 
-fetch("footer.html")
-.then(r=>r.text())
-.then(html=>{document.getElementById("footer").innerHTML=html;});
+  fetch("footer.html")
+    .then(r => r.text())
+    .then(html => { document.getElementById("footer").innerHTML = html; })
+    .catch(err => console.error("Footer failed to load.", err));
 
-/* SCALE BOOK TO CALENDAR HEIGHT */
+  // Move "today" section above the month, even if calendar scripts re-order it.
+  function pinTodayAboveMonth() {
+    const mount = document.getElementById("calendarMount");
+    if (!mount) return;
 
-function syncBook(){
-  if(window.matchMedia("(max-width:900px)").matches){
-    bookSpread.style.transform="none";
-    bookSpread.style.width="100%";
-    return;
+    // Find a likely "today" container (avoid grabbing day cells)
+    const candidates = [...mount.querySelectorAll("[id],[class]")].filter(el => {
+      const id = (el.id || "").toLowerCase();
+      const cls = ("" + (el.className || "")).toLowerCase();
+      if (!(id.includes("today") || cls.includes("today"))) return false;
+
+      const tag = el.tagName;
+      if (["TD","TH","TR","TBODY","THEAD","TABLE"].includes(tag)) return false;
+
+      // If it's buried inside a table/grid, skip it (usually a day cell label)
+      if (el.closest("table") && !id.includes("today") && !cls.includes("today")) return false;
+
+      return true;
+    });
+
+    if (!candidates.length) return;
+
+    // Choose the shallowest match so we grab the section wrapper, not some inner span
+    const depth = (n) => {
+      let d = 0;
+      while (n && n !== mount) { d++; n = n.parentElement; }
+      return d;
+    };
+    candidates.sort((a,b) => depth(a) - depth(b));
+
+    const todayEl = candidates[0];
+    mount.prepend(todayEl);
   }
 
-  const cal=document.querySelector(".calendar-wrap");
-  const book=document.getElementById("bookSpread");
+  function syncBookToCalendar() {
+    const book = document.getElementById("bookSpread");
+    if (!book) return;
 
-  book.style.transform="none";
-  book.style.width="100%";
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      book.style.transform = "none";
+      book.style.width = "100%";
+      return;
+    }
 
-  const calH=cal.getBoundingClientRect().height;
-  const bookH=book.getBoundingClientRect().height;
+    const cal = document.querySelector(".calendar-wrap");
+    if (!cal) return;
 
-  if(!calH||!bookH) return;
+    // reset before measuring
+    book.style.transform = "none";
+    book.style.width = "100%";
 
-  const scale=(bookH>calH)?(calH/bookH):1;
+    const calH = cal.getBoundingClientRect().height;
+    const bookH = book.getBoundingClientRect().height;
+    if (!calH || !bookH) return;
 
-  book.style.transform=`scale(${scale})`;
-  book.style.width=`${100/scale}%`;
-}
+    const scale = (bookH > calH) ? (calH / bookH) : 1;
+    book.style.transform = `scale(${scale})`;
+    book.style.width = `${100 / scale}%`;
+  }
 
-fetch("calendar.html")
-.then(r=>r.text())
-.then(html=>{
-  document.getElementById("calendarMount").innerHTML=html;
+  // calendar inject (scripts must be re-run)
+  fetch("calendar.html")
+    .then(r => r.text())
+    .then(html => {
+      const mount = document.getElementById("calendarMount");
+      mount.innerHTML = html;
 
-  const scripts=document.getElementById("calendarMount").querySelectorAll("script");
-  scripts.forEach(old=>{
-    const s=document.createElement("script");
-    [...old.attributes].forEach(a=>s.setAttribute(a.name,a.value));
-    s.textContent=old.textContent;
-    old.replaceWith(s);
+      // re-run scripts inside injected HTML
+      const scripts = mount.querySelectorAll("script");
+      scripts.forEach(old => {
+        const s = document.createElement("script");
+        [...old.attributes].forEach(a => s.setAttribute(a.name, a.value));
+        s.textContent = old.textContent;
+        old.replaceWith(s);
+      });
+
+      // Let the calendar scripts render, then force order, then scale book.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          pinTodayAboveMonth();
+          syncBookToCalendar();
+
+          // Some calendars re-render after initial paint. So do it again shortly.
+          setTimeout(() => {
+            pinTodayAboveMonth();
+            syncBookToCalendar();
+          }, 60);
+        });
+      });
+    })
+    .catch(err => {
+      document.getElementById("calendarMount").textContent = "Calendar failed to load.";
+      console.error(err);
+    });
+
+  // Re-sync on resize
+  let _resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(() => {
+      pinTodayAboveMonth();
+      syncBookToCalendar();
+    }, 120);
   });
 
-  requestAnimationFrame(()=>requestAnimationFrame(syncBook));
-});
-
-let resizeTimer;
-window.addEventListener("resize",()=>{
-  clearTimeout(resizeTimer);
-  resizeTimer=setTimeout(syncBook,120);
-});
+  // Re-sync when fonts load (measurement changes)
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      pinTodayAboveMonth();
+      syncBookToCalendar();
+    });
+  }
 </script>
-
 </body>
 </html>
