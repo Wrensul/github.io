@@ -3,7 +3,6 @@
   <!-- TOP BAR: TODAY / SELECTED DAY -->
   <div class="owcal-topbar" role="region" aria-label="Selected day overview">
     <div class="owcal-top-left">
-      <div class="owcal-top-title" id="owcalTopTitle">Today</div>
       <div class="owcal-top-line" id="owcalTopLine">Loading…</div>
       <div class="owcal-top-sub" id="owcalTopSub"></div>
       <div class="owcal-top-blurb" id="owcalTopBlurb"></div>
@@ -11,9 +10,7 @@
 
     <div class="owcal-top-right">
       <button class="owcal-btn" id="jumpToday" type="button">Jump to Today</button>
-      <button class="owcal-btn" id="jumpMonth" type="button">Jump to Month</button>
-      <span class="owcal-small">Anchor: <code id="anchorTxt"></code> = Day 1</span>
-    </div>
+      <button class="owcal-btn" id="jumpMonth" type="button">Jump to Month</button></div>
   </div>
 
   <!-- MONTH SCROLLER (12 “pages”) -->
@@ -427,35 +424,46 @@ function esc(s){
 
 function findByAbs(abs){ return YEAR.find(x => x.abs === abs); }
 
-function setTopBar(obj, labelOverride){
-  const title = document.getElementById("owcalTopTitle");
+function realWorldLabel(abs){
+  // Real-world date corresponding to Abs day, where Abs 1 == anchor date
+  const a = toUTCDate(CFG.anchor.year, CFG.anchor.month, CFG.anchor.day);
+  const d = new Date(a.getTime() + (abs - 1) * 86400000);
+  const monthName = d.toLocaleString(undefined, { month: "long", timeZone: "UTC" });
+  const dayNum = d.getUTCDate();
+  return `${monthName} ${dayNum}`;
+}
+
+function setTopBar(obj){
   const line  = document.getElementById("owcalTopLine");
   const sub   = document.getElementById("owcalTopSub");
   const blurb = document.getElementById("owcalTopBlurb");
 
-  title.textContent = labelOverride || "Today";
-
-  if (!obj){
+    if (!obj){
     line.textContent = "…";
     sub.textContent = "";
     blurb.textContent = "";
     return;
   }
 
-  // Main line: where you are in the calendar
-  if (obj.type === "day"){
-    line.textContent = `${obj.season} · ${obj.month} ( ${obj.zodiac} )`;
-    sub.textContent  = `Abs ${obj.abs} · Day ${obj.dayInMonth} · Week ${obj.weekName} · ${obj.weekday}`;
+  const real = realWorldLabel(obj.abs);
 
-    // Blurb area: holiday info first, otherwise blank (or later you can add day notes)
+  if (obj.type === "day"){
+    // (Real world) Month day - (Fantasy) Month / Week / Day (num)
+    line.textContent = `${real} - ${obj.month} / ${obj.weekName} / ${obj.weekday} (${obj.dayInMonth})`;
+
+    // Season - Zodiac
+    sub.textContent = `${obj.season} - ${obj.zodiac}`;
+
+    // Info blurb: holiday takes priority
     if (obj.holiday){
       blurb.textContent = `${obj.holiday.name}${obj.holiday.blurb ? ": " + obj.holiday.blurb : ""}`;
     } else {
       blurb.textContent = "";
     }
   } else {
-    line.textContent = `${obj.season} · ${obj.label}`;
-    sub.textContent  = `Abs ${obj.abs}`;
+    // Special single-day pages: still show the real-world date, fantasy label
+    line.textContent = `${real} - ${obj.label}`;
+    sub.textContent = `${obj.season}`;
 
     if (obj.holiday){
       blurb.textContent = `${obj.holiday.name}${obj.holiday.blurb ? ": " + obj.holiday.blurb : ""}`;
@@ -482,10 +490,7 @@ function scrollToMonth(monthIndexAbs){
 }
 
 function render(){
-  document.getElementById("anchorTxt").textContent =
-    `${CFG.anchor.year}-${String(CFG.anchor.month).padStart(2,"0")}-${String(CFG.anchor.day).padStart(2,"0")}`;
-
-  const root = document.getElementById("calendar");
+    const root = document.getElementById("calendar");
   root.innerHTML = "";
 
   // Helper: build a clickable special single-day page
@@ -513,7 +518,7 @@ function render(){
 
     page.addEventListener("click", () => {
       selectedAbs = obj.abs;
-      setTopBar(obj, "Selected");
+      setTopBar(obj);
       markSelected();
     });
 
@@ -602,7 +607,7 @@ function render(){
 
   // Init top bar
   const todayObj = findByAbs(TODAY_ABS);
-  setTopBar(todayObj, "Today");
+  setTopBar(todayObj);
   selectedAbs = TODAY_ABS;
   markSelected();
 }
@@ -610,7 +615,7 @@ function render(){
 document.getElementById("jumpToday").addEventListener("click", () => {
   const obj = findByAbs(TODAY_ABS);
   selectedAbs = TODAY_ABS;
-  setTopBar(obj, "Today");
+  setTopBar(obj);
   markSelected();
   scrollToAbs(TODAY_ABS);
 });
