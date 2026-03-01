@@ -13,7 +13,7 @@
 
     main{
       min-height: 100vh;
-      padding: 36px 16px 64px;
+      padding: 36px 8px 64px; /* slightly reduce side padding to free up width */
       position: relative;
     }
 
@@ -53,7 +53,7 @@
 
     /* NEW: calendar left, book right (desktop), stack (mobile) */
     .home-grid{
-      max-width: 1280px;
+      max-width: 1700px; /* give the book more horizontal breathing room */
       margin: 0 auto 18px;
       display: flex;
       align-items: flex-start;
@@ -62,10 +62,10 @@
 
     .home-grid > *{ min-width: 0; } /* critical: prevents right-side squish/overflow issues */
 
-    .home-grid .calendar-wrap{ flex: 1 1 0; }
+    .home-grid .calendar-wrap{ flex: 0 0 clamp(420px, 38vw, 560px); }
     .home-grid .book-shell{ flex: 1 1 0; }
 
-    .book-shell{ max-width: none; margin: 0; }
+    .book-shell{ max-width: none; margin: 0; min-width: 520px; }
 
     /* extra anti-squish / overflow guard */
     html, body{ max-width: 100%; overflow-x: hidden; }
@@ -79,6 +79,7 @@
     @media (max-width: 900px){
       .home-grid{ flex-direction: column; gap: 12px; }
       .home-grid .calendar-wrap{ flex: 1 1 auto; }
+      .book-shell{ min-width: 0; }
       .spread{ max-width: 100%; }
     }
 
