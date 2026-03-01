@@ -13,7 +13,7 @@
 
     main{
       min-height: 100vh;
-      padding: 36px 8px 64px; /* slightly reduce side padding to free up width */
+      padding: 36px 8px 64px;
       position: relative;
     }
 
@@ -39,7 +39,7 @@
       line-height: 1.15;
     }
 
-    /* CALENDAR BOX (restoring what got nuked by the literal "$1" landmine) */
+    /* CALENDAR BOX */
     .calendar-wrap{
       margin: 0;
       max-width: none;
@@ -51,13 +51,24 @@
       font-family: 'Baskervville', serif;
     }
 
-    /* Calendar overflow fix: keep the calendar inside its box */
+    /* Calendar overflow fix */
     .calendar-wrap{ overflow: hidden; }
     #calendarMount{ width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 
-    /* Stronger “fit in the box” rules (in case calendar.html is bossy) */
-    #calendarMount table{ width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: fixed !important; border-collapse: collapse; }
-    #calendarMount th, #calendarMount td{ min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
+    /* Stronger “fit in the box” rules */
+    #calendarMount table{
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      table-layout: fixed !important;
+      border-collapse: collapse;
+    }
+    #calendarMount th, #calendarMount td{
+      min-width: 0 !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 6px 4px;
+    }
     #calendarMount *{ max-width: 100% !important; }
 
     /* If the calendar is div-based instead of table-based */
@@ -72,60 +83,34 @@
       overflow: hidden;
     }
 
-    /* Last resort: keep day numbers from forcing width */
+    /* Slightly tighten overall calendar text */
     #calendarMount{ font-size: 0.95em; }
-    #calendarMount th, #calendarMount td{ padding: 6px 2px; }
-
-    /* If your calendar uses a table/grid, force it to fit */
-    #calendarMount table{ width: 100%; max-width: 100%; table-layout: fixed; border-collapse: collapse; }
-    #calendarMount th, #calendarMount td{ min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-
-    /* If your calendar uses divs/flex/grid, these help too */
-    #calendarMount *{ max-width: 100%; }
-    #calendarMount .calendar, #calendarMount .calendar-grid{ width: 100%; min-width: 0; }
-    #calendarMount .day, #calendarMount .date, #calendarMount .calendar-day{ min-width: 0; }
-
-    /* Optional: slightly tighten cell padding so day numbers don’t shove things sideways */
-    #calendarMount th, #calendarMount td{ padding: 6px 4px; }
 
     /* NEW: calendar left, book right (desktop), stack (mobile) */
     .home-grid{
-      max-width: 1700px; /* give the book more horizontal breathing room */
+      max-width: 1700px;
       margin: 0 auto 18px;
       display: flex;
-      align-items: flex-start;
+      align-items: stretch; /* CHANGED: stretch so book matches calendar height */
       gap: 18px;
     }
 
-    .home-grid > *{ min-width: 0; } /* critical: prevents right-side squish/overflow issues */
+    .home-grid > *{ min-width: 0; }
 
     .home-grid .calendar-wrap{ flex: 0 0 clamp(420px, 38vw, 560px); }
     .home-grid .book-shell{ flex: 1 1 0; }
 
-    .book-shell{ max-width: none; margin: 0; min-width: 520px; }
+    .book-shell{
+      max-width: none;
+      margin: 0;
+      min-width: 520px;
+      width: 100%;
+      display: flex; /* ensure child can stretch */
+    }
 
     /* extra anti-squish / overflow guard */
     html, body{ max-width: 100%; overflow-x: hidden; }
     img, iframe{ max-width: 100%; height: auto; }
-
-    .spread{
-      width: 100%;
-      max-width: 100%; /* fill the book column */
-    }
-
-    @media (max-width: 900px){
-      .home-grid{ flex-direction: column; gap: 12px; }
-      .home-grid .calendar-wrap{ flex: 1 1 auto; }
-      .book-shell{ min-width: 0; }
-      .spread{ max-width: 100%; }
-    }
-
-    @media (max-width: 800px){
-      .top-gap{ height: 14px; }
-    }
-
-    /* book-shell width is controlled by .home-grid */
-    .book-shell{ width: 100%; max-width: none; margin: 0; }
 
     .spread{
       position: relative;
@@ -137,23 +122,31 @@
       margin: 0;
       font-family: 'Baskervville', serif;
       overflow: hidden;
+
+      /* CHANGED: let the book stretch to match the calendar height */
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ==== SPINE FIX ==== */
     .spread-inner{
       position: relative;
-      z-index: 2; /* pages above spine overlay */
+      z-index: 2;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      min-height: 70vh;
+
+      /* CHANGED: remove forced tall book and fill parent height */
+      height: 100%;
     }
 
     .spread::before,
     .spread::after{
-      z-index: 1; /* spine behind pages */
+      z-index: 1;
       pointer-events: none;
     }
     /* ==================== */
+
     .book-page{
       padding: clamp(18px, 2.6vw, 34px);
       position: relative;
@@ -218,10 +211,18 @@
 
     .toc a:hover{ text-decoration: underline; }
 
+    @media (max-width: 900px){
+      .home-grid{ flex-direction: column; gap: 12px; }
+      .home-grid .calendar-wrap{ flex: 1 1 auto; }
+      .book-shell{ min-width: 0; }
+      .spread{ max-width: 100%; height: auto; display: block; } /* don’t force matching on mobile */
+      .spread-inner{ height: auto; } /* let it size naturally when stacked */
+    }
+
     @media (max-width: 800px){
+      .top-gap{ height: 14px; }
       .spread-inner{
         grid-template-columns: 1fr;
-        min-height: auto;
       }
       .book-page.left{
         border-right: none;
@@ -231,9 +232,7 @@
       .book-page.right{
         box-shadow: inset 0 18px 24px rgba(0,0,0,0.08);
       }
-
       .left-quote .line.indent{ margin-left: 28px; }
-      .top-gap{ height: 14px; }
     }
   </style>
 </head>
@@ -250,50 +249,50 @@
 
     <div class="home-grid">
 
-    <div class="calendar-wrap">
-      <div id="calendarMount">Loading calendar…</div>
-    </div>
+      <div class="calendar-wrap">
+        <div id="calendarMount">Loading calendar…</div>
+      </div>
 
-    <div class="book-shell">
-      <div class="spread">
-        <div class="spread-inner">
+      <div class="book-shell">
+        <div class="spread">
+          <div class="spread-inner">
 
-          <section class="book-page left">
-            <div class="left-quote">
-              <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
-              <p class="line indent">And so, my discoveries are continuous.</p>
-              <p class="line">As time is granted, entries will be updated.</p>
+            <section class="book-page left">
+              <div class="left-quote">
+                <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
+                <p class="line indent">And so, my discoveries are continuous.</p>
+                <p class="line">As time is granted, entries will be updated.</p>
 
-              <div class="sig">
-                <span class="dash">-</span>
-                <span>Wrensul</span>
+                <div class="sig">
+                  <span class="dash">-</span>
+                  <span>Wrensul</span>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section class="book-page right toc">
-            <div class="section-title">Field Guides -</div>
-            <ul class="list">
-              <li><a href="atlas.html">Atlas</a></li>
-              <li><a href="magic.html">Magic</a></li>
-              <li><a href="creatures.html">Creatures</a></li>
-              <li><a href="gods.html">Gods</a></li>
-              <li><a href="timeline.html">Timeline</a></li>
-              <li><a href="glossary.html">Glossary</a></li>
-            </ul>
+            <section class="book-page right toc">
+              <div class="section-title">Field Guides -</div>
+              <ul class="list">
+                <li><a href="atlas.html">Atlas</a></li>
+                <li><a href="magic.html">Magic</a></li>
+                <li><a href="creatures.html">Creatures</a></li>
+                <li><a href="gods.html">Gods</a></li>
+                <li><a href="timeline.html">Timeline</a></li>
+                <li><a href="glossary.html">Glossary</a></li>
+              </ul>
 
-            <div class="section-title">Story Telling -</div>
-            <ul class="list">
-              <li><a href="words-of-parsk.html">Words of Parsk</a></li>
-              <li><a href="fables.html">Fables</a></li>
-              <li><a href="small-memories.html">Small Memories</a></li>
-              <li><a href="old-friends.html">Old Friends</a></li>
-            </ul>
-          </section>
+              <div class="section-title">Story Telling -</div>
+              <ul class="list">
+                <li><a href="words-of-parsk.html">Words of Parsk</a></li>
+                <li><a href="fables.html">Fables</a></li>
+                <li><a href="small-memories.html">Small Memories</a></li>
+                <li><a href="old-friends.html">Old Friends</a></li>
+              </ul>
+            </section>
 
+          </div>
         </div>
       </div>
-    </div>
 
     </div> <!-- /home-grid -->
   </main>
