@@ -23,6 +23,8 @@
 .owcal {
   font-family: inherit;
   color: inherit;
+  font-size: 16px;
+  line-height: 1.2;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -180,10 +182,10 @@
 
 .owcal .owcal-weekNames{
   display:grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   padding: 12px;
-  font-size: 0.85em;
+  font-size: clamp(0.76rem, 0.75vw, 0.88rem);
 }
 .owcal .owcal-weekNames div{
   display:flex;
@@ -195,18 +197,18 @@
   background: #fffbe0;
   padding: 6px 7px;
   font-family: inherit;   /* follow site stylesheet */
+  min-width: 0;
   overflow-wrap: anywhere;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+  line-height: 1.1;
 }
 
 /* Day grid: 6 columns (weeks) x 5 rows (weekdays)
    This makes weekdays run TOP→BOTTOM, weeks run LEFT→RIGHT */
 .owcal .owcal-grid{
   display:grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(5, minmax(52px, 1fr));
   gap: 8px;
   padding: 12px;
   min-height: 0;
@@ -218,12 +220,28 @@
   padding: 6px 7px;
   cursor: pointer;
   min-height: 0;
+  min-width: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .owcal .owcal-day:hover{ outline: 2px dashed #900; outline-offset: 1px; }
 /* Two-line locked layout for day tiles */
-.owcal .owcal-dayName{ display:block; font-weight: bold; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.owcal .owcal-dayNum{ display:block; margin-top: 2px; font-weight: bold; line-height:1.1; }
+.owcal .owcal-dayName{
+  display:block;
+  font-weight: bold;
+  line-height:1.12;
+  font-size: clamp(0.78rem, 0.78vw, 0.92rem);
+  overflow-wrap:anywhere;
+}
+.owcal .owcal-dayNum{
+  display:block;
+  margin-top: 2px;
+  font-weight: bold;
+  line-height:1.08;
+  font-size: clamp(0.76rem, 0.72vw, 0.88rem);
+}
 
 .owcal .owcal-today{ box-shadow: inset 0 0 0 2px #900; }
 .owcal .owcal-holiday{ background: #fffae0; border-color: #900; }
