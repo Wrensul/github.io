@@ -41,17 +41,18 @@
 
   /* ======== CENTERED TWO-COLUMN LAYOUT ======== */
   .home-grid{
-    max-width:1700px;
+    max-width:1680px;
     margin:0 auto 18px;        /* centers the whole block */
     display:flex;
     justify-content:center;    /* centers the pair inside */
     align-items:center;
-    gap:24px;
+    gap:18px;
   }
   .home-grid > *{ min-width:0; }
 
   .calendar-wrap{
-    flex:0 1 clamp(460px,42vw,620px);
+    flex:0 1 clamp(360px,34vw,500px);
+    min-width:0;
     font-family:'Baskervville',serif;
     display:flex;
     align-self:center;
@@ -60,7 +61,7 @@
   .calendar-embed{
     width:100%;
     height:100%;
-    min-height:620px;
+    min-height:600px;
     border:0;
     display:block;
     flex:1;
@@ -68,8 +69,8 @@
 
   /* ======== BOOK ======== */
   .book-shell{
-    flex:0 1 clamp(540px,50vw,740px);
-    min-width:520px;
+    flex:1 1 clamp(700px,58vw,980px);
+    min-width:560px;
     display:flex;
     align-items:center;
   }
@@ -106,7 +107,7 @@
   }
 
   .book-page{
-    padding:clamp(18px,2.6vw,34px);
+    padding:clamp(14px,2vw,26px);
     position:relative;
     min-width:0;
   }
@@ -171,7 +172,7 @@
     .home-grid{ flex-direction:column; align-items:stretch; gap:12px; }
     .book-shell{ min-width:0; }
     .spread{ max-width:100%; }
-    .calendar-embed{ height:620px; }
+    .calendar-embed{ min-height:620px; height:620px; }
   }
 
   @media (max-width:800px){
