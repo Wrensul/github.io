@@ -39,11 +39,42 @@
       line-height: 1.15;
     }
 
-    $1
+    /* CALENDAR BOX (restoring what got nuked by the literal "$1" landmine) */
+    .calendar-wrap{
+      margin: 0;
+      max-width: none;
+      width: 100%;
+      background: rgba(255,255,255,0.92);
+      padding: 12px 18px;
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      font-family: 'Baskervville', serif;
+    }
 
     /* Calendar overflow fix: keep the calendar inside its box */
     .calendar-wrap{ overflow: hidden; }
-    #calendarMount{ width: 100%; max-width: 100%; overflow-x: auto; }
+    #calendarMount{ width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+
+    /* Stronger “fit in the box” rules (in case calendar.html is bossy) */
+    #calendarMount table{ width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: fixed !important; border-collapse: collapse; }
+    #calendarMount th, #calendarMount td{ min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; }
+    #calendarMount *{ max-width: 100% !important; }
+
+    /* If the calendar is div-based instead of table-based */
+    #calendarMount .week, #calendarMount .weeks, #calendarMount .row{
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+    #calendarMount .day, #calendarMount .date, #calendarMount .cell{
+      min-width: 0 !important;
+      overflow: hidden;
+    }
+
+    /* Last resort: keep day numbers from forcing width */
+    #calendarMount{ font-size: 0.95em; }
+    #calendarMount th, #calendarMount td{ padding: 6px 2px; }
 
     /* If your calendar uses a table/grid, force it to fit */
     #calendarMount table{ width: 100%; max-width: 100%; table-layout: fixed; border-collapse: collapse; }
