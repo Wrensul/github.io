@@ -49,13 +49,18 @@
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
       font-family: 'Baskervville', serif;
+      overflow: hidden;
     }
 
-    /* Calendar overflow fix */
-    .calendar-wrap{ overflow: hidden; }
-    #calendarMount{ width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+    #calendarMount{
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      font-size: 0.95em;
+    }
 
-    /* Stronger “fit in the box” rules */
+    /* Keep calendar inside box */
     #calendarMount table{
       width: 100% !important;
       max-width: 100% !important;
@@ -71,7 +76,7 @@
     }
     #calendarMount *{ max-width: 100% !important; }
 
-    /* If the calendar is div-based instead of table-based */
+    /* If calendar is div/grid based */
     #calendarMount .week, #calendarMount .weeks, #calendarMount .row{
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -83,32 +88,33 @@
       overflow: hidden;
     }
 
-    /* Slightly tighten overall calendar text */
-    #calendarMount{ font-size: 0.95em; }
-
-    /* NEW: calendar left, book right (desktop), stack (mobile) */
+    /* LAYOUT: calendar left, book right */
     .home-grid{
       max-width: 1700px;
       margin: 0 auto 18px;
       display: flex;
-      align-items: stretch; /* CHANGED: stretch so book matches calendar height */
+      align-items: flex-start;
       gap: 18px;
     }
 
     .home-grid > *{ min-width: 0; }
-
     .home-grid .calendar-wrap{ flex: 0 0 clamp(420px, 38vw, 560px); }
     .home-grid .book-shell{ flex: 1 1 0; }
 
+    /* book column */
     .book-shell{
       max-width: none;
       margin: 0;
       min-width: 520px;
       width: 100%;
-      display: flex; /* ensure child can stretch */
     }
 
-    /* extra anti-squish / overflow guard */
+    /* IMPORTANT: a wrapper that crops the scaled book neatly */
+    .book-scale-wrap{
+      width: 100%;
+      overflow: hidden; /* hides any spillover after scaling */
+    }
+
     html, body{ max-width: 100%; overflow-x: hidden; }
     img, iframe{ max-width: 100%; height: auto; }
 
@@ -123,21 +129,17 @@
       font-family: 'Baskervville', serif;
       overflow: hidden;
 
-      /* CHANGED: let the book stretch to match the calendar height */
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+      /* scaling hooks */
+      transform-origin: top left;
+      will-change: transform;
     }
 
-    /* ==== SPINE FIX ==== */
     .spread-inner{
       position: relative;
       z-index: 2;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-
-      /* CHANGED: remove forced tall book and fill parent height */
-      height: 100%;
+      /* NOTE: no min-height here. Let content determine size, then we scale down if needed. */
     }
 
     .spread::before,
@@ -145,7 +147,6 @@
       z-index: 1;
       pointer-events: none;
     }
-    /* ==================== */
 
     .book-page{
       padding: clamp(18px, 2.6vw, 34px);
@@ -215,8 +216,12 @@
       .home-grid{ flex-direction: column; gap: 12px; }
       .home-grid .calendar-wrap{ flex: 1 1 auto; }
       .book-shell{ min-width: 0; }
-      .spread{ max-width: 100%; height: auto; display: block; } /* don’t force matching on mobile */
-      .spread-inner{ height: auto; } /* let it size naturally when stacked */
+
+      /* On mobile: no scaling */
+      .spread{
+        transform: none !important;
+        width: 100% !important;
+      }
     }
 
     @media (max-width: 800px){
@@ -254,42 +259,44 @@
       </div>
 
       <div class="book-shell">
-        <div class="spread">
-          <div class="spread-inner">
+        <div class="book-scale-wrap">
+          <div class="spread" id="bookSpread">
+            <div class="spread-inner">
 
-            <section class="book-page left">
-              <div class="left-quote">
-                <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
-                <p class="line indent">And so, my discoveries are continuous.</p>
-                <p class="line">As time is granted, entries will be updated.</p>
+              <section class="book-page left">
+                <div class="left-quote">
+                  <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
+                  <p class="line indent">And so, my discoveries are continuous.</p>
+                  <p class="line">As time is granted, entries will be updated.</p>
 
-                <div class="sig">
-                  <span class="dash">-</span>
-                  <span>Wrensul</span>
+                  <div class="sig">
+                    <span class="dash">-</span>
+                    <span>Wrensul</span>
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
 
-            <section class="book-page right toc">
-              <div class="section-title">Field Guides -</div>
-              <ul class="list">
-                <li><a href="atlas.html">Atlas</a></li>
-                <li><a href="magic.html">Magic</a></li>
-                <li><a href="creatures.html">Creatures</a></li>
-                <li><a href="gods.html">Gods</a></li>
-                <li><a href="timeline.html">Timeline</a></li>
-                <li><a href="glossary.html">Glossary</a></li>
-              </ul>
+              <section class="book-page right toc">
+                <div class="section-title">Field Guides -</div>
+                <ul class="list">
+                  <li><a href="atlas.html">Atlas</a></li>
+                  <li><a href="magic.html">Magic</a></li>
+                  <li><a href="creatures.html">Creatures</a></li>
+                  <li><a href="gods.html">Gods</a></li>
+                  <li><a href="timeline.html">Timeline</a></li>
+                  <li><a href="glossary.html">Glossary</a></li>
+                </ul>
 
-              <div class="section-title">Story Telling -</div>
-              <ul class="list">
-                <li><a href="words-of-parsk.html">Words of Parsk</a></li>
-                <li><a href="fables.html">Fables</a></li>
-                <li><a href="small-memories.html">Small Memories</a></li>
-                <li><a href="old-friends.html">Old Friends</a></li>
-              </ul>
-            </section>
+                <div class="section-title">Story Telling -</div>
+                <ul class="list">
+                  <li><a href="words-of-parsk.html">Words of Parsk</a></li>
+                  <li><a href="fables.html">Fables</a></li>
+                  <li><a href="small-memories.html">Small Memories</a></li>
+                  <li><a href="old-friends.html">Old Friends</a></li>
+                </ul>
+              </section>
 
+            </div>
           </div>
         </div>
       </div>
@@ -300,7 +307,7 @@
   <div id="footer"></div>
 
   <script>
-    // header + footer (simple inject is fine)
+    // header + footer
     fetch("header.html")
       .then(r => r.text())
       .then(html => { document.getElementById("header").innerHTML = html; })
@@ -311,13 +318,46 @@
       .then(html => { document.getElementById("footer").innerHTML = html; })
       .catch(err => console.error("Footer failed to load.", err));
 
+    function syncBookToCalendar(){
+      // no scaling on mobile stack
+      if (window.matchMedia("(max-width: 900px)").matches) {
+        const spread = document.getElementById("bookSpread");
+        if (spread){
+          spread.style.transform = "none";
+          spread.style.width = "100%";
+        }
+        return;
+      }
+
+      const cal = document.querySelector(".calendar-wrap");
+      const spread = document.getElementById("bookSpread");
+      if (!cal || !spread) return;
+
+      // Reset first so we can measure real height
+      spread.style.transform = "none";
+      spread.style.width = "100%";
+
+      // Measure heights
+      const calH = cal.getBoundingClientRect().height;
+      const bookH = spread.getBoundingClientRect().height;
+
+      if (!calH || !bookH) return;
+
+      // Scale down only if book is taller than calendar
+      const scale = (bookH > calH) ? (calH / bookH) : 1;
+
+      spread.style.transform = `scale(${scale})`;
+      // compensate width so it still fills the column visually
+      spread.style.width = `${100 / scale}%`;
+    }
+
     // calendar (needs script re-run)
     fetch("calendar.html")
       .then(r => r.text())
       .then(html => {
         document.getElementById("calendarMount").innerHTML = html;
 
-        // scripts inside injected HTML do NOT auto-run, so re-run them:
+        // re-run scripts inside injected HTML
         const scripts = document.getElementById("calendarMount").querySelectorAll("script");
         scripts.forEach(old => {
           const s = document.createElement("script");
@@ -325,11 +365,28 @@
           s.textContent = old.textContent;
           old.replaceWith(s);
         });
+
+        // Let layout settle, then scale
+        requestAnimationFrame(() => {
+          requestAnimationFrame(syncBookToCalendar);
+        });
       })
       .catch(err => {
         document.getElementById("calendarMount").textContent = "Calendar failed to load.";
         console.error(err);
       });
+
+    // Re-sync on resize (debounced)
+    let _resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(syncBookToCalendar, 120);
+    });
+
+    // Re-sync when fonts finish loading (helps measurement)
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => syncBookToCalendar());
+    }
   </script>
 </body>
 </html>
