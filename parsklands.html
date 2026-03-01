@@ -1,175 +1,299 @@
-<!-- 
-FULL EXAMPLE: Put this in your HTML page.
-- Keep your existing <head> stuff.
-- IMPORTANT: make sure this line is present and points to your external CSS file:
-  <link rel="stylesheet" href="styles.css">
--->
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Your Page</title>
+  <title>Door to the Parsklands</title>
 
-  <!-- Your external stylesheet -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+
+    main{
+      min-height: 100vh;
+      padding: 36px 16px 64px;
+      position: relative;
+    }
+
+    .top-gap{ height: 22px; }
+
+    .title-float{
+      position: sticky;
+      top: 10px;
+      margin: 0 auto 16px;
+      max-width: min(90vw, 760px);
+      background: rgba(255,255,255,0.92);
+      padding: 12px 18px;
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      text-align: center;
+      z-index: 5;
+      font-family: 'Baskervville', serif;
+    }
+
+    .title-float h1{
+      margin: 0;
+      font-size: clamp(18px, 2.4vw, 26px);
+      line-height: 1.15;
+    }
+
+    .calendar-wrap{
+      margin: 0;
+      /* stop hard-capping this to 760px so it can behave in a two-column layout */
+      max-width: none;
+      width: 100%;
+      background: rgba(255,255,255,0.92);
+      padding: 12px 18px;
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      font-family: 'Baskervville', serif;
+    }
+
+    /* NEW: calendar left, book right (desktop), stack (mobile) */
+    .home-grid{
+      max-width: 1180px;
+      margin: 0 auto 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .home-grid > *{ min-width: 0; } /* critical: prevents right-side squish/overflow issues */
+
+    .home-grid .calendar-wrap{ flex: 0 0 360px; }
+    .home-grid .book-shell{ flex: 1 1 auto; }
+
+    .book-shell{ max-width: none; margin: 0; }
+
+    /* extra anti-squish / overflow guard */
+    html, body{ max-width: 100%; overflow-x: hidden; }
+    img, iframe{ max-width: 100%; height: auto; }
+
+    .spread{
+      width: 100%;
+      max-width: 900px; /* your original intent */
+    }
+
+    @media (max-width: 900px){
+      .home-grid{ flex-direction: column; gap: 12px; }
+      .home-grid .calendar-wrap{ flex: 1 1 auto; }
+      .spread{ max-width: 100%; }
+    }
+
+    @media (max-width: 800px){
+      .top-gap{ height: 14px; }
+    }
+
+    .book-shell{ max-width: 980px; margin: 0 auto; }
+
+    .spread{
+      position: relative;
+      background: #fff;
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      max-width: 900px;
+      margin: 0 auto;
+      font-family: 'Baskervville', serif;
+      overflow: hidden;
+    }
+
+    /* ==== SPINE FIX ==== */
+    .spread-inner{
+      position: relative;
+      z-index: 2; /* pages above spine overlay */
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      min-height: 70vh;
+    }
+
+    .spread::before,
+    .spread::after{
+      z-index: 1; /* spine behind pages */
+      pointer-events: none;
+    }
+    /* ==================== */
+
+    .page{
+      padding: clamp(18px, 2.6vw, 34px);
+      position: relative;
+      min-width: 0;
+    }
+
+    .page.left{
+      border-right: 1px solid rgba(0,0,0,0.18);
+      box-shadow: inset -18px 0 24px rgba(0,0,0,0.08);
+    }
+
+    .page.right{
+      box-shadow: inset 18px 0 24px rgba(0,0,0,0.08);
+    }
+
+    .left-quote{
+      margin-top: 6px;
+      font-size: clamp(18px, 2.2vw, 26px);
+      line-height: 1.45;
+      color: #000;
+    }
+
+    .left-quote .line{ margin: 0; }
+    .left-quote .line.indent{ margin-left: 52px; }
+
+    .left-quote .sig{
+      margin-top: 28px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: baseline;
+      gap: 18px;
+      font-size: clamp(18px, 2.2vw, 26px);
+    }
+
+    .left-quote .dash{ margin-right: 10px; }
+
+    .toc{ padding-top: clamp(22px, 2.4vw, 34px); }
+
+    .toc .section-title{
+      font-weight: 800;
+      font-size: clamp(20px, 2.2vw, 28px);
+      margin: 0 0 18px;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+      text-decoration-thickness: 2px;
+    }
+
+    .toc .list{
+      list-style: none;
+      padding: 0;
+      margin: 0 0 50px;
+      font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.28;
+      text-align: center;
+    }
+
+    .toc .list li{ margin: 4px 0; }
+
+    .toc a{
+      color: #000;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .toc a:hover{ text-decoration: underline; }
+
+    @media (max-width: 800px){
+      .spread-inner{
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .page.left{
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,0.18);
+        box-shadow: inset 0 -18px 24px rgba(0,0,0,0.08);
+      }
+
+      .page.right{
+        box-shadow: inset 0 18px 24px rgba(0,0,0,0.08);
+      }
+
+      .left-quote .line.indent{ margin-left: 28px; }
+      .top-gap{ height: 14px; }
+    }
+  </style>
 </head>
+
 <body>
+  <div id="header"></div>
 
-  <main class="page">
-    <h1 class="page-title">Stuff Humans Schedule & Stuff Humans Read</h1>
+  <main>
+    <div class="top-gap"></div>
 
-    <!-- TWO-COLUMN ON DESKTOP, STACK ON MOBILE -->
-    <section class="two-col">
+    <div class="title-float">
+      <h1>UNDER CONSTRUCTION</h1>
+    </div>
 
-      <!-- LEFT: CALENDAR -->
-      <div class="panel calendar-panel">
-        <h2 class="panel-title">Calendar</h2>
+    <div class="home-grid">
 
-        <!-- Replace this iframe with your real calendar embed -->
-        <div class="embed-wrap">
-          <iframe
-            src="https://calendar.google.com/calendar/embed?src=YOUR_CALENDAR_ID_HERE"
-            title="Calendar"
-            loading="lazy"
-            frameborder="0"
-            scrolling="no"
-          ></iframe>
+    <div class="calendar-wrap">$1</div>
+
+    <div class="book-shell">
+      <div class="spread">
+        <div class="spread-inner">
+
+          <section class="page left">
+            <div class="left-quote">
+              <p class="line">The Parsklands are a home of mine. Ever blooming.</p>
+              <p class="line indent">And so, my discoveries are continuous.</p>
+              <p class="line">As time is granted, entries will be updated.</p>
+
+              <div class="sig">
+                <span class="dash">-</span>
+                <span>Wrensul</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="page right toc">
+            <div class="section-title">Field Guides -</div>
+            <ul class="list">
+              <li><a href="atlas.html">Atlas</a></li>
+              <li><a href="magic.html">Magic</a></li>
+              <li><a href="creatures.html">Creatures</a></li>
+              <li><a href="gods.html">Gods</a></li>
+              <li><a href="timeline.html">Timeline</a></li>
+              <li><a href="glossary.html">Glossary</a></li>
+            </ul>
+
+            <div class="section-title">Story Telling -</div>
+            <ul class="list">
+              <li><a href="words-of-parsk.html">Words of Parsk</a></li>
+              <li><a href="fables.html">Fables</a></li>
+              <li><a href="small-memories.html">Small Memories</a></li>
+              <li><a href="old-friends.html">Old Friends</a></li>
+            </ul>
+          </section>
+
         </div>
       </div>
+    </div>
 
-      <!-- RIGHT: BOOK -->
-      <div class="panel book-panel">
-        <h2 class="panel-title">Book</h2>
-
-        <!-- Replace this with your real book section content -->
-        <div class="book-content">
-          <p>
-            Put your book info, images, links, whatever here. This box will sit on the right on desktop,
-            and stack under the calendar on mobile.
-          </p>
-
-          <img
-            src="https://via.placeholder.com/800x450"
-            alt="Book placeholder"
-          />
-
-          <p>
-            If your right side was getting squished, it’s usually an overflow culprit (images/iframes/100vw).
-            The CSS included below handles the usual crimes.
-          </p>
-        </div>
-      </div>
-
-    </section>
+    </div> <!-- /home-grid -->
   </main>
 
+  <div id="footer"></div>
+
+  <script>
+    // header + footer (simple inject is fine)
+    fetch("header.html")
+      .then(r => r.text())
+      .then(html => { document.getElementById("header").innerHTML = html; })
+      .catch(err => console.error("Header failed to load.", err));
+
+    fetch("footer.html")
+      .then(r => r.text())
+      .then(html => { document.getElementById("footer").innerHTML = html; })
+      .catch(err => console.error("Footer failed to load.", err));
+
+    // calendar (needs script re-run)
+    fetch("calendar.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("calendarMount").innerHTML = html;
+
+        // scripts inside injected HTML do NOT auto-run, so re-run them:
+        const scripts = document.getElementById("calendarMount").querySelectorAll("script");
+        scripts.forEach(old => {
+          const s = document.createElement("script");
+          [...old.attributes].forEach(a => s.setAttribute(a.name, a.value));
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+      })
+      .catch(err => {
+        document.getElementById("calendarMount").textContent = "Calendar failed to load.";
+        console.error(err);
+      });
+  </script>
 </body>
 </html>
-
-
-/* 
-PASTE THIS IN YOUR EXTERNAL CSS FILE (e.g., styles.css)
-------------------------------------------------------
-If you already have a stylesheet, just add these rules.
-*/
-
-/* 1) Universal sanity: fixes a lot of mysterious “why is the right side broken” behavior */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* prevents a single rogue element from forcing horizontal overflow */
-}
-
-/* 2) Page wrapper: adjust max-width if you want wider */
-.page {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px 16px;
-}
-
-.page-title {
-  margin: 0 0 16px;
-}
-
-/* 3) Desktop layout: two columns */
-.two-col {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-}
-
-/* CRITICAL: allows flex children to shrink instead of overflowing and squishing the right edge */
-.two-col .panel {
-  min-width: 0;
-}
-
-/* Left column (calendar) */
-.calendar-panel {
-  flex: 1;
-}
-
-/* Right column (book) */
-.book-panel {
-  flex: 1.3;
-}
-
-/* 4) Panel styling (optional, delete if you hate it) */
-.panel {
-  border: 2px solid #333;
-  padding: 16px;
-  background: #000;
-  color: #fff;
-}
-
-.panel-title {
-  margin: 0 0 12px;
-}
-
-/* 5) Embed handling: iframes/images often cause overflow */
-img,
-iframe,
-video {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Calendar iframe should never force a fixed width */
-.embed-wrap {
-  width: 100%;
-}
-
-.embed-wrap iframe {
-  width: 100%;
-  max-width: 100%;
-  height: 600px; /* adjust */
-  border: 0;
-  display: block;
-}
-
-/* 6) Mobile: stack */
-@media (max-width: 700px) {
-  .two-col {
-    flex-direction: column;
-  }
-
-  .calendar-panel,
-  .book-panel {
-    width: 100%;
-  }
-
-  .embed-wrap iframe {
-    height: 500px; /* adjust */
-  }
-}
