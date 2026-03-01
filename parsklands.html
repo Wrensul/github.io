@@ -39,17 +39,23 @@
       line-height: 1.15;
     }
 
-    .calendar-wrap{
-      margin: 0;
-      /* stop hard-capping this to 760px so it can behave in a two-column layout */
-      max-width: none;
-      width: 100%;
-      background: rgba(255,255,255,0.92);
-      padding: 12px 18px;
-      border: 4px groove #222;
-      box-shadow: 4px 4px 8px #555;
-      font-family: 'Baskervville', serif;
-    }
+    $1
+
+    /* Calendar overflow fix: keep the calendar inside its box */
+    .calendar-wrap{ overflow: hidden; }
+    #calendarMount{ width: 100%; max-width: 100%; overflow-x: auto; }
+
+    /* If your calendar uses a table/grid, force it to fit */
+    #calendarMount table{ width: 100%; max-width: 100%; table-layout: fixed; border-collapse: collapse; }
+    #calendarMount th, #calendarMount td{ min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+    /* If your calendar uses divs/flex/grid, these help too */
+    #calendarMount *{ max-width: 100%; }
+    #calendarMount .calendar, #calendarMount .calendar-grid{ width: 100%; min-width: 0; }
+    #calendarMount .day, #calendarMount .date, #calendarMount .calendar-day{ min-width: 0; }
+
+    /* Optional: slightly tighten cell padding so day numbers don’t shove things sideways */
+    #calendarMount th, #calendarMount td{ padding: 6px 4px; }
 
     /* NEW: calendar left, book right (desktop), stack (mobile) */
     .home-grid{
