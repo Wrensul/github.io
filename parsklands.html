@@ -52,8 +52,12 @@
 
   .calendar-wrap{
     flex:0 1 clamp(460px,42vw,620px);
-    min-width:0;
+    background:rgba(255,255,255,0.92);
+    padding:12px;
+    border:4px groove #222;
+    box-shadow:4px 4px 8px #555;
     font-family:'Baskervville',serif;
+    overflow:hidden;
     display:flex;
     align-self:center;
   }
@@ -69,8 +73,8 @@
 
   /* ======== BOOK ======== */
   .book-shell{
-    flex:1 1 clamp(700px,58vw,980px);
-    min-width:560px;
+    flex:0 1 clamp(540px,50vw,740px);
+    min-width:520px;
     display:flex;
     align-items:center;
   }
@@ -82,6 +86,21 @@
     display:flex;
     justify-content:center; /* centers scaled book visually */
     flex:1;
+  }
+
+  /* Keep current visual tuning while leaving merge-prone base blocks stable. */
+  .home-grid .calendar-wrap{
+    min-width:0;
+    background:transparent;
+    padding:0;
+    border:0;
+    box-shadow:none;
+    overflow:visible;
+  }
+
+  .home-grid .book-shell{
+    flex:1 1 clamp(700px,58vw,980px);
+    min-width:560px;
   }
 
   .spread{
