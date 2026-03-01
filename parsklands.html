@@ -62,7 +62,7 @@
 
     .home-grid > *{ min-width: 0; } /* critical: prevents right-side squish/overflow issues */
 
-    .home-grid .calendar-wrap{ flex: 0 0 360px; }
+    .home-grid .calendar-wrap{ flex: 0 0 clamp(260px, 28vw, 360px); }
     .home-grid .book-shell{ flex: 1 1 auto; }
 
     .book-shell{ max-width: none; margin: 0; }
@@ -73,7 +73,7 @@
 
     .spread{
       width: 100%;
-      max-width: 900px; /* your original intent */
+      max-width: 100%; /* fill the book column */
     }
 
     @media (max-width: 900px){
@@ -86,15 +86,17 @@
       .top-gap{ height: 14px; }
     }
 
-    .book-shell{ max-width: 980px; margin: 0 auto; }
+    /* book-shell width is controlled by .home-grid */
+    .book-shell{ width: 100%; max-width: none; margin: 0; }
 
     .spread{
       position: relative;
       background: #fff;
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
-      max-width: 900px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
       font-family: 'Baskervville', serif;
       overflow: hidden;
     }
@@ -215,7 +217,9 @@
 
     <div class="home-grid">
 
-    <div class="calendar-wrap">$1</div>
+    <div class="calendar-wrap">
+      <div id="calendarMount">Loading calendar…</div>
+    </div>
 
     <div class="book-shell">
       <div class="spread">
