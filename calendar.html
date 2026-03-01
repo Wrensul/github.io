@@ -10,6 +10,7 @@
 
     <div class="owcal-top-right">
       <button class="owcal-btn" id="jumpToday" type="button">Jump to Today</button>
+    </div>
   </div>
 
   <!-- MONTH SCROLLER (12 “pages”) -->
@@ -19,7 +20,14 @@
 </div>
 
 <style>
-.owcal { font-family: inherit; color: inherit; }
+.owcal {
+  font-family: inherit;
+  color: inherit;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
 
 .owcal .owcal-topbar{
   background-color: rgba(255,255,255,0.85);
@@ -81,6 +89,9 @@
   border: 4px groove #222;
   box-shadow: 4px 4px 8px #555;
   padding: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Horizontal month scroller */
@@ -94,6 +105,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   align-items: stretch;       /* makes spacer match month height */
+  height: 100%;
 }
 
 /* Special single-day page (start / between seasons / end) */
@@ -140,6 +152,9 @@
   border: 4px ridge #333;
   box-shadow: 6px 6px 10px #444;
   background: rgba(255,255,255,0.88);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 0;
 }
 
 .owcal .owcal-monthHead{
@@ -180,6 +195,10 @@
   background: #fffbe0;
   padding: 6px 7px;
   font-family: inherit;   /* follow site stylesheet */
+  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Day grid: 6 columns (weeks) x 5 rows (weekdays)
@@ -187,9 +206,10 @@
 .owcal .owcal-grid{
   display:grid;
   grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(5, auto);
+  grid-template-rows: repeat(5, minmax(0, 1fr));
   gap: 8px;
   padding: 12px;
+  min-height: 0;
 }
 
 .owcal .owcal-day{ 
@@ -197,12 +217,13 @@
   border: 2px outset #999;
   padding: 6px 7px;
   cursor: pointer;
-  min-height: 46px;
+  min-height: 0;
+  overflow: hidden;
 }
 .owcal .owcal-day:hover{ outline: 2px dashed #900; outline-offset: 1px; }
 /* Two-line locked layout for day tiles */
-.owcal .owcal-dayName{ display:block; font-weight: bold; }
-.owcal .owcal-dayNum{ display:block; margin-top: 2px; font-weight: bold; }
+.owcal .owcal-dayName{ display:block; font-weight: bold; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.owcal .owcal-dayNum{ display:block; margin-top: 2px; font-weight: bold; line-height:1.1; }
 
 .owcal .owcal-today{ box-shadow: inset 0 0 0 2px #900; }
 .owcal .owcal-holiday{ background: #fffae0; border-color: #900; }
