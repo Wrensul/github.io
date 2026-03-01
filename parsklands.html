@@ -46,65 +46,31 @@
     display:flex;
     justify-content:center;    /* centers the pair inside */
     align-items:flex-start;
-    gap:18px;
+    gap:24px;
   }
   .home-grid > *{ min-width:0; }
 
   .calendar-wrap{
-    flex:0 0 clamp(420px,38vw,560px);
+    flex:0 1 clamp(400px,38vw,540px);
     background:rgba(255,255,255,0.92);
-    padding:12px 18px;
+    padding:12px;
     border:4px groove #222;
     box-shadow:4px 4px 8px #555;
     font-family:'Baskervville',serif;
-    overflow:visible; /* do NOT clip dropdowns/UI */
+    overflow:hidden;
   }
 
-  /* Put scrolling on mount, not wrapper */
-  #calendarMount{
+  .calendar-embed{
     width:100%;
-    max-width:100%;
-    overflow-x:auto;
-    overflow-y:visible;
-    -webkit-overflow-scrolling:touch;
-
-    /* important: vertical stack (today above month) */
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-
-  /* “be helpful” without strangling the calendar */
-  #calendarMount table{
-    width:100% !important;
-    max-width:100% !important;
-    table-layout:fixed !important;
-    border-collapse:collapse;
-  }
-  #calendarMount th, #calendarMount td{
-    min-width:0 !important;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    padding:6px 4px;
-  }
-
-  /* If calendar is div/grid based */
-  #calendarMount .week, #calendarMount .weeks, #calendarMount .row{
-    display:grid;
-    grid-template-columns:repeat(7,minmax(0,1fr));
-    width:100% !important;
-    min-width:0 !important;
-  }
-  #calendarMount .day, #calendarMount .date, #calendarMount .cell{
-    min-width:0 !important;
-    overflow:hidden;
+    height:720px;
+    border:0;
+    display:block;
   }
 
   /* ======== BOOK ======== */
   .book-shell{
-    flex:1 1 0;
-    min-width:520px;
-    width:100%;
+    flex:1 1 720px;
+    min-width:560px;
     display:flex;
   }
 
@@ -202,7 +168,7 @@
   @media (max-width:900px){
     .home-grid{ flex-direction:column; align-items:stretch; gap:12px; }
     .book-shell{ min-width:0; }
-    .spread{ transform:none !important; width:100% !important; }
+    .calendar-embed{ height:620px; }
   }
 
   @media (max-width:800px){
@@ -234,7 +200,12 @@
     <div class="home-grid">
 
       <div class="calendar-wrap">
-        <div id="calendarMount">Loading calendar…</div>
+        <iframe
+          class="calendar-embed"
+          src="calendar.html"
+          title="Parsklands calendar"
+          loading="lazy"
+        ></iframe>
       </div>
 
       <div class="book-shell">
@@ -297,118 +268,6 @@
     .then(html => { document.getElementById("footer").innerHTML = html; })
     .catch(err => console.error("Footer failed to load.", err));
 
-  // Move "today" section above the month, even if calendar scripts re-order it.
-  function pinTodayAboveMonth() {
-    const mount = document.getElementById("calendarMount");
-    if (!mount) return;
-
-    // Find a likely "today" container (avoid grabbing day cells)
-    const candidates = [...mount.querySelectorAll("[id],[class]")].filter(el => {
-      const id = (el.id || "").toLowerCase();
-      const cls = ("" + (el.className || "")).toLowerCase();
-      if (!(id.includes("today") || cls.includes("today"))) return false;
-
-      const tag = el.tagName;
-      if (["TD","TH","TR","TBODY","THEAD","TABLE"].includes(tag)) return false;
-
-      // If it's buried inside a table/grid, skip it (usually a day cell label)
-      if (el.closest("table") && !id.includes("today") && !cls.includes("today")) return false;
-
-      return true;
-    });
-
-    if (!candidates.length) return;
-
-    // Choose the shallowest match so we grab the section wrapper, not some inner span
-    const depth = (n) => {
-      let d = 0;
-      while (n && n !== mount) { d++; n = n.parentElement; }
-      return d;
-    };
-    candidates.sort((a,b) => depth(a) - depth(b));
-
-    const todayEl = candidates[0];
-    mount.prepend(todayEl);
-  }
-
-  function syncBookToCalendar() {
-    const book = document.getElementById("bookSpread");
-    if (!book) return;
-
-    if (window.matchMedia("(max-width: 900px)").matches) {
-      book.style.transform = "none";
-      book.style.width = "100%";
-      return;
-    }
-
-    const cal = document.querySelector(".calendar-wrap");
-    if (!cal) return;
-
-    // reset before measuring
-    book.style.transform = "none";
-    book.style.width = "100%";
-
-    const calH = cal.getBoundingClientRect().height;
-    const bookH = book.getBoundingClientRect().height;
-    if (!calH || !bookH) return;
-
-    const scale = (bookH > calH) ? (calH / bookH) : 1;
-    book.style.transform = `scale(${scale})`;
-    book.style.width = `${100 / scale}%`;
-  }
-
-  // calendar inject (scripts must be re-run)
-  fetch("calendar.html")
-    .then(r => r.text())
-    .then(html => {
-      const mount = document.getElementById("calendarMount");
-      mount.innerHTML = html;
-
-      // re-run scripts inside injected HTML
-      const scripts = mount.querySelectorAll("script");
-      scripts.forEach(old => {
-        const s = document.createElement("script");
-        [...old.attributes].forEach(a => s.setAttribute(a.name, a.value));
-        s.textContent = old.textContent;
-        old.replaceWith(s);
-      });
-
-      // Let the calendar scripts render, then force order, then scale book.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          pinTodayAboveMonth();
-          syncBookToCalendar();
-
-          // Some calendars re-render after initial paint. So do it again shortly.
-          setTimeout(() => {
-            pinTodayAboveMonth();
-            syncBookToCalendar();
-          }, 60);
-        });
-      });
-    })
-    .catch(err => {
-      document.getElementById("calendarMount").textContent = "Calendar failed to load.";
-      console.error(err);
-    });
-
-  // Re-sync on resize
-  let _resizeTimer;
-  window.addEventListener("resize", () => {
-    clearTimeout(_resizeTimer);
-    _resizeTimer = setTimeout(() => {
-      pinTodayAboveMonth();
-      syncBookToCalendar();
-    }, 120);
-  });
-
-  // Re-sync when fonts load (measurement changes)
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(() => {
-      pinTodayAboveMonth();
-      syncBookToCalendar();
-    });
-  }
 </script>
 </body>
 </html>
