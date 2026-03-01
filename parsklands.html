@@ -73,17 +73,20 @@
 
   /* ======== BOOK ======== */
   .book-shell{
-    flex:0 1 clamp(640px,60vw,900px);
-    min-width:580px;
+    flex:1 1 clamp(620px,56vw,860px);
+    min-width:0;
+    max-width:900px;
     display:flex;
     align-items:center;
   }
 
   .book-scale-wrap{
     width:100%;
+    min-width:0;
     overflow:hidden;
     display:flex;
     justify-content:center; /* centers scaled book visually */
+    flex:1;
   }
 
   .spread{
