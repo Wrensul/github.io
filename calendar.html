@@ -87,10 +87,7 @@
 .owcal code{ font-family: inherit; }
 
 .owcal .owcal-shell{
-  background-color: rgba(255,255,255,0.85);
-  border: 4px groove #222;
-  box-shadow: 4px 4px 8px #555;
-  padding: 14px;
+  padding: 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -100,10 +97,10 @@
 .owcal .owcal-calendar{
   display:flex;
   flex-wrap: nowrap;          /* critical: never stack */
-  gap: 14px;
+  gap: 12px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 10px;
+  padding: 0 0 8px 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   align-items: stretch;       /* makes spacer match month height */
