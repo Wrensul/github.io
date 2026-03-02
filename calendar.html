@@ -87,10 +87,7 @@
 .owcal code{ font-family: inherit; }
 
 .owcal .owcal-shell{
-  background-color: rgba(255,255,255,0.85);
-  border: 4px groove #222;
-  box-shadow: 4px 4px 8px #555;
-  padding: 14px;
+  padding: 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -100,10 +97,10 @@
 .owcal .owcal-calendar{
   display:flex;
   flex-wrap: nowrap;          /* critical: never stack */
-  gap: 14px;
+  gap: 12px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 10px;
+  padding: 0 0 8px 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   align-items: stretch;       /* makes spacer match month height */
@@ -123,7 +120,9 @@
 }
 
 .owcal .owcal-specialHead{
-  background: linear-gradient(180deg, #3d2d4f 0%, #2a1f36 100%);
+  background-color: #2a1f36;
+  background-size: cover;
+  background-position: center;
   border-bottom: 3px double #000;
   padding: 14px 12px;
   display:flex;
@@ -135,6 +134,7 @@
 .owcal .owcal-specialTitle{
   font-weight: bold;
   color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   font-size: 1.05em;
   letter-spacing: 0.5px;
   font-family: inherit;
@@ -159,7 +159,9 @@
 }
 
 .owcal .owcal-monthHead{
-  background: linear-gradient(180deg, #3d2d4f 0%, #2a1f36 100%);
+  background-color: #2a1f36;
+  background-size: cover;
+  background-position: center;
   border-bottom: 3px double #000;
   padding: 14px 12px;
   display:flex;
@@ -171,11 +173,18 @@
 .owcal .owcal-monthTitle{
   font-weight: bold;
   color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   font-size: 1.05em;
   letter-spacing: 0.5px;
   font-family: inherit;   /* follow site stylesheet */
 }
 .owcal .owcal-monthMeta{ font-size: 0.9em; color:#222; }
+
+.owcal .owcal-headLabelBackdrop{
+  background: rgba(0,0,0,0.24);
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.35);
+}
 
 
 .owcal .owcal-weekNames{
@@ -450,6 +459,29 @@ const YEAR = buildYear();
 const TODAY_ABS = fictionalTodayAbs();
 let selectedAbs = TODAY_ABS;
 
+const MONTH_ART = {
+  0: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Ivan_Endogurov_Mkhi.jpg/1920px-Ivan_Endogurov_Mkhi.jpg?_=20120102132218",
+  1: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Vonnoh%2C_Robert_William_-_Poppies_-_Google_Art_Project.jpg/1920px-Vonnoh%2C_Robert_William_-_Poppies_-_Google_Art_Project.jpg?_=20121101020038",
+  2: "https://upload.wikimedia.org/wikipedia/commons/6/66/William_Trost_Richards_-_Sunset_on_the_Meadow_-_1996.194_-_Museum_of_Fine_Arts.jpg?_=20190403014005",
+  3: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Cole_Thomas_The_Oxbow_%28The_Connecticut_River_near_Northampton_1836%29.jpg",
+  4: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Frederick_Edwin_Church%2C_New_England_Scenery_%281851%29.jpg/1920px-Frederick_Edwin_Church%2C_New_England_Scenery_%281851%29.jpg?_=20230120215527",
+  5: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Twilight_in_the_Wilderness_by_Frederic_Edwin_Church_%283%29.jpg/3840px-Twilight_in_the_Wilderness_by_Frederic_Edwin_Church_%283%29.jpg",
+  6: "https://uploads1.wikiart.org/images/grigoriy-myasoyedov/autumn-morning-1893.jpg!Large.jpg",
+  7: "https://uploads5.wikiart.org/images/henry-ossawa-tanner/edge-of-the-forest-1893.jpg!Large.jpg",
+  8: "https://upload.wikimedia.org/wikipedia/commons/d/d6/Caspar_David_Friedrich_-_Autumn_%E2%80%93_Evening_%E2%80%93_Maturity_%28from_the_seasons%2C_times_of_day%2C_and_ages_of_man_cycle_of_1803%29_-_Google_Art_Project.jpg",
+  9: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Caspar_David_Friedrich_-_Abtei_im_Eichwald_-_Google_Art_Project.jpg/3840px-Caspar_David_Friedrich_-_Abtei_im_Eichwald_-_Google_Art_Project.jpg",
+  10: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/The_Icebergs_%28Frederic_Edwin_Church%29%2C_1861_%28color%29.jpg/3840px-The_Icebergs_%28Frederic_Edwin_Church%29%2C_1861_%28color%29.jpg",
+  11: "https://uploads3.wikiart.org/00161/images/peder-balke/peder-balke-nordlys.jpg"
+};
+
+const SPECIAL_ART = {
+  start: "https://upload.wikimedia.org/wikipedia/commons/a/ad/Endogurov_Georgievskiy_monastyr%27.jpg",
+  springSummer: "https://uploads8.wikiart.org/images/ivan-shishkin/oak-grove-1887.jpg!Large.jpg",
+  summerFall: "https://uploads8.wikiart.org/images/ivan-shishkin/the-field-of-wheat-1878.jpg!Large.jpg",
+  fallWinter: "https://uploads1.wikiart.org/images/vasily-polenov/first-snow-1891.jpg!Large.jpg",
+  end: "https://uploads3.wikiart.org/images/johan-christian-dahl/megalith-grave-in-winter-1825.jpg!Large.jpg"
+};
+
 function esc(s){
   return String(s)
     .replaceAll("&","&amp;")
@@ -540,7 +572,8 @@ function render(){
 
     const head = document.createElement("div");
     head.className = "owcal-specialHead";
-    head.innerHTML = `<div class="owcal-specialTitle">${esc(obj.label)}</div>`;
+    if (SPECIAL_ART[obj.key]) head.style.backgroundImage = `url('${SPECIAL_ART[obj.key]}')`;
+    head.innerHTML = `<div class="owcal-headLabelBackdrop"><div class="owcal-specialTitle">${esc(obj.label)}</div></div>`;
 
     const body = document.createElement("div");
     body.className = "owcal-specialBody";
@@ -580,9 +613,12 @@ function render(){
 
     const head = document.createElement("div");
     head.className = "owcal-monthHead";
+    if (MONTH_ART[meta.monthIndexAbs]) head.style.backgroundImage = `url('${MONTH_ART[meta.monthIndexAbs]}')`;
     head.innerHTML = `
-      <div class="owcal-monthTitle">${esc(meta.season)} - ${esc(meta.name)} - ${esc(meta.zodiac)}</div>
-      <div class="owcal-monthMeta">30 days</div>
+      <div class="owcal-headLabelBackdrop">
+        <div class="owcal-monthTitle">${esc(meta.season)} - ${esc(meta.name)} - ${esc(meta.zodiac)}</div>
+        <div class="owcal-monthMeta">30 days</div>
+      </div>
     `;
     page.appendChild(head);
 
