@@ -120,7 +120,7 @@
 }
 
 .owcal .owcal-specialHead{
-  background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.22) 100%);
+  background: linear-gradient(180deg, rgba(61,45,79,0.80) 0%, rgba(42,31,54,0.88) 100%);
   background-size: cover;
   background-position: center;
   border-bottom: 3px double #000;
@@ -159,7 +159,7 @@
 }
 
 .owcal .owcal-monthHead{
-  background: linear-gradient(180deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.22) 100%);
+  background: linear-gradient(180deg, rgba(61,45,79,0.80) 0%, rgba(42,31,54,0.88) 100%);
   background-size: cover;
   background-position: center;
   border-bottom: 3px double #000;
@@ -181,7 +181,7 @@
 .owcal .owcal-monthMeta{ font-size: 0.9em; color:#222; }
 
 .owcal .owcal-headLabelBackdrop{
-  background: rgba(0,0,0,0.24);
+  background: rgba(0,0,0,0.38);
   padding: 8px 12px;
   border: 1px solid rgba(255,255,255,0.35);
 }
@@ -572,7 +572,7 @@ function render(){
 
     const head = document.createElement("div");
     head.className = "owcal-specialHead";
-    if (SPECIAL_ART[obj.key]) head.style.backgroundImage = `linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.16) 100%), url('${SPECIAL_ART[obj.key]}')`;
+    if (SPECIAL_ART[obj.key]) head.style.backgroundImage = `linear-gradient(180deg, rgba(61,45,79,0.70) 0%, rgba(42,31,54,0.82) 100%), url('${SPECIAL_ART[obj.key]}')`;
     head.innerHTML = `<div class="owcal-headLabelBackdrop"><div class="owcal-specialTitle">${esc(obj.label)}</div></div>`;
 
     const body = document.createElement("div");
@@ -613,7 +613,7 @@ function render(){
 
     const head = document.createElement("div");
     head.className = "owcal-monthHead";
-    if (MONTH_ART[meta.monthIndexAbs]) head.style.backgroundImage = `linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.16) 100%), url('${MONTH_ART[meta.monthIndexAbs]}')`;
+    if (MONTH_ART[meta.monthIndexAbs]) head.style.backgroundImage = `linear-gradient(180deg, rgba(61,45,79,0.70) 0%, rgba(42,31,54,0.82) 100%), url('${MONTH_ART[meta.monthIndexAbs]}')`;
     head.innerHTML = `
       <div class="owcal-headLabelBackdrop">
         <div class="owcal-monthTitle">${esc(meta.season)} - ${esc(meta.name)} - ${esc(meta.zodiac)}</div>
