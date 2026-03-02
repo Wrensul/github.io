@@ -45,21 +45,18 @@
     margin:0 auto 18px;        /* centers the whole block */
     display:flex;
     justify-content:center;    /* centers the pair inside */
-    align-items:center;
+    align-items:stretch;
     gap:24px;
   }
   .home-grid > *{ min-width:0; }
 
   .calendar-wrap{
     flex:0 1 clamp(460px,42vw,620px);
-    background:rgba(255,255,255,0.92);
-    padding:12px;
-    border:4px groove #222;
-    box-shadow:4px 4px 8px #555;
     font-family:'Baskervville',serif;
     overflow:hidden;
     display:flex;
-    align-self:center;
+    align-self:stretch;
+    min-height:0;
   }
 
   .calendar-embed{
@@ -76,7 +73,7 @@
     flex:0 1 clamp(540px,50vw,740px);
     min-width:520px;
     display:flex;
-    align-items:center;
+    align-items:stretch;
   }
 
   .book-scale-wrap{
