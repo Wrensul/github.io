@@ -134,7 +134,7 @@
 .owcal .owcal-specialTitle{
   font-weight: bold;
   color: #ffffff;
-  text-shadow: none;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.75);
   font-size: 1.05em;
   letter-spacing: 0.5px;
   font-family: inherit;
@@ -173,7 +173,7 @@
 .owcal .owcal-monthTitle{
   font-weight: bold;
   color: #ffffff;
-  text-shadow: none;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.75);
   font-size: 1.05em;
   letter-spacing: 0.5px;
   font-family: inherit;   /* follow site stylesheet */
@@ -617,7 +617,6 @@ function render(){
     head.innerHTML = `
       <div class="owcal-headLabelBackdrop">
         <div class="owcal-monthTitle">${esc(meta.season)} - ${esc(meta.name)} - ${esc(meta.zodiac)}</div>
-        <div class="owcal-monthMeta">30 days</div>
       </div>
     `;
     page.appendChild(head);
