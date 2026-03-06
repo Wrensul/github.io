@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Old Friends | Door to the Parsklands</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
+  <style>
+    main {
+      min-height: 100vh;
+      padding: 36px 16px 64px;
+      font-family: 'Baskervville', serif;
+    }
+
+    .page-shell {
+      max-width: 860px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .construction-sign {
+      margin: 0 0 20px;
+      font-size: clamp(24px, 4vw, 42px);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 8px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(24px, 3vw, 34px);
+    }
+
+    p {
+      margin: 0;
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <main>
+    <section class="page-shell">
+      <div class="construction-sign">UNDER CONSTRUCTION</div>
+      <h1>Old Friends</h1>
+      <p>This page is being prepared and will be available soon.</p>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    fetch("header.html")
+      .then(r => r.text())
+      .then(html => { document.getElementById("header").innerHTML = html; })
+      .catch(err => console.error("Header failed to load.", err));
+
+    fetch("footer.html")
+      .then(r => r.text())
+      .then(html => { document.getElementById("footer").innerHTML = html; })
+      .catch(err => console.error("Footer failed to load.", err));
+  </script>
+</body>
+</html>
