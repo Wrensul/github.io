@@ -9,38 +9,173 @@
   <style>
     main {
       min-height: 100vh;
-      padding: 36px 16px 64px;
+      padding: 28px 16px 64px;
       font-family: 'Baskervville', serif;
     }
 
     .page-shell {
-      max-width: 860px;
-      margin: 40px auto;
+      max-width: 980px;
+      margin: 34px auto;
       background: rgba(255, 255, 255, 0.95);
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
-      padding: 28px 24px;
-      text-align: center;
-    }
-
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+      padding: 24px clamp(16px, 3vw, 32px);
     }
 
     h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+      text-align: center;
+      letter-spacing: 1px;
     }
 
-    p {
+    .intro {
+      margin: 0 0 22px;
+      text-align: center;
+      font-size: clamp(16px, 1.8vw, 21px);
+      line-height: 1.45;
+    }
+
+    .alphabet-nav {
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.96);
+      border: 2px solid #222;
+      border-radius: 8px;
+      padding: 10px 10px 8px;
+      margin-bottom: 12px;
+    }
+
+    .alphabet-nav ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+      gap: 6px;
       margin: 0;
-      font-size: clamp(18px, 2vw, 24px);
-      line-height: 1.4;
+      padding: 0;
+    }
+
+    .alphabet-nav a {
+      display: block;
+      padding: 5px 0;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+      color: #111;
+      border: 1px solid #777;
+      border-radius: 4px;
+      background: #f8f8f8;
+      transition: background 0.2s ease;
+    }
+
+    .alphabet-nav a:hover,
+    .alphabet-nav a:focus-visible {
+      background: #e7ecea;
+      outline: 2px solid #666;
+      outline-offset: 1px;
+    }
+
+    .search-wrap {
+      margin-bottom: 20px;
+    }
+
+    .search-label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    #glossary-search {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 2px solid #444;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .search-note {
+      margin: 8px 0 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .letter-section {
+      border-top: 2px solid #222;
+      padding-top: 14px;
+      margin-top: 14px;
+      scroll-margin-top: 88px;
+    }
+
+    .letter-heading {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 32px);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 7px;
+    }
+
+    .entry-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .entry {
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: #fcfcfc;
+    }
+
+    .entry-term {
+      margin: 0 0 6px;
+      font-size: 1.06rem;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    .entry-definition {
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    .motifs {
+      border-top: 3px double #222;
+      margin-top: 26px;
+      padding-top: 18px;
+    }
+
+    .motifs h2 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 34px);
+      text-align: left;
+    }
+
+    .motif-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .motif-item {
+      line-height: 1.35;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .empty-msg {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px dashed #666;
+      background: #fafafa;
     }
   </style>
 </head>
@@ -49,23 +184,137 @@
 
   <main>
     <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
       <h1>Glossary</h1>
-      <p>This page is being prepared and will be available soon.</p>
+      <p class="intro">Alphabetized placeholders are ready for you to fill in later. Use the A&ndash;Z bar to jump to each letter, and use search to find a term or phrase quickly.</p>
+
+      <nav class="alphabet-nav" aria-label="Glossary letters">
+        <ul id="alphabet-links"></ul>
+      </nav>
+
+      <div class="search-wrap">
+        <label class="search-label" for="glossary-search">Search glossary terms and definitions:</label>
+        <input id="glossary-search" type="search" placeholder="Type a word or phrase..." autocomplete="off" />
+        <p class="search-note">Tip: search checks both term names and definitions.</p>
+      </div>
+
+      <div id="no-results" class="empty-msg hidden">No glossary entries match your search yet. Try another word or clear the search.</div>
+
+      <div id="glossary-sections"></div>
+
+      <section class="motifs" aria-labelledby="motifs-heading">
+        <h2 id="motifs-heading">Common Cultural Symbols and Motifs</h2>
+        <ul class="motif-list">
+          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
+          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
+          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
+          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
+        </ul>
+      </section>
     </section>
   </main>
 
   <div id="footer"></div>
 
   <script>
+    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+
+    const glossaryData = letters.map(letter => ({
+      letter,
+      entries: [
+        {
+          term: `${letter} Word Placeholder 1`,
+          definition: "..."
+        },
+        {
+          term: `${letter} Word Placeholder 2`,
+          definition: "..."
+        },
+        {
+          term: `${letter} Word Placeholder 3`,
+          definition: "..."
+        }
+      ]
+    }));
+
+    function buildAlphabetNav() {
+      const navList = document.getElementById("alphabet-links");
+      navList.innerHTML = glossaryData
+        .map(item => `<li><a href="#letter-${item.letter}">${item.letter}</a></li>`)
+        .join("");
+    }
+
+    function buildGlossarySections() {
+      const container = document.getElementById("glossary-sections");
+
+      container.innerHTML = glossaryData
+        .map(item => `
+          <section class="letter-section" id="letter-${item.letter}" data-letter-section>
+            <h2 class="letter-heading">${item.letter}</h2>
+            <ul class="entry-list">
+              ${item.entries
+                .map(
+                  entry => `
+                  <li class="entry" data-entry>
+                    <p class="entry-term">${entry.term}</p>
+                    <p class="entry-definition">${entry.definition}</p>
+                  </li>
+                `
+                )
+                .join("")}
+            </ul>
+          </section>
+        `)
+        .join("");
+    }
+
+    function setupSearch() {
+      const searchInput = document.getElementById("glossary-search");
+      const noResults = document.getElementById("no-results");
+
+      searchInput.addEventListener("input", event => {
+        const query = event.target.value.trim().toLowerCase();
+        const sections = document.querySelectorAll("[data-letter-section]");
+
+        let visibleEntryCount = 0;
+
+        sections.forEach(section => {
+          const entries = section.querySelectorAll("[data-entry]");
+          let sectionHasVisibleEntries = false;
+
+          entries.forEach(entry => {
+            const text = entry.textContent.toLowerCase();
+            const isVisible = query === "" || text.includes(query);
+            entry.classList.toggle("hidden", !isVisible);
+
+            if (isVisible) {
+              sectionHasVisibleEntries = true;
+              visibleEntryCount += 1;
+            }
+          });
+
+          section.classList.toggle("hidden", !sectionHasVisibleEntries);
+        });
+
+        noResults.classList.toggle("hidden", visibleEntryCount !== 0);
+      });
+    }
+
+    buildAlphabetNav();
+    buildGlossarySections();
+    setupSearch();
+
     fetch("header.html")
       .then(r => r.text())
-      .then(html => { document.getElementById("header").innerHTML = html; })
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      })
       .catch(err => console.error("Header failed to load.", err));
 
     fetch("footer.html")
       .then(r => r.text())
-      .then(html => { document.getElementById("footer").innerHTML = html; })
+      .then(html => {
+        document.getElementById("footer").innerHTML = html;
+      })
       .catch(err => console.error("Footer failed to load.", err));
   </script>
 </body>
