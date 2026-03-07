@@ -9,6 +9,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Peoples",
       fields: {
+        "Common Name": "...",
         "Lifespan": "...",
         "General Appearance": "..."
       }
@@ -16,6 +17,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Animals",
       fields: {
+        "Common Name": "...",
         "Lifespan": "...",
         "General Appearance": "...",
         "Behavior": "...",
@@ -25,6 +27,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Jinxed Souls",
       fields: {
+        "Common Name": "...",
         "General Appearance": "...",
         "Behavior": "...",
         "Variants/Regions": "..."
@@ -33,6 +36,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Wraiths",
       fields: {
+        "Common Name": "...",
         "General Appearance": "...",
         "Behavior": "...",
         "Variants/Regions": "..."
@@ -41,6 +45,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Revenants",
       fields: {
+        "Common Name": "...",
         "General Appearance": "...",
         "Behavior": "...",
         "Variants/Regions": "..."
@@ -49,6 +54,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Memoriums",
       fields: {
+        "Common Name": "...",
         "General Appearance": "...",
         "Behavior": "...",
         "Variants/Regions": "..."
@@ -57,6 +63,7 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Spirits",
       fields: {
+        "Common Name": "...",
         "General Appearance": "...",
         "Behavior": "...",
         "Variants/Regions": "..."
@@ -65,6 +72,16 @@ window.CREATURES_FIELD_GUIDE = {
     {
       name: "Titans",
       fields: {
+        "Common Name": "...",
+        "General Appearance": "...",
+        "Behavior": "...",
+        "Variants/Regions": "..."
+      }
+    }
+    {
+      name: "Gods",
+      fields: {
+        "Common Name": "...",
         "General Appearance": "...",
         "Behavior": "...",
         "Variants/Regions": "..."
