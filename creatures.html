@@ -13,34 +13,91 @@
       font-family: 'Baskervville', serif;
     }
 
-    .page-shell {
-      max-width: 860px;
+    .creatures-shell {
+      max-width: 920px;
       margin: 40px auto;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.93);
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
       padding: 28px 24px;
+    }
+
+    .creatures-heading {
       text-align: center;
+      margin-bottom: 24px;
     }
 
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+    .creatures-heading h1 {
+      margin: 0 0 18px;
+      font-size: clamp(28px, 4vw, 42px);
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
+    .creatures-image {
+      width: min(100%, 560px);
+      margin: 0 auto 16px;
+      display: block;
+      border: 3px solid #222;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
     }
 
-    p {
+    .creatures-intro {
       margin: 0;
       font-size: clamp(18px, 2vw, 24px);
       line-height: 1.4;
+    }
+
+    .creature-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .creature-card {
+      border: 3px groove #333;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 14px 16px;
+    }
+
+    .creature-card h2 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 32px);
+      border-bottom: 1px solid #444;
+      padding-bottom: 6px;
+    }
+
+    .creature-fields {
+      margin: 0;
+      display: grid;
+      grid-template-columns: minmax(180px, auto) 1fr;
+      gap: 8px 12px;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .creature-fields dt {
+      font-weight: bold;
+    }
+
+    .creature-fields dd {
+      margin: 0;
+    }
+
+    .creatures-help {
+      margin: 18px 0 0;
+      border: 2px dashed #333;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 10px 12px;
+      font-size: 16px;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.07);
+      padding: 1px 4px;
+    }
+
+    @media (max-width: 620px) {
+      .creature-fields {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -48,16 +105,63 @@
   <div id="header"></div>
 
   <main>
-    <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
-      <h1>Creatures</h1>
-      <p>This page is being prepared and will be available soon.</p>
+    <section class="creatures-shell">
+      <header class="creatures-heading">
+        <h1 id="creatures-page-title">Creatures Field Guide</h1>
+        <img id="creatures-page-image" class="creatures-image" src="assets/background.jpg" alt="Placeholder image" />
+        <p id="creatures-page-intro" class="creatures-intro">Loading field guide entries...</p>
+      </header>
+
+      <div id="creature-list" class="creature-list"></div>
+
+      <p class="creatures-help">
+        Edit <code>creatures-data.js</code> to update category info cards for this page.
+      </p>
     </section>
   </main>
 
   <div id="footer"></div>
 
+  <script src="creatures-data.js"></script>
   <script>
+    function renderCreatureGuide(guideData) {
+      const titleEl = document.getElementById("creatures-page-title");
+      const imageEl = document.getElementById("creatures-page-image");
+      const introEl = document.getElementById("creatures-page-intro");
+      const listEl = document.getElementById("creature-list");
+
+      titleEl.textContent = guideData.pageTitle || "Creatures Field Guide";
+      imageEl.src = guideData.heroImage?.src || "assets/background.jpg";
+      imageEl.alt = guideData.heroImage?.alt || "Placeholder image";
+      introEl.textContent = guideData.intro || "";
+      listEl.innerHTML = "";
+
+      guideData.categories.forEach((category) => {
+        const card = document.createElement("article");
+        card.className = "creature-card";
+
+        const heading = document.createElement("h2");
+        heading.textContent = category.name;
+        card.appendChild(heading);
+
+        const fields = document.createElement("dl");
+        fields.className = "creature-fields";
+
+        Object.entries(category.fields).forEach(([label, value]) => {
+          const term = document.createElement("dt");
+          term.textContent = `${label} -`;
+          fields.appendChild(term);
+
+          const description = document.createElement("dd");
+          description.textContent = value;
+          fields.appendChild(description);
+        });
+
+        card.appendChild(fields);
+        listEl.appendChild(card);
+      });
+    }
+
     fetch("header.html")
       .then(r => r.text())
       .then(html => { document.getElementById("header").innerHTML = html; })
@@ -67,6 +171,12 @@
       .then(r => r.text())
       .then(html => { document.getElementById("footer").innerHTML = html; })
       .catch(err => console.error("Footer failed to load.", err));
+
+    if (window.CREATURES_FIELD_GUIDE && Array.isArray(window.CREATURES_FIELD_GUIDE.categories)) {
+      renderCreatureGuide(window.CREATURES_FIELD_GUIDE);
+    } else {
+      document.getElementById("creatures-page-intro").textContent = "Creature field guide data failed to load.";
+    }
   </script>
 </body>
 </html>
