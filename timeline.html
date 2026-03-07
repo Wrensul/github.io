@@ -13,34 +13,148 @@
       font-family: 'Baskervville', serif;
     }
 
-    .page-shell {
-      max-width: 860px;
+    .timeline-shell {
+      max-width: 920px;
       margin: 40px auto;
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.93);
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
       padding: 28px 24px;
+    }
+
+    .timeline-heading {
       text-align: center;
+      margin: 0 0 28px;
     }
 
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+    .timeline-heading h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 4vw, 40px);
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
-    }
-
-    p {
+    .timeline-heading p {
       margin: 0;
-      font-size: clamp(18px, 2vw, 24px);
+      font-size: clamp(18px, 2vw, 22px);
       line-height: 1.4;
+    }
+
+    .timeline {
+      position: relative;
+      margin: 0;
+      padding-left: 78px;
+    }
+
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 24px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #333;
+    }
+
+    .era {
+      margin: 26px 0 16px;
+      padding: 10px 12px;
+      border: 2px solid #222;
+      background: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .era-range {
+      display: block;
+      text-transform: none;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    .timeline-event {
+      position: relative;
+      margin: 0 0 24px;
+    }
+
+    .event-marker {
+      position: absolute;
+      left: -62px;
+      top: 12px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #222;
+      border: 2px solid #f0f0f0;
+      box-shadow: 0 0 0 2px #222;
+    }
+
+    .event-title {
+      width: 100%;
+      border: 2px solid #222;
+      border-radius: 0;
+      background: rgba(245, 239, 221, 0.9);
+      padding: 12px 14px;
+      text-align: left;
+      font-family: inherit;
+      font-size: clamp(18px, 2vw, 24px);
+      cursor: pointer;
+    }
+
+    .event-title[aria-expanded="true"] {
+      background: rgba(225, 214, 184, 0.9);
+    }
+
+    .event-card {
+      display: none;
+      margin-top: 8px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 4px groove #333;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .event-card.open {
+      display: block;
+    }
+
+    .event-card h3 {
+      margin: 0 0 6px;
+      font-size: 28px;
+    }
+
+    .event-years,
+    .event-duration,
+    .event-note {
+      margin: 0 0 8px;
+      font-style: italic;
+    }
+
+    .event-summary {
+      margin: 0 0 10px;
+    }
+
+    .event-image {
+      max-width: min(100%, 420px);
+      display: block;
+      margin: 12px 0 0;
+      border: 2px solid #222;
+    }
+
+    .timeline-help {
+      margin: 24px 0 0;
+      padding: 12px;
+      border: 2px dashed #333;
+      background: rgba(255, 255, 255, 0.72);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.07);
+      padding: 1px 4px;
     }
   </style>
 </head>
@@ -48,16 +162,106 @@
   <div id="header"></div>
 
   <main>
-    <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
-      <h1>Timeline</h1>
-      <p>This page is being prepared and will be available soon.</p>
+    <section class="timeline-shell">
+      <header class="timeline-heading">
+        <h1 id="timeline-page-title">Timeline</h1>
+        <p id="timeline-page-subtitle">Loading the archive entries...</p>
+      </header>
+
+      <div id="timeline" class="timeline"></div>
+
+      <p class="timeline-help">
+        Edit <code>timeline-data.js</code> to add eras and events. Changes are rendered automatically on this page.
+      </p>
     </section>
   </main>
 
   <div id="footer"></div>
 
+  <script src="timeline-data.js"></script>
   <script>
+    function renderTimeline(documentData) {
+      const titleEl = document.getElementById("timeline-page-title");
+      const subtitleEl = document.getElementById("timeline-page-subtitle");
+      const timelineRoot = document.getElementById("timeline");
+
+      titleEl.textContent = documentData.title || "Timeline";
+      subtitleEl.textContent = documentData.subtitle || "";
+      timelineRoot.innerHTML = "";
+
+      documentData.eras.forEach((era) => {
+        const eraEl = document.createElement("section");
+        eraEl.className = "era";
+        eraEl.innerHTML = `${era.label}<span class="era-range">${era.range}</span>`;
+        timelineRoot.appendChild(eraEl);
+
+        era.events.forEach((event) => {
+          const eventWrap = document.createElement("article");
+          eventWrap.className = "timeline-event";
+
+          const marker = document.createElement("div");
+          marker.className = "event-marker";
+          eventWrap.appendChild(marker);
+
+          const title = document.createElement("button");
+          title.className = "event-title";
+          title.type = "button";
+          title.textContent = `${event.yearsLabel} — ${event.title}`;
+          title.setAttribute("aria-expanded", "false");
+
+          const card = document.createElement("div");
+          card.className = "event-card";
+
+          const name = document.createElement("h3");
+          name.textContent = event.title;
+          card.appendChild(name);
+
+          const years = document.createElement("p");
+          years.className = "event-years";
+          years.textContent = event.yearsLabel;
+          card.appendChild(years);
+
+          const duration = document.createElement("p");
+          duration.className = "event-duration";
+          duration.textContent = event.durationLabel;
+          card.appendChild(duration);
+
+          event.summary.forEach((paragraph) => {
+            const line = document.createElement("p");
+            line.className = "event-summary";
+            line.textContent = paragraph;
+            card.appendChild(line);
+          });
+
+          if (event.images && event.images.length > 0) {
+            event.images.forEach((image) => {
+              const img = document.createElement("img");
+              img.className = "event-image";
+              img.src = image.src;
+              img.alt = image.alt;
+              card.appendChild(img);
+            });
+          }
+
+          if (event.notes) {
+            const notes = document.createElement("p");
+            notes.className = "event-note";
+            notes.textContent = `Notes: ${event.notes}`;
+            card.appendChild(notes);
+          }
+
+          title.addEventListener("click", () => {
+            const isOpen = card.classList.toggle("open");
+            title.setAttribute("aria-expanded", String(isOpen));
+          });
+
+          eventWrap.appendChild(title);
+          eventWrap.appendChild(card);
+          timelineRoot.appendChild(eventWrap);
+        });
+      });
+    }
+
     fetch("header.html")
       .then(r => r.text())
       .then(html => { document.getElementById("header").innerHTML = html; })
@@ -67,6 +271,12 @@
       .then(r => r.text())
       .then(html => { document.getElementById("footer").innerHTML = html; })
       .catch(err => console.error("Footer failed to load.", err));
+
+    if (window.TIMELINE_DOCUMENT && Array.isArray(window.TIMELINE_DOCUMENT.eras)) {
+      renderTimeline(window.TIMELINE_DOCUMENT);
+    } else {
+      document.getElementById("timeline-page-subtitle").textContent = "Timeline data failed to load.";
+    }
   </script>
 </body>
 </html>
