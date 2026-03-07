@@ -13,34 +13,129 @@
       font-family: 'Baskervville', serif;
     }
 
-    .page-shell {
-      max-width: 860px;
+    .magic-shell {
+      max-width: 940px;
       margin: 40px auto;
       background: rgba(255, 255, 255, 0.95);
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
       padding: 28px 24px;
+    }
+
+    .magic-heading {
       text-align: center;
+      margin-bottom: 20px;
     }
 
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+    .magic-heading h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
-    }
-
-    p {
+    .magic-heading p {
       margin: 0;
       font-size: clamp(18px, 2vw, 24px);
-      line-height: 1.4;
+    }
+
+    .tab-row {
+      display: flex;
+      gap: 8px;
+      margin: 22px 0 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tab-button {
+      border: 2px solid #222;
+      background: #f7f2e8;
+      padding: 8px 14px;
+      font: inherit;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .tab-button[aria-selected="true"] {
+      background: #e8dcc1;
+      box-shadow: inset 0 0 0 2px #3f2f13;
+    }
+
+    .tab-panel {
+      border: 3px groove #333;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 16px;
+    }
+
+    .magic-placeholder {
+      margin: 0;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    .alchemy-category {
+      margin-top: 18px;
+    }
+
+    .alchemy-category:first-child {
+      margin-top: 0;
+    }
+
+    .alchemy-category h2 {
+      margin: 0 0 10px;
+      font-size: clamp(22px, 3vw, 30px);
+      border-bottom: 1px solid #555;
+      padding-bottom: 4px;
+    }
+
+    .alchemy-cards {
+      display: grid;
+      gap: 12px;
+    }
+
+    .alchemy-card {
+      border: 2px solid #444;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 10px 12px;
+    }
+
+    .alchemy-card h3 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .alchemy-fields {
+      margin: 0;
+      display: grid;
+      grid-template-columns: minmax(180px, auto) 1fr;
+      gap: 8px 12px;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .alchemy-fields dt {
+      font-weight: bold;
+    }
+
+    .alchemy-fields dd {
+      margin: 0;
+    }
+
+    .alchemy-help {
+      margin: 16px 0 0;
+      border: 2px dashed #444;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 10px 12px;
+      font-size: 16px;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.07);
+      padding: 1px 4px;
+    }
+
+    @media (max-width: 640px) {
+      .alchemy-fields {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -48,16 +143,106 @@
   <div id="header"></div>
 
   <main>
-    <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
-      <h1>Magic</h1>
-      <p>This page is being prepared and will be available soon.</p>
+    <section class="magic-shell">
+      <header class="magic-heading">
+        <h1>Magic</h1>
+        <p>Explore different schools and studies of magic in the Parsklands.</p>
+      </header>
+
+      <nav class="tab-row" aria-label="Magic categories">
+        <button class="tab-button" type="button" role="tab" id="tab-alchemy" aria-controls="panel-alchemy" aria-selected="true">Alchemy</button>
+        <button class="tab-button" type="button" role="tab" id="tab-rituals" aria-controls="panel-rituals" aria-selected="false">Rituals</button>
+        <button class="tab-button" type="button" role="tab" id="tab-arcana" aria-controls="panel-arcana" aria-selected="false">Arcana</button>
+      </nav>
+
+      <section class="tab-panel" id="panel-alchemy" role="tabpanel" aria-labelledby="tab-alchemy"></section>
+      <section class="tab-panel" id="panel-rituals" role="tabpanel" aria-labelledby="tab-rituals" hidden>
+        <p class="magic-placeholder">Rituals guide coming soon.</p>
+      </section>
+      <section class="tab-panel" id="panel-arcana" role="tabpanel" aria-labelledby="tab-arcana" hidden>
+        <p class="magic-placeholder">Arcana guide coming soon.</p>
+      </section>
+
+      <p class="alchemy-help">Edit <code>magic-alchemy-data.js</code> to add or update alchemy entries.</p>
     </section>
   </main>
 
   <div id="footer"></div>
 
+  <script src="magic-alchemy-data.js"></script>
   <script>
+    function renderAlchemyGuide(alchemyData) {
+      const panel = document.getElementById("panel-alchemy");
+      panel.innerHTML = "";
+
+      alchemyData.categories.forEach((category) => {
+        const section = document.createElement("section");
+        section.className = "alchemy-category";
+
+        const heading = document.createElement("h2");
+        heading.textContent = category.name;
+        section.appendChild(heading);
+
+        const cardsWrap = document.createElement("div");
+        cardsWrap.className = "alchemy-cards";
+
+        category.cards.forEach((cardData) => {
+          const card = document.createElement("article");
+          card.className = "alchemy-card";
+
+          const title = document.createElement("h3");
+          title.textContent = cardData.name || "...";
+          card.appendChild(title);
+
+          const fields = document.createElement("dl");
+          fields.className = "alchemy-fields";
+
+          const cardFields = {
+            "Name": cardData.name,
+            "Elements": cardData.elements,
+            "Rarity": cardData.rarity,
+            "Source/Region(s)": cardData.sourceRegions,
+            "Description": cardData.description,
+            "Risks": cardData.risks
+          };
+
+          Object.entries(cardFields).forEach(([label, value]) => {
+            const term = document.createElement("dt");
+            term.textContent = `${label} -`;
+            fields.appendChild(term);
+
+            const description = document.createElement("dd");
+            description.textContent = value || "...";
+            fields.appendChild(description);
+          });
+
+          card.appendChild(fields);
+          cardsWrap.appendChild(card);
+        });
+
+        section.appendChild(cardsWrap);
+        panel.appendChild(section);
+      });
+    }
+
+    function setupTabs() {
+      const tabs = Array.from(document.querySelectorAll(".tab-button"));
+      const panels = Array.from(document.querySelectorAll(".tab-panel"));
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((btn) => btn.setAttribute("aria-selected", "false"));
+          panels.forEach((panel) => { panel.hidden = true; });
+
+          tab.setAttribute("aria-selected", "true");
+          const targetPanel = document.getElementById(tab.getAttribute("aria-controls"));
+          if (targetPanel) {
+            targetPanel.hidden = false;
+          }
+        });
+      });
+    }
+
     fetch("header.html")
       .then(r => r.text())
       .then(html => { document.getElementById("header").innerHTML = html; })
@@ -67,6 +252,14 @@
       .then(r => r.text())
       .then(html => { document.getElementById("footer").innerHTML = html; })
       .catch(err => console.error("Footer failed to load.", err));
+
+    setupTabs();
+
+    if (window.ALCHEMY_GUIDE_DATA && Array.isArray(window.ALCHEMY_GUIDE_DATA.categories)) {
+      renderAlchemyGuide(window.ALCHEMY_GUIDE_DATA);
+    } else {
+      document.getElementById("panel-alchemy").innerHTML = '<p class="magic-placeholder">Alchemy guide data failed to load.</p>';
+    }
   </script>
 </body>
 </html>
