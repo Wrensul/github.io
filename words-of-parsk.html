@@ -8,17 +8,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --paper: #f4efe1;
-      --ink: #1b1b1b;
-      --book-bg: #2f2f2f;
-      --book-panel: #f6f0dd;
-      --overlay: rgba(0, 0, 0, 0.75);
       --tile-size: 220px;
+      --paper: #fbf7eb;
+      --paper-edge: #ddcfad;
+      --ink: #151515;
+      --overlay: rgba(0, 0, 0, 0.72);
     }
 
-    body {
-      font-family: 'Baskervville', serif;
-    }
+    body { font-family: 'Baskervville', serif; }
+    body.no-scroll { overflow: hidden; }
 
     main.page {
       margin-top: 40px;
@@ -72,10 +70,7 @@
       justify-content: center;
     }
 
-    .book-card {
-      text-align: center;
-      color: #111;
-    }
+    .book-card { text-align: center; color: #111; }
 
     .book-tile {
       width: var(--tile-size);
@@ -102,9 +97,7 @@
       letter-spacing: 1px;
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     .book-modal {
       position: fixed;
@@ -117,14 +110,13 @@
     }
 
     .book-shell {
-      width: min(900px, 95vw);
-      max-height: 90vh;
-      background: var(--book-bg);
-      border: 2px solid #1b1b1b;
+      width: min(1050px, 96vw);
+      max-height: 92vh;
+      background: #303030;
+      border: 2px solid #1c1c1c;
       border-radius: 10px;
-      color: var(--ink);
       overflow: hidden;
-      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
       display: grid;
       grid-template-rows: auto 1fr;
     }
@@ -135,75 +127,110 @@
       align-items: center;
       gap: 8px;
       padding: 10px 12px;
-      background: #1e1e1e;
-      color: #f0f0f0;
+      background: #1f1f1f;
+      color: #f1f1f1;
       font-size: 14px;
     }
 
     .book-controls button {
-      background: #2a2a2a;
-      border: 1px solid #444;
-      color: #f0f0f0;
+      background: #2c2c2c;
+      border: 1px solid #4a4a4a;
+      color: #f1f1f1;
       border-radius: 6px;
       padding: 6px 10px;
       cursor: pointer;
-    }
-
-    .book-controls button:hover {
-      background: #373737;
+      font-family: inherit;
     }
 
     .book-stage {
       overflow: auto;
-      padding: 20px;
-      background: #292929;
+      padding: 18px;
+      background: #2a2a2a;
+    }
+
+    .spread {
+      position: relative;
+      width: min(960px, 100%);
+      min-height: 520px;
+      margin: 0 auto;
+      background: #f2ebd6;
+      border: 4px groove #232323;
+      box-shadow: 4px 4px 8px #111;
+      overflow: hidden;
+    }
+
+    .spread::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 14px;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(0,0,0,.22), rgba(255,255,255,.15), rgba(0,0,0,.22));
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .spread-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      min-height: 100%;
     }
 
     .book-page {
-      width: min(720px, 100%);
-      min-height: 420px;
-      margin: 0 auto;
-      background: var(--book-panel);
-      border-radius: 8px;
-      border: 1px solid #cfbea0;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-      padding: 24px;
+      position: relative;
+      padding: clamp(18px, 2.6vw, 34px);
+      background: var(--paper);
+      color: var(--ink);
+      border-top: 1px solid var(--paper-edge);
+      border-bottom: 1px solid var(--paper-edge);
       opacity: 0;
-      transform-origin: left center;
-      animation: pageTurn 0.36s ease forwards;
+      transform: translateX(12px);
+      animation: pageShift .24s ease forwards;
     }
 
-    @keyframes pageTurn {
-      from {
-        opacity: 0;
-        transform: perspective(900px) rotateY(-16deg) translateX(16px);
-      }
+    .book-page.left {
+      border-right: 1px solid rgba(0,0,0,.2);
+      box-shadow: inset -18px 0 24px rgba(0,0,0,.08);
+      transform: translateX(-12px);
+    }
+
+    .book-page.right { box-shadow: inset 18px 0 24px rgba(0,0,0,.08); }
+
+    @keyframes pageShift {
       to {
         opacity: 1;
-        transform: perspective(900px) rotateY(0deg) translateX(0);
+        transform: translateX(0);
       }
     }
 
-    .cover-title {
-      min-height: 280px;
+    .cover-wrap {
+      min-height: 340px;
       display: grid;
       place-items: center;
-      text-align: center;
-      font-size: clamp(36px, 6vw, 64px);
-      letter-spacing: 2px;
-      text-transform: uppercase;
       border: 2px solid #b89b74;
       background: linear-gradient(135deg, #dbc49a 0%, #f7ebca 100%);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: clamp(40px, 5vw, 62px);
+      text-align: center;
     }
 
-    .toc-list,
-    .chapter-list {
+    .page-title {
+      margin: 0;
+      font-size: clamp(28px, 3.4vw, 40px);
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    .toc-list {
       list-style: none;
-      padding: 0;
       margin: 16px 0 0;
+      padding: 0;
       display: grid;
-      gap: 8px;
-      max-width: 260px;
+      gap: 10px;
+      max-width: 220px;
     }
 
     .toc-btn {
@@ -212,35 +239,38 @@
       border: 1px solid #8a7759;
       background: #f9f3e5;
       padding: 8px 10px;
-      cursor: pointer;
       font-family: inherit;
-      font-size: 18px;
+      font-size: 22px;
+      cursor: pointer;
     }
 
-    .toc-btn:hover {
-      background: #fffdf7;
+    .chapter-number {
+      margin-top: 20px;
+      font-size: 54px;
+      text-align: center;
+      line-height: 1;
     }
 
-    .page-title {
-      margin: 0;
-      font-size: 30px;
-    }
-
-    .page-number {
-      margin-top: 22px;
+    .page-marker {
+      margin-top: 26px;
       font-size: 15px;
       opacity: 0.72;
     }
 
-    @media (max-width: 700px) {
-      .book-grid {
-        grid-template-columns: 1fr;
-      }
+    .blank-page {
+      display: grid;
+      place-items: center;
+      color: rgba(0,0,0,.5);
+      font-style: italic;
+    }
 
-      .book-page {
-        min-height: 360px;
-        padding: 18px;
-      }
+    @media (max-width: 860px) {
+      .book-grid { grid-template-columns: 1fr; }
+      .spread { min-height: 620px; }
+      .spread::before { display: none; }
+      .spread-inner { grid-template-columns: 1fr; }
+      .book-page.left { border-right: none; border-bottom: 1px solid rgba(0,0,0,.18); box-shadow: inset 0 -18px 24px rgba(0,0,0,.08); }
+      .book-page.right { box-shadow: inset 0 18px 24px rgba(0,0,0,.08); }
     }
   </style>
 </head>
@@ -273,13 +303,15 @@
       <div class="book-controls">
         <span id="book-status">Book</span>
         <div>
-          <button id="prev-page" aria-label="Previous page">◀ Prev</button>
-          <button id="next-page" aria-label="Next page">Next ▶</button>
+          <button id="prev-page" aria-label="Previous page">◀ Prev Page</button>
+          <button id="next-page" aria-label="Next page">Next Page ▶</button>
           <button id="close-book" aria-label="Close book">✕ Close</button>
         </div>
       </div>
       <div class="book-stage">
-        <div id="book-page" class="book-page"></div>
+        <div class="spread">
+          <div id="spread-inner" class="spread-inner"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -311,7 +343,7 @@
     };
 
     const modal = document.getElementById('book-modal');
-    const pageEl = document.getElementById('book-page');
+    const spreadInner = document.getElementById('spread-inner');
     const statusEl = document.getElementById('book-status');
     const closeBtn = document.getElementById('close-book');
     const prevBtn = document.getElementById('prev-page');
@@ -319,15 +351,15 @@
     const tiles = Array.from(document.querySelectorAll('.book-tile'));
 
     let activeBookKey = null;
-    let currentPageIndex = 0;
+    let currentIndex = 0;
 
     function openBook(bookKey) {
       activeBookKey = bookKey;
-      currentPageIndex = 0;
+      currentIndex = 0;
       modal.classList.remove('hidden');
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('no-scroll');
-      renderPage();
+      renderSpread();
     }
 
     function closeBook() {
@@ -335,33 +367,28 @@
       modal.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('no-scroll');
       activeBookKey = null;
-      currentPageIndex = 0;
+      currentIndex = 0;
     }
 
     function goToPage(index) {
       const book = books[activeBookKey];
       if (!book) return;
-      currentPageIndex = Math.max(0, Math.min(index, book.pages.length - 1));
-      renderPage();
+      currentIndex = Math.max(0, Math.min(index, book.pages.length - 1));
+      renderSpread();
     }
 
-    function renderPage() {
-      const book = books[activeBookKey];
-      if (!book) return;
-      const page = book.pages[currentPageIndex];
-
-      pageEl.classList.remove('book-page');
-      void pageEl.offsetWidth;
-      pageEl.classList.add('book-page');
-
-      statusEl.textContent = `${book.label} • Page ${currentPageIndex + 1} of ${book.pages.length}`;
+    function pageHtml(page, side) {
+      if (!page) {
+        return `<section class="book-page ${side} blank-page"><p>Blank Page</p></section>`;
+      }
 
       if (page.type === 'cover') {
-        pageEl.innerHTML = `
-          <div class="cover-title">${page.title}</div>
-          <p class="page-number">Cover</p>
+        return `
+          <section class="book-page ${side}">
+            <div class="cover-wrap">${page.title}</div>
+            <p class="page-marker">Cover</p>
+          </section>
         `;
-        return;
       }
 
       if (page.type === 'toc') {
@@ -369,23 +396,38 @@
           .map((chapter, idx) => `<li><button class="toc-btn" data-page="${idx + 2}">${chapter}</button></li>`)
           .join('');
 
-        pageEl.innerHTML = `
-          <h2 class="page-title">${page.title}</h2>
-          <ol class="toc-list">${buttons}</ol>
-          <p class="page-number">Contents</p>
+        return `
+          <section class="book-page ${side}">
+            <h2 class="page-title">${page.title}</h2>
+            <ol class="toc-list">${buttons}</ol>
+            <p class="page-marker">Contents</p>
+          </section>
         `;
-
-        pageEl.querySelectorAll('.toc-btn').forEach((btn) => {
-          btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)));
-        });
-        return;
       }
 
-      pageEl.innerHTML = `
-        <h2 class="page-title">${page.title}</h2>
-        <ol class="chapter-list"><li>${page.content}</li></ol>
-        <p class="page-number">Page ${currentPageIndex + 1}</p>
+      return `
+        <section class="book-page ${side}">
+          <h2 class="page-title">${page.title}</h2>
+          <p class="chapter-number">${page.content}</p>
+          <p class="page-marker">Page ${currentIndex + (side === 'right' ? 1 : 0) + 1}</p>
+        </section>
       `;
+    }
+
+    function renderSpread() {
+      const book = books[activeBookKey];
+      if (!book) return;
+
+      const leftPage = book.pages[currentIndex];
+      const rightPage = book.pages[currentIndex + 1];
+
+      statusEl.textContent = `${book.label} • Showing pages ${currentIndex + 1}${rightPage ? `-${currentIndex + 2}` : ''} of ${book.pages.length}`;
+
+      spreadInner.innerHTML = `${pageHtml(leftPage, 'left')}${pageHtml(rightPage, 'right')}`;
+
+      spreadInner.querySelectorAll('.toc-btn').forEach((btn) => {
+        btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)));
+      });
     }
 
     tiles.forEach((tile) => {
@@ -393,14 +435,14 @@
     });
 
     closeBtn.addEventListener('click', closeBook);
-    prevBtn.addEventListener('click', () => goToPage(currentPageIndex - 1));
-    nextBtn.addEventListener('click', () => goToPage(currentPageIndex + 1));
+    prevBtn.addEventListener('click', () => goToPage(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goToPage(currentIndex + 1));
 
     window.addEventListener('keydown', (event) => {
       if (modal.classList.contains('hidden')) return;
       if (event.key === 'Escape') closeBook();
-      if (event.key === 'ArrowLeft') goToPage(currentPageIndex - 1);
-      if (event.key === 'ArrowRight') goToPage(currentPageIndex + 1);
+      if (event.key === 'ArrowLeft') goToPage(currentIndex - 1);
+      if (event.key === 'ArrowRight') goToPage(currentIndex + 1);
     });
 
     modal.addEventListener('click', (event) => {
