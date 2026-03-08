@@ -6,9 +6,6 @@
   const pageToggles = siteConfig.UNDER_CONSTRUCTION_PAGES || {};
   const pageToggle = pageToggles[currentPage];
 
-  // site-config.js is the single source of truth:
-  // 1) per-page toggle in UNDER_CONSTRUCTION_PAGES
-  // 2) global UNDER_CONSTRUCTION_MODE fallback
   const isUnderConstruction =
     typeof pageToggle === "boolean" ? pageToggle : globalToggle;
 
@@ -26,16 +23,41 @@
   const headerSlot = document.getElementById("header") || document.querySelector("header");
   const footerSlot = document.getElementById("footer") || document.querySelector("footer");
 
+  const isNavigationContainer = (el) => {
+    if (!el || !(el instanceof Element)) {
+      return false;
+    }
+
+    if (el === headerSlot || el === footerSlot) {
+      return true;
+    }
+
+    if (el.matches("header, nav, #header, #footer")) {
+      return true;
+    }
+
+    return Boolean(el.querySelector("header, nav, #header, #footer"));
+  };
+
   for (const child of Array.from(body.children)) {
     if (child.tagName === "SCRIPT" || child.tagName === "STYLE") {
       continue;
     }
 
-    if (child === headerSlot || child === footerSlot) {
+    if (isNavigationContainer(child)) {
+      child.hidden = false;
       continue;
     }
 
     child.hidden = true;
+  }
+
+  if (headerSlot) {
+    headerSlot.hidden = false;
+  }
+
+  if (footerSlot) {
+    footerSlot.hidden = false;
   }
 
   let signHost = document.getElementById("uc-sign-host");
@@ -57,6 +79,7 @@
     <p>${title} is currently being prepared.</p>
   `;
 
+  signHost.hidden = false;
   signHost.replaceChildren(sign);
 
   if (!document.getElementById("uc-sign-style")) {
