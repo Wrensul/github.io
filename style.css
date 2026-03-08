@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -8,6 +12,11 @@ body {
   background-position: center;
   background-attachment: fixed;
   background-repeat: no-repeat;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 header {
@@ -205,6 +214,22 @@ nav a:hover {
   transform: scale(1.02);
 }
 
+.hero-shell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  margin: 60px auto;
+  max-width: 1000px;
+}
+
+.hero-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
 #modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -259,6 +284,31 @@ nav a:hover {
 }
 
 @media (max-width: 700px) {
+  header {
+    padding: 24px 14px;
+  }
+
+  .site-title {
+    font-size: 2.1em;
+    padding: 8px 14px;
+  }
+
+  footer {
+    padding: 20px 12px;
+  }
+
+  .hero-shell {
+    flex-direction: column;
+    gap: 20px;
+    margin: 30px auto;
+    padding: 0 10px;
+  }
+
+  .hero-rail {
+    flex-direction: row;
+    gap: 16px;
+  }
+
   nav ul {
     flex-direction: column;
     gap: 10px;
@@ -267,6 +317,7 @@ nav a:hover {
   .content {
     flex-direction: column;
     align-items: stretch;
+    padding: 24px 16px;
   }
 
   img[alt="dragon left"],
