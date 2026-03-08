@@ -1,34 +1,75 @@
 (() => {
-  // Flip this to false when you are ready to launch your page content.
-  const UNDER_CONSTRUCTION_MODE = true;
-
-  const pagesUnderConstruction = new Set([
-    "atlas.html",
-    "magic.html",
-    "creatures.html",
-    "timeline.html",
-    "glossary.html",
-    "words-of-parsk.html",
-    "fables.html",
-    "small-memories.html",
-    "old-friends.html"
-  ]);
-
+  const siteConfig = window.SITE_CONFIG || {};
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-  if (!UNDER_CONSTRUCTION_MODE || !pagesUnderConstruction.has(currentPage)) {
+  const globalToggle = siteConfig.UNDER_CONSTRUCTION_MODE ?? false;
+  const pageToggles = siteConfig.UNDER_CONSTRUCTION_PAGES || {};
+  const pageToggle = pageToggles[currentPage];
+
+  const isUnderConstruction =
+    typeof pageToggle === "boolean" ? pageToggle : globalToggle;
+
+  if (!isUnderConstruction) {
     return;
   }
 
-  const main = document.querySelector("main");
-  if (!main) {
+  const body = document.body;
+  if (!body) {
     return;
   }
 
   const title = document.title.split("|")[0].trim() || "This page";
 
-  for (const child of Array.from(main.children)) {
+  const headerSlot = document.getElementById("header") || document.querySelector("header");
+  const footerSlot = document.getElementById("footer") || document.querySelector("footer");
+
+  const isNavigationContainer = (el) => {
+    if (!el || !(el instanceof Element)) {
+      return false;
+    }
+
+    if (el === headerSlot || el === footerSlot) {
+      return true;
+    }
+
+    if (el.matches("header, nav, #header, #footer")) {
+      return true;
+    }
+
+    return Boolean(el.querySelector("header, nav, #header, #footer"));
+  };
+
+  for (const child of Array.from(body.children)) {
+    if (child.tagName === "SCRIPT" || child.tagName === "STYLE") {
+      continue;
+    }
+
+    if (isNavigationContainer(child)) {
+      child.hidden = false;
+      continue;
+    }
+
     child.hidden = true;
+  }
+
+  if (headerSlot) {
+    headerSlot.hidden = false;
+  }
+
+  if (footerSlot) {
+    footerSlot.hidden = false;
+  }
+
+  let signHost = document.getElementById("uc-sign-host");
+  if (!signHost) {
+    signHost = document.createElement("div");
+    signHost.id = "uc-sign-host";
+
+    if (footerSlot && footerSlot.parentElement === body) {
+      body.insertBefore(signHost, footerSlot);
+    } else {
+      body.appendChild(signHost);
+    }
   }
 
   const sign = document.createElement("section");
@@ -38,7 +79,8 @@
     <p>${title} is currently being prepared.</p>
   `;
 
-  main.appendChild(sign);
+  signHost.hidden = false;
+  signHost.replaceChildren(sign);
 
   if (!document.getElementById("uc-sign-style")) {
     const style = document.createElement("style");
