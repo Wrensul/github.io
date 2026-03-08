@@ -36,7 +36,6 @@
   sign.innerHTML = `
     <h1>UNDER CONSTRUCTION</h1>
     <p>${title} is currently being prepared.</p>
-    <p class="uc-note">Set <code>UNDER_CONSTRUCTION_MODE</code> to <code>false</code> in <code>under-construction.js</code> when you are ready to launch.</p>
   `;
 
   main.appendChild(sign);
@@ -69,12 +68,6 @@
         margin: 0;
         font-size: clamp(18px, 2.4vw, 28px);
         line-height: 1.35;
-      }
-
-      .uc-sign .uc-note {
-        margin-top: 16px;
-        font-size: clamp(14px, 1.7vw, 18px);
-        opacity: 0.9;
       }
     `;
     document.head.appendChild(style);
