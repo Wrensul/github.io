@@ -7,67 +7,415 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
   <style>
-    main {
-      min-height: 100vh;
-      padding: 36px 16px 64px;
+    :root {
+      --paper: #f4efe1;
+      --ink: #1b1b1b;
+      --book-bg: #2f2f2f;
+      --book-panel: #f6f0dd;
+      --overlay: rgba(0, 0, 0, 0.75);
+      --tile-size: 220px;
+    }
+
+    body {
       font-family: 'Baskervville', serif;
     }
 
-    .page-shell {
-      max-width: 860px;
-      margin: 40px auto;
-      background: rgba(255, 255, 255, 0.95);
+    main.page {
+      margin-top: 40px;
+      min-height: 85vh;
+      background-image: url('https://i.imgur.com/SiSbdVZ.jpg');
+      background-size: cover;
+      background-position: center;
+      padding: 30px 16px 60px;
+    }
+
+    .intro {
+      max-width: 950px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.9);
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
-      padding: 28px 24px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
       text-align: center;
     }
 
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
+    .square-placeholder {
+      width: 200px;
+      height: 200px;
+      border: 2px solid #444;
+      box-shadow: 3px 3px 8px #888;
+      background: #111;
+    }
+
+    .title-block h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 42px);
       text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+      letter-spacing: 1px;
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
-    }
-
-    p {
+    .title-block .tagline {
       margin: 0;
-      font-size: clamp(18px, 2vw, 24px);
-      line-height: 1.4;
+      font-size: clamp(18px, 2.2vw, 24px);
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 260px));
+      gap: 36px;
+      margin: 36px auto 0;
+      justify-content: center;
+    }
+
+    .book-card {
+      text-align: center;
+      color: #111;
+    }
+
+    .book-tile {
+      width: var(--tile-size);
+      height: var(--tile-size);
+      margin: 0 auto 12px;
+      border: 2px solid #222;
+      background: #000;
+      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .book-tile:hover,
+    .book-tile:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.6);
+      outline: none;
+    }
+
+    .book-name {
+      margin: 0;
+      font-size: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .book-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--overlay);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .book-shell {
+      width: min(900px, 95vw);
+      max-height: 90vh;
+      background: var(--book-bg);
+      border: 2px solid #1b1b1b;
+      border-radius: 10px;
+      color: var(--ink);
+      overflow: hidden;
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .book-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #1e1e1e;
+      color: #f0f0f0;
+      font-size: 14px;
+    }
+
+    .book-controls button {
+      background: #2a2a2a;
+      border: 1px solid #444;
+      color: #f0f0f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    .book-controls button:hover {
+      background: #373737;
+    }
+
+    .book-stage {
+      overflow: auto;
+      padding: 20px;
+      background: #292929;
+    }
+
+    .book-page {
+      width: min(720px, 100%);
+      min-height: 420px;
+      margin: 0 auto;
+      background: var(--book-panel);
+      border-radius: 8px;
+      border: 1px solid #cfbea0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+      padding: 24px;
+      opacity: 0;
+      transform-origin: left center;
+      animation: pageTurn 0.36s ease forwards;
+    }
+
+    @keyframes pageTurn {
+      from {
+        opacity: 0;
+        transform: perspective(900px) rotateY(-16deg) translateX(16px);
+      }
+      to {
+        opacity: 1;
+        transform: perspective(900px) rotateY(0deg) translateX(0);
+      }
+    }
+
+    .cover-title {
+      min-height: 280px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: clamp(36px, 6vw, 64px);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: 2px solid #b89b74;
+      background: linear-gradient(135deg, #dbc49a 0%, #f7ebca 100%);
+    }
+
+    .toc-list,
+    .chapter-list {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 0;
+      display: grid;
+      gap: 8px;
+      max-width: 260px;
+    }
+
+    .toc-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #8a7759;
+      background: #f9f3e5;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 18px;
+    }
+
+    .toc-btn:hover {
+      background: #fffdf7;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .page-number {
+      margin-top: 22px;
+      font-size: 15px;
+      opacity: 0.72;
+    }
+
+    @media (max-width: 700px) {
+      .book-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .book-page {
+        min-height: 360px;
+        padding: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="header"></div>
+  <div id="site-header"></div>
 
-  <main>
-    <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
-      <h1>Words of Parsk</h1>
-      <p>This page is being prepared and will be available soon.</p>
+  <main class="page">
+    <section class="intro">
+      <div class="square-placeholder"></div>
+      <div class="title-block">
+        <h1>Words of Parsk</h1>
+        <p class="tagline">open the books and step into their pages...</p>
+      </div>
+    </section>
+
+    <section class="book-grid" aria-label="Books">
+      <article class="book-card">
+        <button class="book-tile" data-book="domesari" aria-label="Open Domesari"></button>
+        <p class="book-name">Domesari</p>
+      </article>
+      <article class="book-card">
+        <button class="book-tile" data-book="tullamend" aria-label="Open Tullamend"></button>
+        <p class="book-name">Tullamend</p>
+      </article>
     </section>
   </main>
 
-  <div id="footer"></div>
+  <div id="book-modal" class="book-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="book-shell">
+      <div class="book-controls">
+        <span id="book-status">Book</span>
+        <div>
+          <button id="prev-page" aria-label="Previous page">◀ Prev</button>
+          <button id="next-page" aria-label="Next page">Next ▶</button>
+          <button id="close-book" aria-label="Close book">✕ Close</button>
+        </div>
+      </div>
+      <div class="book-stage">
+        <div id="book-page" class="book-page"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="site-footer"></footer>
 
   <script>
-    fetch("header.html")
-      .then(r => r.text())
-      .then(html => { document.getElementById("header").innerHTML = html; })
-      .catch(err => console.error("Header failed to load.", err));
+    const books = {
+      domesari: {
+        label: 'Domesari',
+        pages: [
+          { type: 'cover', title: 'Domesari' },
+          { type: 'toc', title: 'Table of Contents', chapters: [1, 2, 3] },
+          { type: 'chapter', title: 'Chapter 1', content: '1' },
+          { type: 'chapter', title: 'Chapter 2', content: '2' },
+          { type: 'chapter', title: 'Chapter 3', content: '3' }
+        ]
+      },
+      tullamend: {
+        label: 'Tullamend',
+        pages: [
+          { type: 'cover', title: 'Tullamend' },
+          { type: 'toc', title: 'Table of Contents', chapters: [1, 2, 3] },
+          { type: 'chapter', title: 'Chapter 1', content: '1' },
+          { type: 'chapter', title: 'Chapter 2', content: '2' },
+          { type: 'chapter', title: 'Chapter 3', content: '3' }
+        ]
+      }
+    };
 
-    fetch("footer.html")
+    const modal = document.getElementById('book-modal');
+    const pageEl = document.getElementById('book-page');
+    const statusEl = document.getElementById('book-status');
+    const closeBtn = document.getElementById('close-book');
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    const tiles = Array.from(document.querySelectorAll('.book-tile'));
+
+    let activeBookKey = null;
+    let currentPageIndex = 0;
+
+    function openBook(bookKey) {
+      activeBookKey = bookKey;
+      currentPageIndex = 0;
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('no-scroll');
+      renderPage();
+    }
+
+    function closeBook() {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('no-scroll');
+      activeBookKey = null;
+      currentPageIndex = 0;
+    }
+
+    function goToPage(index) {
+      const book = books[activeBookKey];
+      if (!book) return;
+      currentPageIndex = Math.max(0, Math.min(index, book.pages.length - 1));
+      renderPage();
+    }
+
+    function renderPage() {
+      const book = books[activeBookKey];
+      if (!book) return;
+      const page = book.pages[currentPageIndex];
+
+      pageEl.classList.remove('book-page');
+      void pageEl.offsetWidth;
+      pageEl.classList.add('book-page');
+
+      statusEl.textContent = `${book.label} • Page ${currentPageIndex + 1} of ${book.pages.length}`;
+
+      if (page.type === 'cover') {
+        pageEl.innerHTML = `
+          <div class="cover-title">${page.title}</div>
+          <p class="page-number">Cover</p>
+        `;
+        return;
+      }
+
+      if (page.type === 'toc') {
+        const buttons = page.chapters
+          .map((chapter, idx) => `<li><button class="toc-btn" data-page="${idx + 2}">${chapter}</button></li>`)
+          .join('');
+
+        pageEl.innerHTML = `
+          <h2 class="page-title">${page.title}</h2>
+          <ol class="toc-list">${buttons}</ol>
+          <p class="page-number">Contents</p>
+        `;
+
+        pageEl.querySelectorAll('.toc-btn').forEach((btn) => {
+          btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)));
+        });
+        return;
+      }
+
+      pageEl.innerHTML = `
+        <h2 class="page-title">${page.title}</h2>
+        <ol class="chapter-list"><li>${page.content}</li></ol>
+        <p class="page-number">Page ${currentPageIndex + 1}</p>
+      `;
+    }
+
+    tiles.forEach((tile) => {
+      tile.addEventListener('click', () => openBook(tile.dataset.book));
+    });
+
+    closeBtn.addEventListener('click', closeBook);
+    prevBtn.addEventListener('click', () => goToPage(currentPageIndex - 1));
+    nextBtn.addEventListener('click', () => goToPage(currentPageIndex + 1));
+
+    window.addEventListener('keydown', (event) => {
+      if (modal.classList.contains('hidden')) return;
+      if (event.key === 'Escape') closeBook();
+      if (event.key === 'ArrowLeft') goToPage(currentPageIndex - 1);
+      if (event.key === 'ArrowRight') goToPage(currentPageIndex + 1);
+    });
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) closeBook();
+    });
+
+    fetch('header.html')
       .then(r => r.text())
-      .then(html => { document.getElementById("footer").innerHTML = html; })
-      .catch(err => console.error("Footer failed to load.", err));
+      .then(html => { document.getElementById('site-header').innerHTML = html; })
+      .catch(err => console.error('Header failed to load.', err));
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('site-footer').innerHTML = html; })
+      .catch(err => console.error('Footer failed to load.', err));
   </script>
-  <script src="under-construction.js"></script>
 </body>
 </html>
