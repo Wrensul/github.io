@@ -8,6 +8,11 @@ window.ATLAS_PAGE_DATA = {
   regions: [
     {
       name: "Northern Reach",
+      image: {
+        src: "assets/background.jpg",
+        alt: "Northern Reach region placeholder"
+      },
+      description: "A misty, marsh-lined frontier where old rulers and trade roads still shape the culture.",
       countries: [
         {
           name: "Landland",
@@ -60,6 +65,11 @@ window.ATLAS_PAGE_DATA = {
     },
     {
       name: "Central Expanse",
+      image: {
+        src: "assets/background.jpg",
+        alt: "Central Expanse region placeholder"
+      },
+      description: "...",
       countries: [
         {
           name: "...",

@@ -59,6 +59,27 @@
       letter-spacing: 0.6px;
     }
 
+    .atlas-region-media {
+      margin: 0 0 14px;
+      padding: 10px;
+      border: 2px solid #444;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .atlas-region-image {
+      width: min(100%, 700px);
+      display: block;
+      margin: 0 0 10px;
+      border: 2px solid #333;
+      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .atlas-region-description {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
     .atlas-country-list {
       display: grid;
       gap: 14px;
@@ -152,7 +173,7 @@
 
       <div id="atlas-regions"></div>
 
-      <p class="atlas-help">Edit <code>atlas-data.js</code> to update regions, countries, and timeline cards for this page.</p>
+      <p class="atlas-help">Edit <code>atlas-data.js</code> to update region, country, and timeline cards for this page.</p>
     </section>
   </main>
 
@@ -180,10 +201,26 @@
         regionHeading.textContent = region.name || "...";
         regionSection.appendChild(regionHeading);
 
+        const regionMedia = document.createElement("div");
+        regionMedia.className = "atlas-region-media";
+
+        const regionImage = document.createElement("img");
+        regionImage.className = "atlas-region-image";
+        regionImage.src = region.image?.src || "assets/background.jpg";
+        regionImage.alt = region.image?.alt || "Placeholder region image";
+        regionMedia.appendChild(regionImage);
+
+        const regionDescription = document.createElement("p");
+        regionDescription.className = "atlas-region-description";
+        regionDescription.textContent = region.description || "...";
+        regionMedia.appendChild(regionDescription);
+
+        regionSection.appendChild(regionMedia);
+
         const countryList = document.createElement("div");
         countryList.className = "atlas-country-list";
 
-        region.countries.forEach((country) => {
+        (region.countries || []).forEach((country) => {
           const countryCard = document.createElement("article");
           countryCard.className = "atlas-country-card";
 
