@@ -4,9 +4,19 @@
 
   const globalToggle = siteConfig.UNDER_CONSTRUCTION_MODE ?? false;
   const pageToggles = siteConfig.UNDER_CONSTRUCTION_PAGES || {};
-  const pageToggle = pageToggles[currentPage];
+  const configPageToggle = pageToggles[currentPage];
+  const inlinePageToggle = window.PAGE_UNDER_CONSTRUCTION;
 
-  const isUnderConstruction = typeof pageToggle === "boolean" ? pageToggle : globalToggle;
+  // Priority:
+  // 1) per-page inline toggle in each HTML file
+  // 2) optional per-page toggle in site-config.js
+  // 3) global site-config.js toggle
+  const isUnderConstruction =
+    typeof inlinePageToggle === "boolean"
+      ? inlinePageToggle
+      : typeof configPageToggle === "boolean"
+        ? configPageToggle
+        : globalToggle;
 
   if (!isUnderConstruction) {
     return;

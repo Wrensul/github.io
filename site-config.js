@@ -1,14 +1,13 @@
 // Global site switches.
-// Change true/false values here when you want to turn features on or off.
+// You can mostly use each page's own toggle near the top of that page file.
+// This file is optional fallback control.
 window.SITE_CONFIG = {
-  // Master switch for under-construction mode across the whole site.
-  // false = always off everywhere.
-  // true = check each page switch below.
-  UNDER_CONSTRUCTION_MODE: true,
+  // Master fallback switch.
+  UNDER_CONSTRUCTION_MODE: false,
 
-  // Per-page under-construction switches.
-  // Set a page to true/false to override it individually.
-  // If a page is missing from this list, it follows UNDER_CONSTRUCTION_MODE.
+  // Optional fallback page switches.
+  // If a page has window.PAGE_UNDER_CONSTRUCTION in its HTML,
+  // that inline value takes priority.
   UNDER_CONSTRUCTION_PAGES: {
     "index.html": false,
     "site-policies.html": false,
