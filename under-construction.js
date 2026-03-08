@@ -1,33 +1,38 @@
 (() => {
-  // Flip this to false when you are ready to launch your page content.
-  const UNDER_CONSTRUCTION_MODE = true;
-
-  const pagesUnderConstruction = new Set([
-    "atlas.html",
-    "magic.html",
-    "creatures.html",
-    "timeline.html",
-    "glossary.html",
-    "words-of-parsk.html",
-    "fables.html",
-    "small-memories.html",
-    "old-friends.html"
-  ]);
-
+  const siteConfig = window.SITE_CONFIG || {};
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
 
-  if (!UNDER_CONSTRUCTION_MODE || !pagesUnderConstruction.has(currentPage)) {
+  const globalToggle = siteConfig.UNDER_CONSTRUCTION_MODE ?? false;
+  const pageToggles = siteConfig.UNDER_CONSTRUCTION_PAGES || {};
+  const configPageToggle = pageToggles[currentPage];
+  const inlinePageToggle = window.PAGE_UNDER_CONSTRUCTION;
+
+  // Priority:
+  // 1) per-page inline toggle in each HTML file
+  // 2) optional per-page toggle in site-config.js
+  // 3) global site-config.js toggle
+  const isUnderConstruction =
+    typeof inlinePageToggle === "boolean"
+      ? inlinePageToggle
+      : typeof configPageToggle === "boolean"
+        ? configPageToggle
+        : globalToggle;
+
+  if (!isUnderConstruction) {
     return;
   }
 
-  const main = document.querySelector("main");
-  if (!main) {
+  const container = document.querySelector("main") || document.body;
+  if (!container) {
     return;
   }
 
   const title = document.title.split("|")[0].trim() || "This page";
 
-  for (const child of Array.from(main.children)) {
+  for (const child of Array.from(container.children)) {
+    if (child.tagName === "SCRIPT" || child.tagName === "STYLE") {
+      continue;
+    }
     child.hidden = true;
   }
 
@@ -38,7 +43,7 @@
     <p>${title} is currently being prepared.</p>
   `;
 
-  main.appendChild(sign);
+  container.appendChild(sign);
 
   if (!document.getElementById("uc-sign-style")) {
     const style = document.createElement("style");
