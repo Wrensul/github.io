@@ -4,36 +4,50 @@
 
   const globalToggle = siteConfig.UNDER_CONSTRUCTION_MODE ?? false;
   const pageToggles = siteConfig.UNDER_CONSTRUCTION_PAGES || {};
-  const configPageToggle = pageToggles[currentPage];
-  const inlinePageToggle = window.PAGE_UNDER_CONSTRUCTION;
+  const pageToggle = pageToggles[currentPage];
 
-  // Priority:
-  // 1) per-page inline toggle in each HTML file
-  // 2) optional per-page toggle in site-config.js
-  // 3) global site-config.js toggle
+  // site-config.js is the single source of truth:
+  // 1) per-page toggle in UNDER_CONSTRUCTION_PAGES
+  // 2) global UNDER_CONSTRUCTION_MODE fallback
   const isUnderConstruction =
-    typeof inlinePageToggle === "boolean"
-      ? inlinePageToggle
-      : typeof configPageToggle === "boolean"
-        ? configPageToggle
-        : globalToggle;
+    typeof pageToggle === "boolean" ? pageToggle : globalToggle;
 
   if (!isUnderConstruction) {
     return;
   }
 
-  const container = document.querySelector("main") || document.body;
-  if (!container) {
+  const body = document.body;
+  if (!body) {
     return;
   }
 
   const title = document.title.split("|")[0].trim() || "This page";
 
-  for (const child of Array.from(container.children)) {
+  const headerSlot = document.getElementById("header") || document.querySelector("header");
+  const footerSlot = document.getElementById("footer") || document.querySelector("footer");
+
+  for (const child of Array.from(body.children)) {
     if (child.tagName === "SCRIPT" || child.tagName === "STYLE") {
       continue;
     }
+
+    if (child === headerSlot || child === footerSlot) {
+      continue;
+    }
+
     child.hidden = true;
+  }
+
+  let signHost = document.getElementById("uc-sign-host");
+  if (!signHost) {
+    signHost = document.createElement("div");
+    signHost.id = "uc-sign-host";
+
+    if (footerSlot && footerSlot.parentElement === body) {
+      body.insertBefore(signHost, footerSlot);
+    } else {
+      body.appendChild(signHost);
+    }
   }
 
   const sign = document.createElement("section");
@@ -43,7 +57,7 @@
     <p>${title} is currently being prepared.</p>
   `;
 
-  container.appendChild(sign);
+  signHost.replaceChildren(sign);
 
   if (!document.getElementById("uc-sign-style")) {
     const style = document.createElement("style");
