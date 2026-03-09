@@ -153,7 +153,12 @@
 
   <!-- Single row of placeholder story tiles. -->
   <section class="gallery" style="display: grid; grid-template-columns: repeat(4, 250px); gap: 40px; margin: 40px auto; justify-content: center;">
-    <!-- Edit fields here per story -->
+    <!--
+      Edit fields here per story.
+      Optional: set data-google-doc to a public Google Doc URL to load full text dynamically.
+      Example:
+      data-google-doc="https://docs.google.com/document/d/YOUR_DOC_ID/edit?usp=sharing"
+    -->
     <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 1"
          data-name=""
          data-culture=""
@@ -161,6 +166,7 @@
          data-wisdom=""
          data-connections=""
          data-blurb=""
+         data-google-doc=""
          data-story=""></div>
 
     <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 2"
@@ -170,6 +176,7 @@
          data-wisdom=""
          data-connections=""
          data-blurb=""
+         data-google-doc=""
          data-story=""></div>
 
     <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 3"
@@ -179,6 +186,7 @@
          data-wisdom=""
          data-connections=""
          data-blurb=""
+         data-google-doc=""
          data-story=""></div>
 
     <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 4"
@@ -188,6 +196,7 @@
          data-wisdom=""
          data-connections=""
          data-blurb=""
+         data-google-doc=""
          data-story=""></div>
   </section>
 
@@ -225,18 +234,15 @@
 
     let currentIndex = -1;
 
-    function openModal(index) {
-      currentIndex = index;
-      const tile = tiles[currentIndex];
+    function buildTaleTemplate(tile, storyText) {
       const name = tile.dataset.name || '';
       const culture = tile.dataset.culture || '';
       const origin = tile.dataset.origin || '';
       const wisdom = tile.dataset.wisdom || '';
       const connections = tile.dataset.connections || '';
       const blurb = tile.dataset.blurb || '';
-      const story = tile.dataset.story || '';
 
-      modalTale.textContent = `
+      return `
 (Name) ${name}
 Culture - ${culture}
 Origin - ${origin}
@@ -246,13 +252,60 @@ Blurb/Description - ${blurb}
 
 (Image)
 
-${story}
+${storyText}
 `;
+    }
+
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || '').trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=txt`;
+    }
+
+    async function loadStoryFromGoogleDoc(tile) {
+      const source = tile.dataset.googleDoc || '';
+      if (!source.trim()) return tile.dataset.story || '';
+
+      if (tile.dataset.storyLoaded === 'true') return tile.dataset.story || '';
+
+      const exportUrl = getGoogleDocExportUrl(source);
+      if (!exportUrl) {
+        console.warn('Invalid Google Doc URL/ID:', source);
+        return tile.dataset.story || '';
+      }
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+        const text = (await response.text()).trim();
+        if (text) tile.dataset.story = text;
+        tile.dataset.storyLoaded = 'true';
+        return tile.dataset.story || '';
+      } catch (err) {
+        console.error('Google Doc story load failed.', err);
+        return tile.dataset.story || '';
+      }
+    }
+
+    async function openModal(index) {
+      currentIndex = index;
+      const tile = tiles[currentIndex];
+
+      modalTale.textContent = buildTaleTemplate(tile, 'Loading story…');
 
       titleEl.textContent = `${currentIndex + 1} of ${tiles.length}`;
       modal.classList.remove('hidden');
       modal.setAttribute('aria-hidden', 'false');
       body.classList.add('no-scroll');
+
+      const story = await loadStoryFromGoogleDoc(tile);
+      if (currentIndex !== index) return;
+      modalTale.textContent = buildTaleTemplate(tile, story);
     }
 
     function closeModal() {
