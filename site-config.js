@@ -16,7 +16,7 @@ window.SITE_CONFIG = {
     "timeline.html": true,
     "glossary.html": true,
     "words-of-parsk.html": true,
-    "fables.html": true,
+    "fables.html": false,
     "small-memories.html": true,
     "old-friends.html": true,
     "calendar.html": false,
