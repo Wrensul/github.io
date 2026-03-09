@@ -4,69 +4,304 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Voices and Fables | Door to the Parsklands</title>
-<link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
   <style>
-    main {
-      min-height: 100vh;
-      padding: 36px 16px 64px;
-      font-family: 'Baskervville', serif;
+    :root {
+      --overlay-bg: rgba(0, 0, 0, .75);
+      --card-border: #444;
+      --shadow: 3px 3px 8px #888;
     }
 
-    .page-shell {
-      max-width: 860px;
-      margin: 40px auto;
-      background: rgba(255, 255, 255, 0.95);
-      border: 4px groove #222;
-      box-shadow: 4px 4px 8px #555;
-      padding: 28px 24px;
-      text-align: center;
+    @media (max-width: 700px) {
+      section.gallery {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 30px !important;
+      }
     }
 
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+    .gallery-img {
+      width: 250px;
+      height: 250px;
+      background: #000;
+      border: 2px solid var(--card-border);
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      outline: none;
+      border-radius: 4px;
+      position: relative;
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
+    .gallery-img:focus-visible {
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, .6);
     }
 
-    p {
-      margin: 0;
-      font-size: clamp(18px, 2vw, 24px);
-      line-height: 1.4;
+    .hidden {
+      display: none !important;
+    }
+
+    #modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--overlay-bg);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      max-width: min(1000px, 92vw);
+      width: 100%;
+      max-height: 92vh;
+      background: #111;
+      color: #eee;
+      border: 1px solid #333;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+      border-radius: 8px;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .modal-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #0b0b0b;
+      border-bottom: 1px solid #222;
+    }
+
+    .modal-title {
+      font: 600 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      opacity: .9;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: #1a1a1a;
+      color: #ddd;
+      border: 1px solid #2a2a2a;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      background: #222;
+    }
+
+    .modal-body {
+      min-height: 0;
+      overflow: auto;
+      background: #000;
+      padding: 16px;
+    }
+
+    .tale-layout {
+      display: grid;
+      grid-template-columns: 1fr 260px;
+      gap: 18px;
+    }
+
+    .tale-details {
+      white-space: pre-wrap;
+      font: 16px/1.5 Georgia, 'Times New Roman', serif;
+      color: #ddd;
+    }
+
+    .tale-image-placeholder {
+      width: 250px;
+      height: 250px;
+      background: #000;
+      border: 2px solid #444;
+      box-shadow: 3px 3px 8px #222;
+      justify-self: center;
+      align-self: start;
+    }
+
+    @media (max-width: 700px) {
+      .tale-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    body.no-scroll {
+      overflow: hidden;
     }
   </style>
 </head>
 <body>
   <div id="header"></div>
 
-  <main>
-    <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
-      <h1>Voices and Fables</h1>
-      <p>This page is being prepared and will be available soon.</p>
-    </section>
+  <main class="page" style="margin-top: 40px; background-image: url('https://i.imgur.com/SiSbdVZ.jpg'); background-size: cover; background-position: center;">
+    <div class="intro">
+      <div class="square-placeholder" style="background: #000; width: 200px; height: 200px; border: 2px solid #444; box-shadow: 3px 3px 8px #888;"></div>
+      <div class="title-block">
+        <h1>Voices and Fables</h1>
+        <p class="tagline">stories from every root and realm...</p>
+      </div>
+    </div>
   </main>
+
+  <!-- Single row of placeholder story tiles. -->
+  <section class="gallery" style="display: grid; grid-template-columns: repeat(4, 250px); gap: 40px; margin: 40px auto; justify-content: center;">
+    <!-- Edit fields here per story -->
+    <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 1"
+         data-name=""
+         data-culture=""
+         data-origin=""
+         data-wisdom=""
+         data-connections=""
+         data-blurb=""
+         data-story=""></div>
+
+    <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 2"
+         data-name=""
+         data-culture=""
+         data-origin=""
+         data-wisdom=""
+         data-connections=""
+         data-blurb=""
+         data-story=""></div>
+
+    <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 3"
+         data-name=""
+         data-culture=""
+         data-origin=""
+         data-wisdom=""
+         data-connections=""
+         data-blurb=""
+         data-story=""></div>
+
+    <div class="gallery-img" tabindex="0" role="button" aria-label="Open tale 4"
+         data-name=""
+         data-culture=""
+         data-origin=""
+         data-wisdom=""
+         data-connections=""
+         data-blurb=""
+         data-story=""></div>
+  </section>
+
+  <div id="modal" class="hidden" aria-hidden="true" aria-modal="true" role="dialog">
+    <div class="modal-content">
+      <div class="modal-bar">
+        <div class="modal-title" id="modal-title">Tale</div>
+        <div class="modal-actions">
+          <button id="prev-btn" class="icon-btn" aria-label="Previous tale">◀</button>
+          <button id="next-btn" class="icon-btn" aria-label="Next tale">▶</button>
+          <button id="modal-close" class="icon-btn" aria-label="Close">✕</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <div class="tale-layout">
+          <div id="modal-tale" class="tale-details"></div>
+          <div class="tale-image-placeholder" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="footer"></div>
 
   <script>
-    fetch("header.html")
-      .then(r => r.text())
-      .then(html => { document.getElementById("header").innerHTML = html; })
-      .catch(err => console.error("Header failed to load.", err));
+    const body = document.body;
+    const tiles = Array.from(document.querySelectorAll('.gallery-img'));
+    const modal = document.getElementById('modal');
+    const modalTale = document.getElementById('modal-tale');
+    const titleEl = document.getElementById('modal-title');
+    const closeBtn = document.getElementById('modal-close');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
 
-    fetch("footer.html")
+    let currentIndex = -1;
+
+    function openModal(index) {
+      currentIndex = index;
+      const tile = tiles[currentIndex];
+      const name = tile.dataset.name || '';
+      const culture = tile.dataset.culture || '';
+      const origin = tile.dataset.origin || '';
+      const wisdom = tile.dataset.wisdom || '';
+      const connections = tile.dataset.connections || '';
+      const blurb = tile.dataset.blurb || '';
+      const story = tile.dataset.story || '';
+
+      modalTale.textContent = `
+(Name) ${name}
+Culture - ${culture}
+Origin - ${origin}
+Wisdom - ${wisdom}
+Legendary Connections? - ${connections}
+Blurb/Description - ${blurb}
+
+(Image)
+
+${story}
+`;
+
+      titleEl.textContent = `${currentIndex + 1} of ${tiles.length}`;
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      body.classList.add('no-scroll');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      body.classList.remove('no-scroll');
+      currentIndex = -1;
+    }
+
+    function showNext(dir) {
+      if (currentIndex < 0) return;
+      currentIndex = (currentIndex + dir + tiles.length) % tiles.length;
+      openModal(currentIndex);
+    }
+
+    tiles.forEach((tile, i) => {
+      tile.addEventListener('click', () => openModal(i));
+      tile.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal(i);
+        }
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    prevBtn.addEventListener('click', () => showNext(-1));
+    nextBtn.addEventListener('click', () => showNext(1));
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (modal.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowRight') showNext(1);
+      if (e.key === 'ArrowLeft') showNext(-1);
+    });
+
+    fetch('header.html')
       .then(r => r.text())
-      .then(html => { document.getElementById("footer").innerHTML = html; })
-      .catch(err => console.error("Footer failed to load.", err));
+      .then(html => { document.getElementById('header').innerHTML = html; })
+      .catch(err => console.error('Header failed to load.', err));
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; })
+      .catch(err => console.error('Footer failed to load.', err));
   </script>
   <script src="site-config.js"></script>
   <script src="under-construction.js"></script>
