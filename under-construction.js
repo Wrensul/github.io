@@ -20,8 +20,17 @@
 
   const title = document.title.split("|")[0].trim() || "This page";
 
-  const headerSlot = document.getElementById("header") || document.querySelector("header");
-  const footerSlot = document.getElementById("footer") || document.querySelector("footer");
+  const headerSlot =
+    document.getElementById("header") ||
+    document.getElementById("site-header") ||
+    document.querySelector("header");
+  const footerSlot =
+    document.getElementById("footer") ||
+    document.getElementById("site-footer") ||
+    document.querySelector("footer");
+
+  const hasHeaderFooterId = (el) =>
+    Boolean(el.id && /(?:^|[-_])(site-)?(?:header|footer)(?:$|[-_])/i.test(el.id));
 
   const isNavigationContainer = (el) => {
     if (!el || !(el instanceof Element)) {
@@ -32,11 +41,15 @@
       return true;
     }
 
-    if (el.matches("header, nav, #header, #footer")) {
+    if (hasHeaderFooterId(el)) {
       return true;
     }
 
-    return Boolean(el.querySelector("header, nav, #header, #footer"));
+    if (el.matches("header, nav, #header, #footer, #site-header, #site-footer")) {
+      return true;
+    }
+
+    return Boolean(el.querySelector("header, nav, #header, #footer, #site-header, #site-footer"));
   };
 
   for (const child of Array.from(body.children)) {
