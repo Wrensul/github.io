@@ -18,7 +18,7 @@ window.SITE_CONFIG = {
     "words-of-parsk.html": false,
     "fables.html": false,
     "small-memories.html": true,
-    "old-friends.html": true,
+    "old-friends.html": false,
     "calendar.html": false,
     "test.html": false
   }
