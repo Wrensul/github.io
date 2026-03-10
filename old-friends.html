@@ -4,69 +4,636 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Old Friends | Door to the Parsklands</title>
-<link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
   <style>
-    main {
-      min-height: 100vh;
-      padding: 36px 16px 64px;
+    :root {
+      --tile-size: 250px;
+      --paper: #fbf7eb;
+      --paper-edge: #ddcfad;
+      --ink: #1a1a1a;
+      --overlay: rgba(0, 0, 0, 0.72);
+    }
+
+    body {
       font-family: 'Baskervville', serif;
     }
 
-    .page-shell {
+    body.no-scroll { overflow: hidden; }
+
+    main.page {
+      min-height: 100vh;
+      padding: 36px 16px 64px;
+      background-image: url('https://i.imgur.com/SiSbdVZ.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .intro-shell {
       max-width: 860px;
-      margin: 40px auto;
+      margin: 40px auto 10px;
       background: rgba(255, 255, 255, 0.95);
       border: 4px groove #222;
       box-shadow: 4px 4px 8px #555;
       padding: 28px 24px;
       text-align: center;
+      color: #111;
     }
 
-    .construction-sign {
-      margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 42px);
-      letter-spacing: 1px;
+    .intro-shell h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 4vw, 42px);
       text-transform: uppercase;
-      text-decoration: underline;
-      text-underline-offset: 8px;
+      letter-spacing: 1px;
     }
 
-    h1 {
-      margin: 0 0 12px;
-      font-size: clamp(24px, 3vw, 34px);
-    }
-
-    p {
+    .intro-shell p {
       margin: 0;
-      font-size: clamp(18px, 2vw, 24px);
+      font-size: clamp(19px, 2.5vw, 25px);
       line-height: 1.4;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(1, var(--tile-size));
+      gap: 32px;
+      margin: 34px auto;
+      justify-content: center;
+    }
+
+    .book-card { text-align: center; }
+
+    .book-tile {
+      width: var(--tile-size);
+      height: var(--tile-size);
+      margin: 0 auto 12px;
+      border: 2px solid #222;
+      background: radial-gradient(circle at 28% 22%, #dedede 0%, #b4b4b4 35%, #5e5e5e 100%);
+      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.55);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+    }
+
+    .book-tile::after {
+      content: attr(data-symbol);
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 90px;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .book-tile:hover,
+    .book-tile:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.62);
+      outline: none;
+    }
+
+    .book-name {
+      margin: 0;
+      font-size: 24px;
+      color: #121212;
+    }
+
+    .hidden { display: none !important; }
+
+    .book-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--overlay);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .book-shell {
+      width: min(1080px, 96vw);
+      max-height: 92vh;
+      background: #303030;
+      border: 2px solid #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .book-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #1f1f1f;
+      color: #f1f1f1;
+      font-size: 14px;
+    }
+
+    .book-controls button {
+      background: #2c2c2c;
+      border: 1px solid #4a4a4a;
+      color: #f1f1f1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .book-stage {
+      overflow: auto;
+      padding: 18px;
+      background: #2a2a2a;
+    }
+
+    .spread {
+      position: relative;
+      width: min(960px, 100%);
+      min-height: 560px;
+      margin: 0 auto;
+      background: #f2ebd6;
+      border: 4px groove #232323;
+      box-shadow: 4px 4px 8px #111;
+      overflow: hidden;
+    }
+
+    .spread::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 14px;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(0,0,0,.22), rgba(255,255,255,.15), rgba(0,0,0,.22));
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .spread-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      min-height: 100%;
+    }
+
+    .book-page {
+      position: relative;
+      padding: clamp(18px, 2.6vw, 34px);
+      background: var(--paper);
+      color: var(--ink);
+      border-top: 1px solid var(--paper-edge);
+      border-bottom: 1px solid var(--paper-edge);
+      opacity: 0;
+      transform: translateX(10px);
+      animation: pageShift .24s ease forwards;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .book-page.left {
+      border-right: 1px solid rgba(0,0,0,.2);
+      box-shadow: inset -18px 0 24px rgba(0,0,0,.08);
+      transform: translateX(-10px);
+    }
+
+    .book-page.right {
+      box-shadow: inset 18px 0 24px rgba(0,0,0,.08);
+    }
+
+    .cover-wrap {
+      min-height: 340px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #b89b74;
+      background: linear-gradient(135deg, #d4ddde 0%, #f6f8f8 100%);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: clamp(28px, 4vw, 52px);
+      text-align: center;
+      padding: 16px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(24px, 3vw, 38px);
+      text-decoration: underline;
+      text-underline-offset: 6px;
+      white-space: normal;
+    }
+
+    .toc-list {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      max-width: 280px;
+    }
+
+    .toc-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #8a7759;
+      background: #f9f3e5;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    .book-text {
+      margin-top: 16px;
+      font-size: 20px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .book-image {
+      margin-top: 16px;
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border: 2px solid #8a7759;
+      box-shadow: 2px 2px 6px rgba(0,0,0,.2);
+    }
+
+    .page-marker {
+      margin-top: 24px;
+      font-size: 14px;
+      opacity: 0.72;
+      white-space: normal;
+    }
+
+    .blank-page {
+      display: grid;
+      place-items: center;
+      color: rgba(0,0,0,.5);
+      font-style: italic;
+    }
+
+    @keyframes pageShift {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @media (max-width: 860px) {
+      .spread { min-height: 680px; }
+      .spread::before { display: none; }
+      .spread-inner { grid-template-columns: 1fr; }
+      .book-page.left {
+        border-right: none;
+        border-bottom: 1px solid rgba(0,0,0,.18);
+        box-shadow: inset 0 -18px 24px rgba(0,0,0,.08);
+      }
+      .book-page.right { box-shadow: inset 0 18px 24px rgba(0,0,0,.08); }
     }
   </style>
 </head>
 <body>
   <div id="header"></div>
 
-  <main>
-    <section class="page-shell">
-      <div class="construction-sign">UNDER CONSTRUCTION</div>
+  <main class="page">
+    <section class="intro-shell">
       <h1>Old Friends</h1>
-      <p>This page is being prepared and will be available soon.</p>
+      <p>Choose a memory-book and open the cover.</p>
     </section>
+
+    <section id="book-grid" class="book-grid" aria-label="Old Friends books"></section>
+
+    <details class="intro-shell" style="margin-top: 0; text-align: left;">
+      <summary><strong>Author Guide: Adding books + formatting Google Docs</strong></summary>
+      <p style="margin-top: 10px;">Edit the <code>BOOK_LIBRARY</code> block in this file. Duplicate one entry to add another tile/book.</p>
+      <ol>
+        <li>Set <code>id</code> and <code>title</code>.</li>
+        <li>Paste your doc URL in <code>chaptersGoogleDoc</code>.</li>
+        <li>In Google Docs, put each chapter heading on its own line as either <code>## Chapter 1: Name</code> or <code>Chapter 1: Name</code>.</li>
+        <li>Everything until the next chapter heading becomes that chapter's page text.</li>
+      </ol>
+      <p>If the Doc is private, visitors will see <code>fallbackChapters</code> content until you make the Doc visible again.</p>
+    </details>
+
   </main>
+
+  <div id="book-modal" class="book-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="book-shell">
+      <div class="book-controls">
+        <span id="book-status">Book</span>
+        <div>
+          <button id="prev-page" aria-label="Previous page">◀ Prev Page</button>
+          <button id="next-page" aria-label="Next page">Next Page ▶</button>
+          <button id="close-book" aria-label="Close book">✕ Close</button>
+        </div>
+      </div>
+      <div class="book-stage">
+        <div class="spread">
+          <div id="spread-inner" class="spread-inner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="footer"></div>
 
   <script>
-    fetch("header.html")
-      .then(r => r.text())
-      .then(html => { document.getElementById("header").innerHTML = html; })
-      .catch(err => console.error("Header failed to load.", err));
+    // ==============================
+    // OLD FRIENDS BOOK SETUP (EDIT HERE)
+    // 1) Duplicate an object in BOOK_LIBRARY to add a new book tile.
+    // 2) Set `title` and (optionally) `tileSymbol`.
+    // 3) Paste a Google Doc link/ID into `chaptersGoogleDoc`.
+    // 4) Keep fallbackChapters as backup text when doc is private/unavailable.
+    // ==============================
+    const BOOK_LIBRARY = [
+      {
+        id: 'kihton',
+        title: "Kihton's Silver Book",
+        tileSymbol: '✦',
+        chaptersGoogleDoc: '',
+        fallbackChapters: [
+          {
+            title: 'Chapter 1: First Snow',
+            content: 'This is starter text. Replace with your story in Google Docs or here in fallbackChapters.',
+            image: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80'
+          },
+          {
+            title: 'Chapter 2: Silver Promise',
+            content: 'Tip: add chapter headings in the doc such as "## Chapter 2: Silver Promise" or "Chapter 2: Silver Promise" on their own line.',
+            image: ''
+          }
+        ]
+      }
+    ];
 
-    fetch("footer.html")
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || '').trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=txt`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function parseDocChapters(rawText) {
+      const text = (rawText || '').replace(/\r\n/g, '\n').trim();
+      if (!text) return [];
+
+      const lines = text.split('\n');
+      const chapters = [];
+      let current = null;
+
+      const headingMatch = (line) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+        if (/^##\s+/.test(trimmed)) return trimmed.replace(/^##\s+/, '').trim();
+        if (/^chapter\s+\d+/i.test(trimmed)) return trimmed;
+        return null;
+      };
+
+      lines.forEach((line) => {
+        const chapterTitle = headingMatch(line);
+        if (chapterTitle) {
+          if (current && (current.title || current.content.length)) {
+            chapters.push({ title: current.title, content: current.content.join('\n').trim() });
+          }
+          current = { title: chapterTitle, content: [] };
+          return;
+        }
+
+        if (!current) {
+          current = { title: 'Chapter 1', content: [] };
+        }
+        current.content.push(line);
+      });
+
+      if (current && (current.title || current.content.length)) {
+        chapters.push({ title: current.title || 'Chapter', content: current.content.join('\n').trim() });
+      }
+
+      return chapters
+        .map((ch, idx) => ({
+          title: ch.title || `Chapter ${idx + 1}`,
+          content: (ch.content || '').trim() || '(Empty chapter text)'
+        }))
+        .filter((ch) => ch.title || ch.content);
+    }
+
+    function buildBookRecord(entry) {
+      const chapterPages = (entry.fallbackChapters || []).map((chapter) => ({
+        type: 'chapter',
+        title: chapter.title,
+        content: chapter.content,
+        image: chapter.image || ''
+      }));
+
+      return {
+        id: entry.id,
+        label: entry.title,
+        tileSymbol: entry.tileSymbol || '✦',
+        chaptersGoogleDoc: entry.chaptersGoogleDoc || '',
+        pages: [
+          { type: 'cover', title: entry.title },
+          {
+            type: 'toc',
+            title: 'Table of Contents',
+            chapters: chapterPages.map((chapter, idx) => ({ title: chapter.title, pageIndex: idx + 2 }))
+          },
+          ...chapterPages
+        ],
+        docLoaded: false
+      };
+    }
+
+    const books = Object.fromEntries(BOOK_LIBRARY.map((entry) => [entry.id, buildBookRecord(entry)]));
+
+    const bookGrid = document.getElementById('book-grid');
+    const modal = document.getElementById('book-modal');
+    const spreadInner = document.getElementById('spread-inner');
+    const statusEl = document.getElementById('book-status');
+    const closeBtn = document.getElementById('close-book');
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+
+    function renderBookTiles() {
+      bookGrid.innerHTML = BOOK_LIBRARY.map((entry) => `
+        <article class="book-card">
+          <button class="book-tile" data-book="${escapeHtml(entry.id)}" aria-label="Open ${escapeHtml(entry.title)}" data-symbol="${escapeHtml(entry.tileSymbol || '✦')}"></button>
+          <p class="book-name">${escapeHtml(entry.title)}</p>
+        </article>
+      `).join('');
+
+      bookGrid.querySelectorAll('.book-tile').forEach((tile) => {
+        tile.addEventListener('click', () => openBook(tile.dataset.book));
+      });
+    }
+
+    let activeBookKey = null;
+    let currentIndex = 0;
+
+    async function hydrateBookFromGoogleDoc(book) {
+      if (!book || book.docLoaded || !book.chaptersGoogleDoc) return;
+
+      const exportUrl = getGoogleDocExportUrl(book.chaptersGoogleDoc);
+      if (!exportUrl) {
+        console.warn('Invalid Google Doc URL or ID for chapters:', book.chaptersGoogleDoc);
+        return;
+      }
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const docText = await response.text();
+        const chapters = parseDocChapters(docText);
+        if (!chapters.length) return;
+
+        const chapterPages = chapters.map((chapter) => ({ type: 'chapter', title: chapter.title, content: chapter.content, image: '' }));
+
+        book.pages = [
+          { type: 'cover', title: book.label },
+          {
+            type: 'toc',
+            title: 'Table of Contents',
+            chapters: chapterPages.map((chapter, idx) => ({ title: chapter.title, pageIndex: idx + 2 }))
+          },
+          ...chapterPages
+        ];
+
+        book.docLoaded = true;
+      } catch (err) {
+        console.error('Google Doc chapter load failed.', err);
+      }
+    }
+
+    async function openBook(bookKey) {
+      activeBookKey = bookKey;
+      currentIndex = 0;
+
+      const book = books[bookKey];
+      await hydrateBookFromGoogleDoc(book);
+
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('no-scroll');
+      renderSpread();
+    }
+
+    function closeBook() {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('no-scroll');
+      activeBookKey = null;
+      currentIndex = 0;
+    }
+
+    function goToPage(index) {
+      const book = books[activeBookKey];
+      if (!book) return;
+      currentIndex = Math.max(0, Math.min(index, book.pages.length - 1));
+      renderSpread();
+    }
+
+    function chapterHtml(page) {
+      const imageHtml = page.image ? `<img class="book-image" src="${escapeHtml(page.image)}" alt="Illustration for ${escapeHtml(page.title)}">` : '';
+      return `
+        <h2 class="page-title">${escapeHtml(page.title)}</h2>
+        <p class="book-text">${escapeHtml(page.content || '')}</p>
+        ${imageHtml}
+      `;
+    }
+
+    function pageHtml(page, side) {
+      if (!page) {
+        return `<section class="book-page ${side} blank-page"><p>Blank Page</p></section>`;
+      }
+
+      if (page.type === 'cover') {
+        return `
+          <section class="book-page ${side}">
+            <div class="cover-wrap">${escapeHtml(page.title)}</div>
+            <p class="page-marker">Cover</p>
+          </section>
+        `;
+      }
+
+      if (page.type === 'toc') {
+        const buttons = (page.chapters || [])
+          .map((chapter) => `<li><button class="toc-btn" data-page="${chapter.pageIndex}">${escapeHtml(chapter.title)}</button></li>`)
+          .join('');
+
+        return `
+          <section class="book-page ${side}">
+            <h2 class="page-title">${escapeHtml(page.title)}</h2>
+            <ol class="toc-list">${buttons}</ol>
+            <p class="page-marker">Contents</p>
+          </section>
+        `;
+      }
+
+      return `
+        <section class="book-page ${side}">
+          ${chapterHtml(page)}
+          <p class="page-marker">Page ${currentIndex + (side === 'right' ? 2 : 1)}</p>
+        </section>
+      `;
+    }
+
+    function renderSpread() {
+      const book = books[activeBookKey];
+      if (!book) return;
+
+      const leftPage = book.pages[currentIndex];
+      const rightPage = book.pages[currentIndex + 1];
+
+      statusEl.textContent = `${book.label} • Showing pages ${currentIndex + 1}${rightPage ? `-${currentIndex + 2}` : ''} of ${book.pages.length}`;
+      spreadInner.innerHTML = `${pageHtml(leftPage, 'left')}${pageHtml(rightPage, 'right')}`;
+
+      spreadInner.querySelectorAll('.toc-btn').forEach((btn) => {
+        btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)));
+      });
+    }
+
+    closeBtn.addEventListener('click', closeBook);
+    prevBtn.addEventListener('click', () => goToPage(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goToPage(currentIndex + 1));
+
+    window.addEventListener('keydown', (event) => {
+      if (modal.classList.contains('hidden')) return;
+      if (event.key === 'Escape') closeBook();
+      if (event.key === 'ArrowLeft') goToPage(currentIndex - 1);
+      if (event.key === 'ArrowRight') goToPage(currentIndex + 1);
+    });
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) closeBook();
+    });
+
+    renderBookTiles();
+
+    fetch('header.html')
       .then(r => r.text())
-      .then(html => { document.getElementById("footer").innerHTML = html; })
-      .catch(err => console.error("Footer failed to load.", err));
+      .then(html => { document.getElementById('header').innerHTML = html; })
+      .catch(err => console.error('Header failed to load.', err));
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('footer').innerHTML = html; })
+      .catch(err => console.error('Footer failed to load.', err));
   </script>
   <script src="site-config.js"></script>
   <script src="under-construction.js"></script>
