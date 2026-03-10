@@ -45,11 +45,11 @@
       return true;
     }
 
-    if (el.matches("header, nav, #header, #footer, #site-header, #site-footer")) {
+    if (el.matches("#header, #footer, #site-header, #site-footer")) {
       return true;
     }
 
-    return Boolean(el.querySelector("header, nav, #header, #footer, #site-header, #site-footer"));
+    return Boolean(el.querySelector("#header, #footer, #site-header, #site-footer"));
   };
 
   for (const child of Array.from(body.children)) {
