@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --tile-size: 220px;
+      --tile-size: 250px;
       --paper: #fbf7eb;
       --paper-edge: #ddcfad;
       --ink: #151515;
@@ -20,26 +20,9 @@
 
     main.page {
       margin-top: 40px;
-      min-height: 85vh;
       background-image: url('https://i.imgur.com/SiSbdVZ.jpg');
       background-size: cover;
       background-position: center;
-      padding: 30px 16px 60px;
-    }
-
-    .intro {
-      max-width: 950px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.9);
-      border: 4px groove #222;
-      box-shadow: 4px 4px 8px #555;
-      padding: 22px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-      text-align: center;
     }
 
     .square-placeholder {
@@ -50,23 +33,11 @@
       background: #111;
     }
 
-    .title-block h1 {
-      margin: 0 0 8px;
-      font-size: clamp(30px, 4vw, 42px);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .title-block .tagline {
-      margin: 0;
-      font-size: clamp(18px, 2.2vw, 24px);
-    }
-
     .book-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(220px, 260px));
-      gap: 36px;
-      margin: 36px auto 0;
+      grid-template-columns: repeat(2, var(--tile-size));
+      gap: 40px;
+      margin: 40px auto;
       justify-content: center;
     }
 
@@ -95,6 +66,15 @@
       font-size: 24px;
       text-transform: uppercase;
       letter-spacing: 1px;
+    }
+
+    @media (max-width: 700px) {
+      .book-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
     }
 
     .hidden { display: none !important; }
@@ -265,7 +245,6 @@
     }
 
     @media (max-width: 860px) {
-      .book-grid { grid-template-columns: 1fr; }
       .spread { min-height: 620px; }
       .spread::before { display: none; }
       .spread-inner { grid-template-columns: 1fr; }
@@ -285,8 +264,9 @@
         <p class="tagline">open the books and step into their pages...</p>
       </div>
     </section>
+  </main>
 
-    <section class="book-grid" aria-label="Books">
+  <section class="book-grid" aria-label="Books">
       <article class="book-card">
         <button class="book-tile" data-book="domesari" aria-label="Open Domesari"></button>
         <p class="book-name">Domesari</p>
@@ -295,8 +275,7 @@
         <button class="book-tile" data-book="tullamend" aria-label="Open Tullamend"></button>
         <p class="book-name">Tullamend</p>
       </article>
-    </section>
-  </main>
+  </section>
 
   <div id="book-modal" class="book-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="book-shell">
