@@ -252,6 +252,17 @@
       white-space: pre-wrap;
     }
 
+    .book-section-title {
+      margin: 22px 0 8px;
+      font-size: 24px;
+      line-height: 1.25;
+      text-decoration: none;
+    }
+
+    .book-section-title + .book-text {
+      margin-top: 0;
+    }
+
     .book-image {
       margin-top: 16px;
       width: 100%;
@@ -354,7 +365,7 @@
       const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
       if (!docId) return null;
 
-      return `https://docs.google.com/document/d/${docId}/export?format=txt`;
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
     }
 
     function escapeHtml(value) {
@@ -364,6 +375,76 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+    }
+
+    function normalizeDocText(value) {
+      return String(value || '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function parseDocChaptersFromHtml(rawHtml) {
+      const html = (rawHtml || '').trim();
+      if (!html) return [];
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const contentNodes = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li'));
+      const chapters = [];
+      const looseBlocks = [];
+      let current = null;
+
+      const pushCurrent = () => {
+        if (!current) return;
+        const hasContent = current.blocks.some((block) => block.text.trim());
+        if (current.title && hasContent) {
+          chapters.push(current);
+        }
+      };
+
+      contentNodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text) return;
+        if (/^table\s+of\s+contents$/i.test(text)) return;
+
+        const tag = node.tagName.toLowerCase();
+
+        if (tag === 'h1') {
+          pushCurrent();
+          current = { title: text, blocks: [] };
+          return;
+        }
+
+        if (/^h[2-6]$/.test(tag)) {
+          if (!current) {
+            looseBlocks.push({ type: 'heading', text });
+            return;
+          }
+          current.blocks.push({ type: 'heading', text });
+          return;
+        }
+
+        if (!current) {
+          looseBlocks.push({ type: 'paragraph', text });
+          return;
+        }
+
+        current.blocks.push({ type: 'paragraph', text });
+      });
+
+      pushCurrent();
+
+      if (!chapters.length && looseBlocks.length) {
+        chapters.push({ title: 'Chapter 1', blocks: looseBlocks });
+      }
+
+      return chapters
+        .map((chapter, idx) => ({
+          title: chapter.title || `Chapter ${idx + 1}`,
+          blocks: chapter.blocks.filter((block) => block.text.trim())
+        }))
+        .filter((chapter) => chapter.title && chapter.blocks.length);
     }
 
     function parseDocChapters(rawText) {
@@ -423,9 +504,9 @@
       return chapters
         .map((ch, idx) => ({
           title: ch.title || `Chapter ${idx + 1}`,
-          content: (ch.content || '').trim()
+          blocks: [{ type: 'paragraph', text: (ch.content || '').trim() }]
         }))
-        .filter((ch) => ch.title && ch.content);
+        .filter((ch) => ch.title && ch.blocks.some((block) => block.text));
     }
 
     function buildBookRecord(entry) {
@@ -433,6 +514,7 @@
         type: 'chapter',
         title: chapter.title,
         content: chapter.content,
+        blocks: chapter.blocks || [{ type: 'paragraph', text: chapter.content || '' }],
         image: chapter.image || ''
       }));
 
@@ -495,10 +577,19 @@
         if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
 
         const docText = await response.text();
-        const chapters = parseDocChapters(docText);
+        const chapters = parseDocChaptersFromHtml(docText);
         if (!chapters.length) return;
 
-        const chapterPages = chapters.map((chapter) => ({ type: 'chapter', title: chapter.title, content: chapter.content, image: '' }));
+        const chapterPages = chapters.map((chapter) => ({
+          type: 'chapter',
+          title: chapter.title,
+          blocks: chapter.blocks,
+          content: chapter.blocks
+            .filter((block) => block.type === 'paragraph')
+            .map((block) => block.text)
+            .join('\n\n'),
+          image: ''
+        }));
 
         book.pages = [
           { type: 'cover', title: book.label },
@@ -546,9 +637,22 @@
 
     function chapterHtml(page) {
       const imageHtml = page.image ? `<img class="book-image" src="${escapeHtml(page.image)}" alt="Illustration for ${escapeHtml(page.title)}">` : '';
+      const blocks = page.blocks && page.blocks.length
+        ? page.blocks
+        : [{ type: 'paragraph', text: page.content || '' }];
+      const contentHtml = blocks
+        .map((block) => {
+          if (block.type === 'heading') {
+            return `<h3 class="book-section-title">${escapeHtml(block.text)}</h3>`;
+          }
+
+          return `<p class="book-text">${escapeHtml(block.text || '')}</p>`;
+        })
+        .join('');
+
       return `
         <h2 class="page-title">${escapeHtml(page.title)}</h2>
-        <p class="book-text">${escapeHtml(page.content || '')}</p>
+        ${contentHtml}
         ${imageHtml}
       `;
     }
