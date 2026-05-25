@@ -367,24 +367,35 @@
     }
 
     function parseDocChapters(rawText) {
-      const text = (rawText || '').replace(/\r\n/g, '\n').trim();
+      const text = (rawText || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
       if (!text) return [];
 
       const lines = text.split('\n');
       const chapters = [];
+      const looseContent = [];
       let current = null;
 
       const headingMatch = (line) => {
-        const trimmed = line.trim();
+        const trimmed = line.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
         if (!trimmed) return null;
-        if (/^##\s+/.test(trimmed)) return trimmed.replace(/^##\s+/, '').trim();
+        if (/^#{1,6}\s*/.test(trimmed)) {
+          const markdownTitle = trimmed.replace(/^#{1,6}\s*/, '').trim();
+          return markdownTitle || null;
+        }
         if (/^chapter\s+\d+/i.test(trimmed)) return trimmed;
         return null;
       };
 
+      const isDocGeneratedToc = (title) =>
+        /^table\s+of\s+contents$/i.test(title.trim());
+
       lines.forEach((line) => {
         const chapterTitle = headingMatch(line);
         if (chapterTitle) {
+          if (isDocGeneratedToc(chapterTitle)) {
+            return;
+          }
+
           if (current && (current.title || current.content.length)) {
             chapters.push({ title: current.title, content: current.content.join('\n').trim() });
           }
@@ -393,7 +404,10 @@
         }
 
         if (!current) {
-          current = { title: 'Chapter 1', content: [] };
+          if (line.trim()) {
+            looseContent.push(line);
+          }
+          return;
         }
         current.content.push(line);
       });
@@ -402,12 +416,16 @@
         chapters.push({ title: current.title || 'Chapter', content: current.content.join('\n').trim() });
       }
 
+      if (!chapters.length && looseContent.length) {
+        chapters.push({ title: 'Chapter 1', content: looseContent.join('\n').trim() });
+      }
+
       return chapters
         .map((ch, idx) => ({
           title: ch.title || `Chapter ${idx + 1}`,
-          content: (ch.content || '').trim() || '(Empty chapter text)'
+          content: (ch.content || '').trim()
         }))
-        .filter((ch) => ch.title || ch.content);
+        .filter((ch) => ch.title && ch.content);
     }
 
     function buildBookRecord(entry) {
@@ -576,7 +594,10 @@
       if (!book) return;
 
       const leftPage = book.pages[currentIndex];
-      const rightPage = book.pages[currentIndex + 1];
+      const rightPage =
+        leftPage && ['cover', 'toc'].includes(leftPage.type)
+          ? null
+          : book.pages[currentIndex + 1];
 
       statusEl.textContent = `${book.label} • Showing pages ${currentIndex + 1}${rightPage ? `-${currentIndex + 2}` : ''} of ${book.pages.length}`;
       spreadInner.innerHTML = `${pageHtml(leftPage, 'left')}${pageHtml(rightPage, 'right')}`;
