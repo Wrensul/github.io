@@ -305,19 +305,6 @@
     </section>
 
     <section id="book-grid" class="book-grid" aria-label="Old Friends books"></section>
-
-    <details class="intro-shell" style="margin-top: 0; text-align: left;">
-      <summary><strong>Author Guide: Adding books + formatting Google Docs</strong></summary>
-      <p style="margin-top: 10px;">Edit the <code>BOOK_LIBRARY</code> block in this file. Duplicate one entry to add another tile/book.</p>
-      <ol>
-        <li>Set <code>id</code> and <code>title</code>.</li>
-        <li>Paste your doc URL in <code>chaptersGoogleDoc</code>.</li>
-        <li>In Google Docs, put each chapter heading on its own line as either <code>## Chapter 1: Name</code> or <code>Chapter 1: Name</code>.</li>
-        <li>Everything until the next chapter heading becomes that chapter's page text.</li>
-      </ol>
-      <p>If the Doc is private, visitors will see <code>fallbackChapters</code> content until you make the Doc visible again.</p>
-    </details>
-
   </main>
 
   <div id="book-modal" class="book-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
@@ -326,6 +313,7 @@
         <span id="book-status">Book</span>
         <div>
           <button id="prev-page" aria-label="Previous page">◀ Prev Page</button>
+          <button id="toc-page" aria-label="Return to table of contents">Contents</button>
           <button id="next-page" aria-label="Next page">Next Page ▶</button>
           <button id="close-book" aria-label="Close book">✕ Close</button>
         </div>
@@ -456,6 +444,7 @@
     const statusEl = document.getElementById('book-status');
     const closeBtn = document.getElementById('close-book');
     const prevBtn = document.getElementById('prev-page');
+    const tocBtn = document.getElementById('toc-page');
     const nextBtn = document.getElementById('next-page');
 
     function renderBookTiles() {
@@ -599,6 +588,7 @@
 
     closeBtn.addEventListener('click', closeBook);
     prevBtn.addEventListener('click', () => goToPage(currentIndex - 1));
+    tocBtn.addEventListener('click', () => goToPage(1));
     nextBtn.addEventListener('click', () => goToPage(currentIndex + 1));
 
     window.addEventListener('keydown', (event) => {
