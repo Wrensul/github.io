@@ -192,6 +192,8 @@
       animation: pageShift .24s ease forwards;
       overflow-wrap: anywhere;
       white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
     }
 
     .book-page.left {
@@ -220,9 +222,11 @@
     .page-title {
       margin: 0;
       font-size: clamp(24px, 3vw, 38px);
-      text-decoration: underline;
-      text-underline-offset: 6px;
       white-space: normal;
+    }
+
+    .chapter-content {
+      flex: 1;
     }
 
     .toc-list {
@@ -277,6 +281,30 @@
       font-size: 14px;
       opacity: 0.72;
       white-space: normal;
+    }
+
+    .page-footer {
+      margin-top: auto;
+      padding-top: 18px;
+      color: #777;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 14px;
+      line-height: 1.2;
+      white-space: normal;
+    }
+
+    .page-footer-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-footer-number {
+      flex: 0 0 auto;
+      font-variant-numeric: tabular-nums;
     }
 
     .blank-page {
@@ -687,8 +715,13 @@
 
       return `
         <section class="book-page ${side}">
-          ${chapterHtml(page)}
-          <p class="page-marker">Page ${currentIndex + (side === 'right' ? 2 : 1)}</p>
+          <div class="chapter-content">
+            ${chapterHtml(page)}
+          </div>
+          <footer class="page-footer" aria-label="Page ${currentIndex + (side === 'right' ? 2 : 1)} of ${escapeHtml(page.title)}">
+            <span class="page-footer-title">${escapeHtml(page.title)}</span>
+            <span class="page-footer-number">${currentIndex + (side === 'right' ? 2 : 1)}</span>
+          </footer>
         </section>
       `;
     }
