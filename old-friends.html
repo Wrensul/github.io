@@ -108,19 +108,20 @@
       background: var(--overlay);
       display: grid;
       place-items: center;
-      padding: 24px;
+      padding: 12px;
     }
 
     .book-shell {
       width: min(1080px, 96vw);
-      max-height: 92vh;
+      height: min(92dvh, 760px);
+      max-height: calc(100dvh - 24px);
       background: #303030;
       border: 2px solid #1c1c1c;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
       display: grid;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: auto minmax(0, 1fr);
     }
 
     .book-controls {
@@ -145,15 +146,18 @@
     }
 
     .book-stage {
-      overflow: auto;
-      padding: 18px;
+      overflow: hidden;
+      padding: 12px;
       background: #2a2a2a;
+      min-height: 0;
+      display: flex;
     }
 
     .spread {
       position: relative;
       width: min(960px, 100%);
-      min-height: 560px;
+      height: 100%;
+      min-height: 0;
       margin: 0 auto;
       background: #f2ebd6;
       border: 4px groove #232323;
@@ -177,12 +181,13 @@
     .spread-inner {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      min-height: 100%;
+      height: 100%;
+      min-height: 0;
     }
 
     .book-page {
       position: relative;
-      padding: clamp(18px, 2.6vw, 34px);
+      padding: clamp(14px, 2vw, 24px);
       background: var(--paper);
       color: var(--ink);
       border-top: 1px solid var(--paper-edge);
@@ -194,6 +199,8 @@
       white-space: pre-wrap;
       display: flex;
       flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .book-page.left {
@@ -220,13 +227,16 @@
     }
 
     .page-title {
-      margin: 0;
-      font-size: clamp(24px, 3vw, 38px);
+      margin: 0 0 10px;
+      font-size: 14pt;
+      line-height: 1.15;
       white-space: normal;
     }
 
     .chapter-content {
       flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .toc-list {
@@ -250,15 +260,15 @@
     }
 
     .book-text {
-      margin-top: 16px;
-      font-size: 20px;
-      line-height: 1.45;
+      margin: 0 0 6px;
+      font-size: 8pt;
+      line-height: 1.35;
       white-space: pre-wrap;
     }
 
     .book-section-title {
-      margin: 22px 0 8px;
-      font-size: 24px;
+      margin: 10px 0 5px;
+      font-size: 10pt;
       line-height: 1.25;
       text-decoration: none;
     }
@@ -285,13 +295,13 @@
 
     .page-footer {
       margin-top: auto;
-      padding-top: 18px;
+      padding-top: 8px;
       color: #777;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      font-size: 14px;
+      font-size: 7pt;
       line-height: 1.2;
       white-space: normal;
     }
@@ -322,7 +332,10 @@
     }
 
     @media (max-width: 860px) {
-      .spread { min-height: 680px; }
+      .spread {
+        height: 100%;
+        min-height: 0;
+      }
       .spread::before { display: none; }
       .spread-inner { grid-template-columns: 1fr; }
       .book-page.left {
@@ -537,13 +550,119 @@
         .filter((ch) => ch.title && ch.blocks.some((block) => block.text));
     }
 
+    const FIRST_CHAPTER_PAGE_LIMIT = 2300;
+    const CHAPTER_PAGE_LIMIT = 3000;
+
+    function blockWeight(block) {
+      if (block.type === 'heading') return block.text.length + 120;
+      return block.text.length + 20;
+    }
+
+    function splitParagraphBlock(block, limit) {
+      const words = block.text.split(/\s+/).filter(Boolean);
+      const chunks = [];
+      let current = '';
+
+      words.forEach((word) => {
+        const next = current ? `${current} ${word}` : word;
+        if (next.length > limit && current) {
+          chunks.push({ type: 'paragraph', text: current });
+          current = word;
+          return;
+        }
+
+        current = next;
+      });
+
+      if (current) {
+        chunks.push({ type: 'paragraph', text: current });
+      }
+
+      return chunks;
+    }
+
+    function paginateChapter(chapter) {
+      const pages = [];
+      let currentBlocks = [];
+      let currentWeight = 0;
+      let isFirstPage = true;
+
+      const pageLimit = () => isFirstPage ? FIRST_CHAPTER_PAGE_LIMIT : CHAPTER_PAGE_LIMIT;
+
+      const pushPage = () => {
+        if (!currentBlocks.length) return;
+        pages.push({
+          type: 'chapter',
+          title: chapter.title,
+          blocks: currentBlocks,
+          showTitle: isFirstPage,
+          image: ''
+        });
+        currentBlocks = [];
+        currentWeight = 0;
+        isFirstPage = false;
+      };
+
+      (chapter.blocks || []).forEach((block) => {
+        if (!block.text.trim()) return;
+
+        const blockChunks =
+          block.type === 'paragraph' && blockWeight(block) > pageLimit()
+            ? splitParagraphBlock(block, Math.max(260, pageLimit() - currentWeight - 40))
+            : [block];
+
+        blockChunks.forEach((chunk) => {
+          const weight = blockWeight(chunk);
+
+          if (currentBlocks.length && currentWeight + weight > pageLimit()) {
+            pushPage();
+          }
+
+          if (!currentBlocks.length && weight > pageLimit() && chunk.type === 'paragraph') {
+            splitParagraphBlock(chunk, pageLimit() - 40).forEach((smallChunk) => {
+              currentBlocks.push(smallChunk);
+              pushPage();
+            });
+            return;
+          }
+
+          currentBlocks.push(chunk);
+          currentWeight += weight;
+        });
+      });
+
+      pushPage();
+      return pages;
+    }
+
+    function buildPagesFromChapters(bookTitle, chapters) {
+      const chapterRefs = [];
+      const chapterPages = [];
+
+      chapters.forEach((chapter) => {
+        const firstPageIndex = chapterPages.length + 2;
+        const pages = paginateChapter(chapter);
+        if (!pages.length) return;
+
+        chapterRefs.push({ title: chapter.title, pageIndex: firstPageIndex });
+        chapterPages.push(...pages);
+      });
+
+      return [
+        { type: 'cover', title: bookTitle },
+        {
+          type: 'toc',
+          title: 'Table of Contents',
+          chapters: chapterRefs
+        },
+        ...chapterPages
+      ];
+    }
+
     function buildBookRecord(entry) {
-      const chapterPages = (entry.fallbackChapters || []).map((chapter) => ({
-        type: 'chapter',
+      const fallbackChapters = (entry.fallbackChapters || []).map((chapter) => ({
         title: chapter.title,
-        content: chapter.content,
-        blocks: chapter.blocks || [{ type: 'paragraph', text: chapter.content || '' }],
-        image: chapter.image || ''
+        blocks: chapter.blocks || [{ type: 'paragraph', text: chapter.content || '' }]
       }));
 
       return {
@@ -551,15 +670,7 @@
         label: entry.title,
         tileSymbol: entry.tileSymbol || '✦',
         chaptersGoogleDoc: entry.chaptersGoogleDoc || '',
-        pages: [
-          { type: 'cover', title: entry.title },
-          {
-            type: 'toc',
-            title: 'Table of Contents',
-            chapters: chapterPages.map((chapter, idx) => ({ title: chapter.title, pageIndex: idx + 2 }))
-          },
-          ...chapterPages
-        ],
+        pages: buildPagesFromChapters(entry.title, fallbackChapters),
         docLoaded: false
       };
     }
@@ -608,26 +719,7 @@
         const chapters = parseDocChaptersFromHtml(docText);
         if (!chapters.length) return;
 
-        const chapterPages = chapters.map((chapter) => ({
-          type: 'chapter',
-          title: chapter.title,
-          blocks: chapter.blocks,
-          content: chapter.blocks
-            .filter((block) => block.type === 'paragraph')
-            .map((block) => block.text)
-            .join('\n\n'),
-          image: ''
-        }));
-
-        book.pages = [
-          { type: 'cover', title: book.label },
-          {
-            type: 'toc',
-            title: 'Table of Contents',
-            chapters: chapterPages.map((chapter, idx) => ({ title: chapter.title, pageIndex: idx + 2 }))
-          },
-          ...chapterPages
-        ];
+        book.pages = buildPagesFromChapters(book.label, chapters);
 
         book.docLoaded = true;
       } catch (err) {
@@ -679,7 +771,7 @@
         .join('');
 
       return `
-        <h2 class="page-title">${escapeHtml(page.title)}</h2>
+        ${page.showTitle === false ? '' : `<h2 class="page-title">${escapeHtml(page.title)}</h2>`}
         ${contentHtml}
         ${imageHtml}
       `;
