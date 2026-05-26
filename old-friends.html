@@ -187,7 +187,7 @@
 
     .book-page {
       position: relative;
-      padding: 10px 18px 8px;
+      padding: 14px 22px 10px;
       background: var(--paper);
       color: var(--ink);
       border-top: 1px solid var(--paper-edge);
@@ -638,8 +638,8 @@
         .filter((ch) => ch.title && ch.blocks.some((block) => block.text));
     }
 
-    const FIRST_CHAPTER_PAGE_LIMIT = 3100;
-    const CHAPTER_PAGE_LIMIT = 3800;
+    const FIRST_CHAPTER_PAGE_LIMIT = 5200;
+    const CHAPTER_PAGE_LIMIT = 6400;
 
     function blockWeight(block) {
       if (block.type === 'heading') return block.text.length + 120;
@@ -666,7 +666,11 @@
         chunks.push({ type: 'paragraph', text: current });
       }
 
-      return chunks;
+      return chunks.map((chunk, idx) => ({
+        ...chunk,
+        indented: idx === 0 ? block.indented : false,
+        indent: idx === 0 ? block.indent : ''
+      }));
     }
 
     function paginateChapter(chapter) {
