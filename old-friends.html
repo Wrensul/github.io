@@ -266,6 +266,10 @@
       white-space: pre-wrap;
     }
 
+    .book-text.indented {
+      text-indent: 2em;
+    }
+
     .book-section-title {
       margin: 10px 0 5px;
       font-size: 10pt;
@@ -315,13 +319,6 @@
     .page-footer-number {
       flex: 0 0 auto;
       font-variant-numeric: tabular-nums;
-    }
-
-    .blank-page {
-      display: grid;
-      place-items: center;
-      color: rgba(0,0,0,.5);
-      font-style: italic;
     }
 
     @keyframes pageShift {
@@ -425,12 +422,50 @@
         .trim();
     }
 
+    function getDocCssText(doc) {
+      return Array.from(doc.querySelectorAll('style'))
+        .map((styleNode) => styleNode.textContent || '')
+        .join('\n');
+    }
+
+    function getCssRuleForClass(cssText, className) {
+      if (!className) return '';
+
+      return className
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((name) => {
+          const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const match = cssText.match(new RegExp(`\\.${escapedName}\\s*\\{([^}]*)\\}`, 'i'));
+          return match ? match[1] : '';
+        })
+        .join(';');
+    }
+
+    function getParagraphBlock(node, cssText) {
+      const rawText = String(node.textContent || '').replace(/[\u200B-\u200D\uFEFF]/g, '');
+      const text = rawText.replace(/\s+/g, ' ').trim();
+      if (!text) return null;
+
+      const style = node.getAttribute('style') || '';
+      const className = node.getAttribute('class') || '';
+      const classRules = getCssRuleForClass(cssText, className);
+      const styleText = `${style};${classRules}`;
+      const isIndented =
+        /^[\s\u00A0]+/.test(rawText) ||
+        /text-indent\s*:\s*(?!0(?:px|pt|em|rem|%)?)/i.test(styleText) ||
+        /margin-left\s*:\s*(?!0(?:px|pt|em|rem|%)?)/i.test(styleText);
+
+      return { type: 'paragraph', text, indented: isIndented };
+    }
+
     function parseDocChaptersFromHtml(rawHtml) {
       const html = (rawHtml || '').trim();
       if (!html) return [];
 
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
+      const cssText = getDocCssText(doc);
       const contentNodes = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li'));
       const chapters = [];
       const looseBlocks = [];
@@ -466,12 +501,15 @@
           return;
         }
 
+        const paragraphBlock = getParagraphBlock(node, cssText);
+        if (!paragraphBlock) return;
+
         if (!current) {
-          looseBlocks.push({ type: 'paragraph', text });
+          looseBlocks.push(paragraphBlock);
           return;
         }
 
-        current.blocks.push({ type: 'paragraph', text });
+        current.blocks.push(paragraphBlock);
       });
 
       pushCurrent();
@@ -791,7 +829,8 @@
             return `<h3 class="book-section-title">${escapeHtml(block.text)}</h3>`;
           }
 
-          return `<p class="book-text">${escapeHtml(block.text || '')}</p>`;
+          const indentClass = block.indented ? ' indented' : '';
+          return `<p class="book-text${indentClass}">${escapeHtml(block.text || '')}</p>`;
         })
         .join('');
 
@@ -804,7 +843,7 @@
 
     function pageHtml(page, side) {
       if (!page) {
-        return `<section class="book-page ${side} blank-page"><p>Blank Page</p></section>`;
+        return '';
       }
 
       if (page.type === 'cover') {
