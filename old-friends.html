@@ -187,7 +187,7 @@
 
     .book-page {
       position: relative;
-      padding: clamp(14px, 2vw, 24px);
+      padding: 16px 24px 12px;
       background: var(--paper);
       color: var(--ink);
       border-top: 1px solid var(--paper-edge);
@@ -227,9 +227,9 @@
     }
 
     .page-title {
-      margin: 0 0 10px;
+      margin: 0 0 4px;
       font-size: 14pt;
-      line-height: 1.15;
+      line-height: 1.05;
       white-space: normal;
     }
 
@@ -260,9 +260,9 @@
     }
 
     .book-text {
-      margin: 0 0 6px;
+      margin: 0 0 4px;
       font-size: 8pt;
-      line-height: 1.35;
+      line-height: 1.28;
       white-space: pre-wrap;
     }
 
@@ -271,9 +271,9 @@
     }
 
     .book-section-title {
-      margin: 10px 0 5px;
+      margin: 7px 0 3px;
       font-size: 10pt;
-      line-height: 1.25;
+      line-height: 1.15;
       text-decoration: none;
     }
 
@@ -299,7 +299,8 @@
 
     .page-footer {
       margin-top: auto;
-      padding-top: 8px;
+      padding-top: 4px;
+      min-height: 18px;
       color: #777;
       display: flex;
       align-items: center;
@@ -588,8 +589,8 @@
         .filter((ch) => ch.title && ch.blocks.some((block) => block.text));
     }
 
-    const FIRST_CHAPTER_PAGE_LIMIT = 2300;
-    const CHAPTER_PAGE_LIMIT = 3000;
+    const FIRST_CHAPTER_PAGE_LIMIT = 3100;
+    const CHAPTER_PAGE_LIMIT = 3800;
 
     function blockWeight(block) {
       if (block.type === 'heading') return block.text.length + 120;
