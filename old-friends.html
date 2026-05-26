@@ -185,12 +185,6 @@
       min-height: 0;
     }
 
-    .spread-inner.single-page {
-      grid-template-columns: minmax(0, 1fr);
-      max-width: 50%;
-      margin: 0 auto;
-    }
-
     .book-page {
       position: relative;
       padding: 16px 24px 12px;
@@ -215,13 +209,12 @@
       transform: translateX(-10px);
     }
 
-    .spread-inner.single-page .book-page.left {
-      border-right: none;
-      box-shadow: none;
-    }
-
     .book-page.right {
       box-shadow: inset 18px 0 24px rgba(0,0,0,.08);
+    }
+
+    .blank-page {
+      background: var(--paper);
     }
 
     .cover-wrap {
@@ -341,9 +334,6 @@
       }
       .spread::before { display: none; }
       .spread-inner { grid-template-columns: 1fr; }
-      .spread-inner.single-page {
-        max-width: 100%;
-      }
       .book-page.left {
         border-right: none;
         border-bottom: 1px solid rgba(0,0,0,.18);
@@ -851,24 +841,15 @@
     function goToPage(index) {
       const book = books[activeBookKey];
       if (!book) return;
-      currentIndex = Math.max(0, Math.min(index, book.pages.length - 1));
+      const boundedIndex = Math.max(0, Math.min(index, book.pages.length - 1));
+      currentIndex = boundedIndex % 2 === 0 ? boundedIndex : boundedIndex - 1;
       renderSpread();
     }
 
     function getSpreadStarts(book) {
       const starts = [];
-      let index = 0;
-
-      while (index < book.pages.length) {
+      for (let index = 0; index < book.pages.length; index += 2) {
         starts.push(index);
-
-        const page = book.pages[index];
-        if (!page || ['cover', 'toc'].includes(page.type)) {
-          index += 1;
-          continue;
-        }
-
-        index += book.pages[index + 1] ? 2 : 1;
       }
 
       return starts;
@@ -920,7 +901,7 @@
 
     function pageHtml(page, side) {
       if (!page) {
-        return '';
+        return `<section class="book-page ${side} blank-page" aria-hidden="true"></section>`;
       }
 
       if (page.type === 'cover') {
@@ -962,13 +943,9 @@
       if (!book) return;
 
       const leftPage = book.pages[currentIndex];
-      const rightPage =
-        leftPage && ['cover', 'toc'].includes(leftPage.type)
-          ? null
-          : book.pages[currentIndex + 1];
+      const rightPage = book.pages[currentIndex + 1];
 
       statusEl.textContent = `${book.label} • Showing pages ${currentIndex + 1}${rightPage ? `-${currentIndex + 2}` : ''} of ${book.pages.length}`;
-      spreadInner.classList.toggle('single-page', !rightPage);
       spreadInner.innerHTML = `${pageHtml(leftPage, 'left')}${pageHtml(rightPage, 'right')}`;
 
       spreadInner.querySelectorAll('.toc-btn').forEach((btn) => {
