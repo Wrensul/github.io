@@ -187,7 +187,7 @@
 
     .book-page {
       position: relative;
-      padding: 16px 24px 12px;
+      padding: 10px 18px 8px;
       background: var(--paper);
       color: var(--ink);
       border-top: 1px solid var(--paper-edge);
@@ -196,7 +196,7 @@
       transform: translateX(10px);
       animation: pageShift .24s ease forwards;
       overflow-wrap: anywhere;
-      white-space: pre-wrap;
+      white-space: normal;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -227,7 +227,7 @@
     }
 
     .page-title {
-      margin: 0 0 4px;
+      margin: 0 0 2px;
       font-size: 14pt;
       line-height: 1.05;
       white-space: normal;
@@ -260,14 +260,14 @@
     }
 
     .book-text {
-      margin: 0 0 4px;
+      margin: 0 0 2px;
       font-size: 8pt;
-      line-height: 1.28;
+      line-height: 1.22;
       white-space: pre-wrap;
     }
 
     .book-text.indented {
-      text-indent: 2em;
+      text-indent: var(--doc-indent, 2em);
     }
 
     .book-section-title {
@@ -299,8 +299,8 @@
 
     .page-footer {
       margin-top: auto;
-      padding-top: 4px;
-      min-height: 18px;
+      padding-top: 2px;
+      min-height: 14px;
       color: #777;
       display: flex;
       align-items: center;
@@ -437,10 +437,53 @@
         .filter(Boolean)
         .map((name) => {
           const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const match = cssText.match(new RegExp(`\\.${escapedName}\\s*\\{([^}]*)\\}`, 'i'));
-          return match ? match[1] : '';
+          const rules = [];
+          const rulePattern = /([^{}]+)\{([^}]*)\}/g;
+          let match;
+
+          while ((match = rulePattern.exec(cssText))) {
+            const selector = match[1] || '';
+            const body = match[2] || '';
+            if (new RegExp(`(^|[\\s,.#>+~])\\.${escapedName}($|[\\s,.#:[>+~])`).test(selector)) {
+              rules.push(body);
+            }
+          }
+
+          return rules.join(';');
         })
         .join(';');
+    }
+
+    function getNodeStyleText(node, cssText) {
+      if (!node || !(node instanceof Element)) return '';
+
+      const inlineStyle = node.getAttribute('style') || '';
+      const classRules = getCssRuleForClass(cssText, node.getAttribute('class') || '');
+      return `${inlineStyle};${classRules}`;
+    }
+
+    function hasNonZeroCssLength(styleText, property) {
+      const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const matches = Array.from(styleText.matchAll(new RegExp(`${escapedProperty}\\s*:\\s*([^;]+)`, 'ig')));
+
+      return matches.some((match) => {
+        const value = (match[1] || '').trim();
+        if (!value) return false;
+        return !/^0(?:\.0+)?(?:px|pt|em|rem|%)?$/i.test(value);
+      });
+    }
+
+    function getCssLength(styleText, property) {
+      const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const matches = Array.from(styleText.matchAll(new RegExp(`${escapedProperty}\\s*:\\s*([^;]+)`, 'ig')));
+      const lastMatch = matches[matches.length - 1];
+      const value = lastMatch ? (lastMatch[1] || '').trim() : '';
+
+      if (/^-?\d+(?:\.\d+)?(?:px|pt|em|rem|%)$/i.test(value)) {
+        return value;
+      }
+
+      return '';
     }
 
     function getParagraphBlock(node, cssText) {
@@ -448,16 +491,22 @@
       const text = rawText.replace(/\s+/g, ' ').trim();
       if (!text) return null;
 
-      const style = node.getAttribute('style') || '';
-      const className = node.getAttribute('class') || '';
-      const classRules = getCssRuleForClass(cssText, className);
-      const styleText = `${style};${classRules}`;
+      const styleText = [
+        getNodeStyleText(node, cssText),
+        ...Array.from(node.querySelectorAll('*')).map((child) => getNodeStyleText(child, cssText))
+      ].join(';');
       const isIndented =
         /^[\s\u00A0]+/.test(rawText) ||
-        /text-indent\s*:\s*(?!0(?:px|pt|em|rem|%)?)/i.test(styleText) ||
-        /margin-left\s*:\s*(?!0(?:px|pt|em|rem|%)?)/i.test(styleText);
+        hasNonZeroCssLength(styleText, 'text-indent') ||
+        hasNonZeroCssLength(styleText, 'margin-left') ||
+        hasNonZeroCssLength(styleText, 'padding-left');
+      const indent =
+        getCssLength(styleText, 'text-indent') ||
+        getCssLength(styleText, 'margin-left') ||
+        getCssLength(styleText, 'padding-left') ||
+        '';
 
-      return { type: 'paragraph', text, indented: isIndented };
+      return { type: 'paragraph', text, indented: isIndented, indent };
     }
 
     function parseDocChaptersFromHtml(rawHtml) {
@@ -845,7 +894,8 @@
           }
 
           const indentClass = block.indented ? ' indented' : '';
-          return `<p class="book-text${indentClass}">${escapeHtml(block.text || '')}</p>`;
+          const indentStyle = block.indent ? ` style="--doc-indent: ${escapeHtml(block.indent)}"` : '';
+          return `<p class="book-text${indentClass}"${indentStyle}>${escapeHtml(block.text || '')}</p>`;
         })
         .join('');
 
