@@ -1,13 +1,33 @@
 (() => {
-  const siteConfig = window.SITE_CONFIG || {};
+  // Quick page switches for the under-construction banner.
+  // true = hide that page's content between the header and footer.
+  // false = force that page to show normally.
+  // null = use UNDER_CONSTRUCTION_MODE below instead.
+  const pageUnderConstruction = {
+    "index.html": null,
+    "site-policies.html": null,
+    "field-thistles.html": null,
+    "parsklands.html": null,
+    "atlas.html": true,
+    "magic.html": true,
+    "creatures.html": true,
+    "timeline.html": true,
+    "glossary.html": true,
+    "words-of-parsk.html": true,
+    "fables.html": true,
+    "small-memories.html": true,
+    "old-friends.html": true,
+    "calendar.html": null,
+    "test.html": null
+  };
+
+  // Used when a page is set to null or is not listed above.
+  const UNDER_CONSTRUCTION_MODE = false;
+
   const currentPage = window.location.pathname.split("/").pop() || "index.html";
-
-  const globalToggle = siteConfig.UNDER_CONSTRUCTION_MODE ?? false;
-  const pageToggles = siteConfig.UNDER_CONSTRUCTION_PAGES || {};
-  const pageToggle = pageToggles[currentPage];
-
+  const pageToggle = pageUnderConstruction[currentPage];
   const isUnderConstruction =
-    typeof pageToggle === "boolean" ? pageToggle : globalToggle;
+    typeof pageToggle === "boolean" ? pageToggle : UNDER_CONSTRUCTION_MODE;
 
   if (!isUnderConstruction) {
     return;
@@ -22,12 +42,10 @@
 
   const headerSlot =
     document.getElementById("header") ||
-    document.getElementById("site-header") ||
-    document.querySelector("header");
+    document.getElementById("site-header");
   const footerSlot =
     document.getElementById("footer") ||
-    document.getElementById("site-footer") ||
-    document.querySelector("footer");
+    document.getElementById("site-footer");
 
   const hasHeaderFooterId = (el) =>
     Boolean(el.id && /(?:^|[-_])(site-)?(?:header|footer)(?:$|[-_])/i.test(el.id));
@@ -45,11 +63,7 @@
       return true;
     }
 
-    if (el.matches("#header, #footer, #site-header, #site-footer")) {
-      return true;
-    }
-
-    return Boolean(el.querySelector("#header, #footer, #site-header, #site-footer"));
+    return el.matches("#header, #footer, #site-header, #site-footer");
   };
 
   for (const child of Array.from(body.children)) {
