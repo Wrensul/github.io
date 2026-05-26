@@ -755,6 +755,31 @@
       renderSpread();
     }
 
+    function getVisiblePageCount() {
+      const book = books[activeBookKey];
+      if (!book) return 1;
+
+      const leftPage = book.pages[currentIndex];
+      if (!leftPage || ['cover', 'toc'].includes(leftPage.type)) {
+        return 1;
+      }
+
+      return book.pages[currentIndex + 1] ? 2 : 1;
+    }
+
+    function goToNextSpread() {
+      goToPage(currentIndex + getVisiblePageCount());
+    }
+
+    function goToPreviousSpread() {
+      if (currentIndex <= 2) {
+        goToPage(currentIndex - 1);
+        return;
+      }
+
+      goToPage(currentIndex - 2);
+    }
+
     function chapterHtml(page) {
       const imageHtml = page.image ? `<img class="book-image" src="${escapeHtml(page.image)}" alt="Illustration for ${escapeHtml(page.title)}">` : '';
       const blocks = page.blocks && page.blocks.length
@@ -837,15 +862,15 @@
     }
 
     closeBtn.addEventListener('click', closeBook);
-    prevBtn.addEventListener('click', () => goToPage(currentIndex - 1));
+    prevBtn.addEventListener('click', goToPreviousSpread);
     tocBtn.addEventListener('click', () => goToPage(1));
-    nextBtn.addEventListener('click', () => goToPage(currentIndex + 1));
+    nextBtn.addEventListener('click', goToNextSpread);
 
     window.addEventListener('keydown', (event) => {
       if (modal.classList.contains('hidden')) return;
       if (event.key === 'Escape') closeBook();
-      if (event.key === 'ArrowLeft') goToPage(currentIndex - 1);
-      if (event.key === 'ArrowRight') goToPage(currentIndex + 1);
+      if (event.key === 'ArrowLeft') goToPreviousSpread();
+      if (event.key === 'ArrowRight') goToNextSpread();
     });
 
     modal.addEventListener('click', (event) => {
