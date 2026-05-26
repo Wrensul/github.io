@@ -227,7 +227,7 @@
     }
 
     .page-title {
-      margin: 0 0 5px;
+      margin: 0 0 10px;
       font-size: 14pt;
       line-height: 1.05;
       white-space: normal;
@@ -237,6 +237,7 @@
       flex: 1;
       min-height: 0;
       overflow: hidden;
+      padding-bottom: 6px;
     }
 
     .toc-list {
@@ -638,8 +639,8 @@
         .filter((ch) => ch.title && ch.blocks.some((block) => block.text));
     }
 
-    const FIRST_CHAPTER_PAGE_LIMIT = 5200;
-    const CHAPTER_PAGE_LIMIT = 6400;
+    const FIRST_CHAPTER_PAGE_LIMIT = 4900;
+    const CHAPTER_PAGE_LIMIT = 6000;
 
     function blockWeight(block) {
       if (block.type === 'heading') return block.text.length + 120;
