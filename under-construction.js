@@ -24,8 +24,13 @@
   // Used when a page is set to null or is not listed above.
   const UNDER_CONSTRUCTION_MODE = false;
 
-  const currentPage = window.location.pathname.split("/").pop() || "index.html";
-  const pageToggle = pageUnderConstruction[currentPage];
+  const rawPage = window.location.pathname.split("/").pop() || "index.html";
+  const currentPage = decodeURIComponent(rawPage);
+  const extensionlessPage = currentPage.replace(/\.html$/i, "");
+  const pageToggle =
+    pageUnderConstruction[currentPage] ??
+    pageUnderConstruction[extensionlessPage] ??
+    pageUnderConstruction[`${extensionlessPage}.html`];
   const isUnderConstruction =
     typeof pageToggle === "boolean" ? pageToggle : UNDER_CONSTRUCTION_MODE;
 
@@ -66,17 +71,28 @@
     return el.matches("#header, #footer, #site-header, #site-footer");
   };
 
+  const shouldSkipElement = (el) =>
+    el.tagName === "SCRIPT" ||
+    el.tagName === "STYLE" ||
+    el.id === "uc-sign-host";
+
+  const hidePageElement = (el) => {
+    if (shouldSkipElement(el)) {
+      return;
+    }
+
+    if (isNavigationContainer(el)) {
+      el.hidden = false;
+      el.removeAttribute("data-uc-hidden");
+      return;
+    }
+
+    el.hidden = true;
+    el.setAttribute("data-uc-hidden", "true");
+  };
+
   for (const child of Array.from(body.children)) {
-    if (child.tagName === "SCRIPT" || child.tagName === "STYLE") {
-      continue;
-    }
-
-    if (isNavigationContainer(child)) {
-      child.hidden = false;
-      continue;
-    }
-
-    child.hidden = true;
+    hidePageElement(child);
   }
 
   if (headerSlot) {
@@ -109,10 +125,26 @@
   signHost.hidden = false;
   signHost.replaceChildren(sign);
 
+  const keepPageHidden = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node instanceof Element && node.parentElement === body) {
+          hidePageElement(node);
+        }
+      }
+    }
+  });
+  keepPageHidden.observe(body, { childList: true });
+
   if (!document.getElementById("uc-sign-style")) {
     const style = document.createElement("style");
     style.id = "uc-sign-style";
     style.textContent = `
+      [data-uc-hidden="true"] {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
       .uc-sign {
         max-width: min(92vw, 860px);
         margin: 48px auto;
