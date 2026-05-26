@@ -794,29 +794,43 @@
       renderSpread();
     }
 
-    function getVisiblePageCount() {
-      const book = books[activeBookKey];
-      if (!book) return 1;
+    function getSpreadStarts(book) {
+      const starts = [];
+      let index = 0;
 
-      const leftPage = book.pages[currentIndex];
-      if (!leftPage || ['cover', 'toc'].includes(leftPage.type)) {
-        return 1;
+      while (index < book.pages.length) {
+        starts.push(index);
+
+        const page = book.pages[index];
+        if (!page || ['cover', 'toc'].includes(page.type)) {
+          index += 1;
+          continue;
+        }
+
+        index += book.pages[index + 1] ? 2 : 1;
       }
 
-      return book.pages[currentIndex + 1] ? 2 : 1;
+      return starts;
     }
 
     function goToNextSpread() {
-      goToPage(currentIndex + getVisiblePageCount());
+      const book = books[activeBookKey];
+      if (!book) return;
+
+      const starts = getSpreadStarts(book);
+      const currentSpreadIndex = starts.indexOf(currentIndex);
+      const nextStart = starts[Math.min(currentSpreadIndex + 1, starts.length - 1)];
+      goToPage(nextStart ?? currentIndex);
     }
 
     function goToPreviousSpread() {
-      if (currentIndex <= 2) {
-        goToPage(currentIndex - 1);
-        return;
-      }
+      const book = books[activeBookKey];
+      if (!book) return;
 
-      goToPage(currentIndex - 2);
+      const starts = getSpreadStarts(book);
+      const currentSpreadIndex = starts.indexOf(currentIndex);
+      const previousStart = starts[Math.max(currentSpreadIndex - 1, 0)];
+      goToPage(previousStart ?? currentIndex);
     }
 
     function chapterHtml(page) {
