@@ -185,6 +185,12 @@
       min-height: 0;
     }
 
+    .spread-inner.single-page {
+      grid-template-columns: minmax(0, 1fr);
+      max-width: 50%;
+      margin: 0 auto;
+    }
+
     .book-page {
       position: relative;
       padding: 16px 24px 12px;
@@ -207,6 +213,11 @@
       border-right: 1px solid rgba(0,0,0,.2);
       box-shadow: inset -18px 0 24px rgba(0,0,0,.08);
       transform: translateX(-10px);
+    }
+
+    .spread-inner.single-page .book-page.left {
+      border-right: none;
+      box-shadow: none;
     }
 
     .book-page.right {
@@ -291,13 +302,6 @@
       box-shadow: 2px 2px 6px rgba(0,0,0,.2);
     }
 
-    .page-marker {
-      margin-top: 24px;
-      font-size: 14px;
-      opacity: 0.72;
-      white-space: normal;
-    }
-
     .page-footer {
       margin-top: auto;
       padding-top: 2px;
@@ -337,6 +341,9 @@
       }
       .spread::before { display: none; }
       .spread-inner { grid-template-columns: 1fr; }
+      .spread-inner.single-page {
+        max-width: 100%;
+      }
       .book-page.left {
         border-right: none;
         border-bottom: 1px solid rgba(0,0,0,.18);
@@ -920,7 +927,6 @@
         return `
           <section class="book-page ${side}">
             <div class="cover-wrap">${escapeHtml(page.title)}</div>
-            <p class="page-marker">Cover</p>
           </section>
         `;
       }
@@ -934,7 +940,6 @@
           <section class="book-page ${side}">
             <h2 class="page-title">${escapeHtml(page.title)}</h2>
             <ol class="toc-list">${buttons}</ol>
-            <p class="page-marker">Contents</p>
           </section>
         `;
       }
@@ -963,6 +968,7 @@
           : book.pages[currentIndex + 1];
 
       statusEl.textContent = `${book.label} • Showing pages ${currentIndex + 1}${rightPage ? `-${currentIndex + 2}` : ''} of ${book.pages.length}`;
+      spreadInner.classList.toggle('single-page', !rightPage);
       spreadInner.innerHTML = `${pageHtml(leftPage, 'left')}${pageHtml(rightPage, 'right')}`;
 
       spreadInner.querySelectorAll('.toc-btn').forEach((btn) => {
