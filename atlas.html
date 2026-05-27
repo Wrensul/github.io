@@ -48,8 +48,45 @@
       text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96);
     }
 
+    .atlas-region-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 22px 0 0;
+      padding: 10px;
+      border-top: 2px solid #444;
+      border-bottom: 2px solid #444;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .atlas-region-nav:empty {
+      display: none;
+    }
+
+    .atlas-region-nav a {
+      display: inline-block;
+      color: #000066;
+      background: #fffbe8;
+      border: 2px outset #ccc;
+      padding: 4px 8px;
+      font-family: "Courier New", monospace;
+      font-size: 15px;
+      font-weight: bold;
+      line-height: 1.2;
+      text-decoration: none;
+    }
+
+    .atlas-region-nav a:hover,
+    .atlas-region-nav a:focus {
+      color: #900;
+      background: #fff4c4;
+      text-decoration: underline wavy #900;
+    }
+
     .atlas-region {
       margin-top: 24px;
+      scroll-margin-top: 16px;
     }
 
     .atlas-region h2 {
@@ -62,23 +99,8 @@
       text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96), 1px 1px 0 rgba(255, 255, 255, 0.92);
     }
 
-    .atlas-region-media {
-      margin: 0 0 14px;
-      padding: 10px;
-      border: 2px solid #444;
-      background: rgba(255, 255, 255, 0.82);
-    }
-
-    .atlas-region-image {
-      width: min(100%, 700px);
-      display: block;
-      margin: 0 0 10px;
-      border: 2px solid #333;
-      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
-    }
-
     .atlas-region-description {
-      margin: 0;
+      margin: 0 0 14px;
       font-size: 18px;
       line-height: 1.45;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
@@ -101,20 +123,6 @@
       border-bottom: 1px solid #444;
       padding-bottom: 6px;
       text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96), 1px 1px 0 rgba(255, 255, 255, 0.92);
-    }
-
-    .atlas-country-images {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .atlas-country-images img {
-      width: 100%;
-      display: block;
-      border: 2px solid #333;
-      box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
     }
 
     .atlas-fields {
@@ -147,17 +155,27 @@
       margin-top: 8px;
     }
 
-    .atlas-help {
-      margin: 20px 0 0;
-      border: 2px dashed #333;
-      background: rgba(255, 255, 255, 0.72);
-      padding: 10px 12px;
-      font-size: 16px;
+    .atlas-city-list {
+      margin: 12px 0 0;
+      padding-left: 22px;
+      font-size: 18px;
+      line-height: 1.4;
     }
 
-    code {
-      background: rgba(0, 0, 0, 0.07);
-      padding: 1px 4px;
+    .atlas-notes {
+      margin: 12px 0 0;
+      font-size: 17px;
+      font-style: italic;
+      line-height: 1.45;
+      color: #315b74;
+    }
+
+    .atlas-loading,
+    .atlas-error {
+      margin: 20px 0 0;
+      font-size: 18px;
+      line-height: 1.45;
+      text-align: center;
     }
 
     @media (max-width: 700px) {
@@ -173,56 +191,252 @@
   <main>
     <section class="atlas-shell">
       <header class="atlas-heading">
-        <h1 id="atlas-page-title">Atlas</h1>
-        <img id="atlas-map" class="atlas-map" src="assets/background.jpg" alt="Placeholder map" />
-        <p id="atlas-page-intro" class="atlas-intro">Loading atlas entries...</p>
+        <h1>Atlas</h1>
+        <img class="atlas-map" src="assets/background.jpg" alt="Map of the Parsklands" />
+        <nav id="atlas-region-nav" class="atlas-region-nav" aria-label="Atlas regions"></nav>
+        <p class="atlas-intro">A living world map and country register for the Parsklands.</p>
       </header>
 
-      <div id="atlas-regions"></div>
-
-      <p class="atlas-help">Edit <code>atlas-data.js</code> to update region, country, and timeline cards for this page.</p>
+      <div id="atlas-regions">
+        <p class="atlas-loading">Loading atlas entries...</p>
+      </div>
     </section>
   </main>
 
   <div id="footer"></div>
 
-  <script src="atlas-data.js"></script>
   <script>
+    const ATLAS_GOOGLE_DOC = "https://docs.google.com/document/d/1GcvISG2455Yhnzu4M4oLNjxCFVvkcyJ4eWWoMT0v_Hc/edit?usp=sharing";
+
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || "").trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
+
+    function normalizeDocText(value) {
+      return String(value || "")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function cleanListMarker(value) {
+      return normalizeDocText(value)
+        .replace(/^[-*•]\s*/, "")
+        .replace(/^\.\s*/, "")
+        .trim();
+    }
+
+    function isDivider(text) {
+      return /^\*{8,}$/.test(text.trim());
+    }
+
+    function isTemplateHeading(text) {
+      return /^(Region|Country|Province\/State|City)$/i.test(normalizeDocText(text));
+    }
+
+    function splitField(text) {
+      const match = text.match(/^([^:]+):\s*(.*)$/);
+      if (!match) return null;
+
+      const label = normalizeDocText(match[1]);
+      const value = normalizeDocText(match[2]);
+      if (!label) return null;
+
+      return { label, value };
+    }
+
+    function ensureRegion(atlas, name) {
+      const region = {
+        name,
+        description: [],
+        countries: []
+      };
+      atlas.regions.push(region);
+      return region;
+    }
+
+    function ensureCountry(region, name) {
+      const country = {
+        name,
+        fields: {},
+        notes: [],
+        cities: [],
+        timeline: []
+      };
+      region.countries.push(country);
+      return country;
+    }
+
+    function addFieldValue(country, label, value) {
+      if (!country || !label) return;
+      const existing = country.fields[label];
+      if (existing && value) {
+        country.fields[label] = `${existing} ${value}`;
+        return;
+      }
+      country.fields[label] = value || "";
+    }
+
+    function getRegionId(regionName, index) {
+      const slug = normalizeDocText(regionName)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      return `atlas-region-${slug || index + 1}`;
+    }
+
+    function parseAtlasDocFromHtml(rawHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml || "", "text/html");
+      const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
+      const hasHeadingOneRegions = nodes.some((node) =>
+        node.tagName.toLowerCase() === "h1" && !isTemplateHeading(node.textContent)
+      );
+      const regionHeading = hasHeadingOneRegions ? "h1" : "h2";
+      const countryHeading = hasHeadingOneRegions ? "h2" : "h3";
+      const cityHeadingPattern = hasHeadingOneRegions ? /^h[3-6]$/ : /^h[4-6]$/;
+      const atlas = { regions: [] };
+      let currentRegion = null;
+      let currentCountry = null;
+      let currentField = "";
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text || isDivider(text)) return;
+        if (isTemplateHeading(text)) return;
+
+        const tag = node.tagName.toLowerCase();
+        const isIndented = node.classList.contains("c4") || node.classList.contains("c21") || /^\s*\./.test(node.textContent || "");
+
+        if (tag === regionHeading) {
+          currentRegion = ensureRegion(atlas, text);
+          currentCountry = null;
+          currentField = "";
+          return;
+        }
+
+        if (tag === countryHeading) {
+          if (!currentRegion) currentRegion = ensureRegion(atlas, "Unsorted");
+          currentCountry = ensureCountry(currentRegion, text);
+          currentField = "";
+          return;
+        }
+
+        if (cityHeadingPattern.test(tag)) {
+          if (currentCountry) currentCountry.cities.push(text);
+          return;
+        }
+
+        if (!currentRegion) return;
+
+        if (/^[-*•]\s*/.test(text)) {
+          currentCountry = ensureCountry(currentRegion, cleanListMarker(text));
+          currentField = "";
+          return;
+        }
+
+        if (isIndented || /^\.\s*/.test(text)) {
+          if (currentCountry) currentCountry.cities.push(cleanListMarker(text));
+          return;
+        }
+
+        if (!currentCountry) {
+          currentRegion.description.push(text);
+          return;
+        }
+
+        const field = splitField(text);
+        if (field) {
+          currentField = field.label;
+          addFieldValue(currentCountry, field.label, field.value);
+          return;
+        }
+
+        if (/^Self\s*\(.+\)\s*\|\s*World\s*\(.+\)/i.test(text)) {
+          addFieldValue(currentCountry, "Symbols", text);
+          currentField = "Symbols";
+          return;
+        }
+
+        if (/^Reference Notes$/i.test(text)) {
+          currentField = "Reference Notes";
+          return;
+        }
+
+        if (/^Timeline/i.test(currentField)) {
+          currentCountry.timeline.push(text);
+          return;
+        }
+
+        if (/^Reference Notes$/i.test(currentField)) {
+          currentCountry.notes.push(text);
+          return;
+        }
+
+        if (currentField && currentCountry.fields[currentField] === "") {
+          currentCountry.fields[currentField] = text;
+          return;
+        }
+
+        if (currentField && currentCountry.fields[currentField]) {
+          currentCountry.fields[currentField] = `${currentCountry.fields[currentField]} ${text}`;
+          return;
+        }
+
+        currentCountry.notes.push(text);
+      });
+
+      atlas.regions = atlas.regions
+        .map((region) => ({
+          ...region,
+          countries: region.countries.filter((country) => country.name)
+        }))
+        .filter((region) => region.name && region.countries.length);
+
+      return atlas;
+    }
+
     function renderAtlasPage(atlasData) {
-      const titleEl = document.getElementById("atlas-page-title");
-      const mapEl = document.getElementById("atlas-map");
-      const introEl = document.getElementById("atlas-page-intro");
       const regionsEl = document.getElementById("atlas-regions");
-
-      titleEl.textContent = atlasData.pageTitle || "Atlas";
-      mapEl.src = atlasData.heroMap?.src || "assets/background.jpg";
-      mapEl.alt = atlasData.heroMap?.alt || "Placeholder map";
-      introEl.textContent = atlasData.intro || "";
+      const regionNav = document.getElementById("atlas-region-nav");
       regionsEl.innerHTML = "";
+      regionNav.innerHTML = "";
 
-      atlasData.regions.forEach((region) => {
+      if (!atlasData.regions.length) {
+        regionsEl.innerHTML = '<p class="atlas-error">No atlas entries were found in the Google Doc.</p>';
+        return;
+      }
+
+      atlasData.regions.forEach((region, index) => {
+        const regionId = getRegionId(region.name, index);
+        const navLink = document.createElement("a");
+        navLink.href = `#${regionId}`;
+        navLink.textContent = region.name || "...";
+        regionNav.appendChild(navLink);
+
         const regionSection = document.createElement("section");
         regionSection.className = "atlas-region";
+        regionSection.id = regionId;
 
         const regionHeading = document.createElement("h2");
         regionHeading.textContent = region.name || "...";
         regionSection.appendChild(regionHeading);
 
-        const regionMedia = document.createElement("div");
-        regionMedia.className = "atlas-region-media";
-
-        const regionImage = document.createElement("img");
-        regionImage.className = "atlas-region-image";
-        regionImage.src = region.image?.src || "assets/background.jpg";
-        regionImage.alt = region.image?.alt || "Placeholder region image";
-        regionMedia.appendChild(regionImage);
-
-        const regionDescription = document.createElement("p");
-        regionDescription.className = "atlas-region-description";
-        regionDescription.textContent = region.description || "...";
-        regionMedia.appendChild(regionDescription);
-
-        regionSection.appendChild(regionMedia);
+        if (region.description.length) {
+          const regionDescription = document.createElement("p");
+          regionDescription.className = "atlas-region-description";
+          regionDescription.textContent = region.description.join(" ");
+          regionSection.appendChild(regionDescription);
+        }
 
         const countryList = document.createElement("div");
         countryList.className = "atlas-country-list";
@@ -235,29 +449,12 @@
           countryName.textContent = country.name || "...";
           countryCard.appendChild(countryName);
 
-          const imageWrap = document.createElement("div");
-          imageWrap.className = "atlas-country-images";
-
-          (country.images || [{ src: "assets/background.jpg", alt: "Placeholder country image" }]).forEach((image) => {
-            const countryImage = document.createElement("img");
-            countryImage.src = image.src || "assets/background.jpg";
-            countryImage.alt = image.alt || "Placeholder country image";
-            imageWrap.appendChild(countryImage);
-          });
-
-          countryCard.appendChild(imageWrap);
-
           const fields = document.createElement("dl");
           fields.className = "atlas-fields";
 
-          const cardFields = {
-            "Crest": `Self (${country.crestSelf || "..."}) | World (${country.crestWorld || "..."})`,
-            "Government": country.government,
-            "Terrain/Weather": country.terrainWeather,
-            "People/Trades": country.peopleTrades
-          };
+          Object.entries(country.fields || {}).forEach(([label, value]) => {
+            if (!value && !/^(Government|Terrain\/Weather|People\/Trades|Rough Population|Symbols)$/i.test(label)) return;
 
-          Object.entries(cardFields).forEach(([label, value]) => {
             const term = document.createElement("dt");
             term.textContent = `${label} -`;
             fields.appendChild(term);
@@ -267,35 +464,63 @@
             fields.appendChild(description);
           });
 
-          countryCard.appendChild(fields);
+          if (fields.children.length) {
+            countryCard.appendChild(fields);
+          }
 
           const timelineList = document.createElement("ul");
           timelineList.className = "atlas-timeline";
 
           (country.timeline || []).forEach((entry) => {
             const item = document.createElement("li");
-            const eventName = entry.event || "...";
-            const year = entry.year || "...";
-            const ruler = entry.ruler || "...";
-            const population = entry.population || "...";
-            const details = entry.details || "...";
-            item.textContent = `${eventName}, Year ${year} - ${ruler} - Population ${population}. ${details}`;
+            item.textContent = entry;
             timelineList.appendChild(item);
           });
 
-          if (!timelineList.children.length) {
-            const emptyItem = document.createElement("li");
-            emptyItem.textContent = "..., Year ... - ... - Population .... ...";
-            timelineList.appendChild(emptyItem);
+          if (timelineList.children.length) {
+            countryCard.appendChild(timelineList);
           }
 
-          countryCard.appendChild(timelineList);
+          if (country.cities?.length) {
+            const cityList = document.createElement("ul");
+            cityList.className = "atlas-city-list";
+            country.cities.forEach((city) => {
+              const item = document.createElement("li");
+              item.textContent = city;
+              cityList.appendChild(item);
+            });
+            countryCard.appendChild(cityList);
+          }
+
+          if (country.notes?.length) {
+            const notes = document.createElement("p");
+            notes.className = "atlas-notes";
+            notes.textContent = country.notes.join(" ");
+            countryCard.appendChild(notes);
+          }
+
           countryList.appendChild(countryCard);
         });
 
         regionSection.appendChild(countryList);
         regionsEl.appendChild(regionSection);
       });
+    }
+
+    async function loadAtlasFromGoogleDoc() {
+      const regionsEl = document.getElementById("atlas-regions");
+      const exportUrl = getGoogleDocExportUrl(ATLAS_GOOGLE_DOC);
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        renderAtlasPage(parseAtlasDocFromHtml(html));
+      } catch (err) {
+        console.error("Google Doc atlas load failed.", err);
+        regionsEl.innerHTML = '<p class="atlas-error">The atlas could not be loaded from the Google Doc.</p>';
+      }
     }
 
     fetch("header.html")
@@ -308,12 +533,7 @@
       .then((html) => { document.getElementById("footer").innerHTML = html; })
       .catch((err) => console.error("Footer failed to load.", err));
 
-    renderAtlasPage(window.ATLAS_PAGE_DATA || {
-      pageTitle: "Atlas",
-      heroMap: { src: "assets/background.jpg", alt: "Placeholder map" },
-      intro: "",
-      regions: []
-    });
+    loadAtlasFromGoogleDoc();
   </script>
   <script src="under-construction.js"></script>
 </body>
