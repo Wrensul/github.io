@@ -34,54 +34,89 @@
     }
 
     .magic-heading p {
-      margin: 0;
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(34, 34, 34, 0.45);
       font-size: clamp(18px, 2vw, 24px);
+      color: #111;
+    }
+
+    .magic-topic-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 14px 0 0;
+      padding: 10px;
+      border-top: 2px solid #444;
+      border-bottom: 2px solid #444;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .magic-topic-nav:empty {
+      display: none;
+    }
+
+    .magic-topic-nav a {
+      display: inline-block;
+      color: #000066;
+      background: #fffbe8;
+      border: 2px outset #ccc;
+      padding: 4px 8px;
+      font-family: "Courier New", monospace;
+      font-size: 15px;
+      font-weight: bold;
+      line-height: 1.2;
+      text-decoration: none;
+    }
+
+    .magic-topic-nav a:hover,
+    .magic-topic-nav a:focus {
+      color: #900;
+      background: #fff4c4;
+      text-decoration: underline wavy #900;
+    }
+
+    .magic-loading,
+    .magic-error {
+      margin: 20px 0 0;
+      text-align: center;
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .magic-section {
+      margin-top: 24px;
+      scroll-margin-top: 16px;
+    }
+
+    .magic-section h2 {
+      margin: 0 0 10px;
+      border-bottom: 2px solid #444;
+      padding-bottom: 6px;
+      font-size: clamp(26px, 3vw, 34px);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
     }
 
-    .tab-row {
-      display: flex;
-      gap: 8px;
-      margin: 22px 0 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .tab-button {
-      border: 2px solid #222;
-      background: #f7f2e8;
-      padding: 8px 14px;
-      font: inherit;
+    .magic-section p,
+    .magic-list {
       font-size: 18px;
-      cursor: pointer;
+      line-height: 1.45;
     }
 
-    .tab-button[aria-selected="true"] {
-      background: #e8dcc1;
-      box-shadow: inset 0 0 0 2px #3f2f13;
+    .magic-section p {
+      margin: 0 0 12px;
     }
 
-    .tab-panel {
-      border: 3px groove #333;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 16px;
-    }
-
-    .magic-placeholder {
-      margin: 0;
-      text-align: center;
-      font-size: 20px;
-    }
-
-    .alchemy-category {
+    .magic-subsection {
       margin-top: 18px;
     }
 
-    .alchemy-category:first-child {
-      margin-top: 0;
-    }
-
-    .alchemy-category h2 {
+    .magic-subsection h3 {
       margin: 0 0 10px;
       font-size: clamp(22px, 3vw, 30px);
       border-bottom: 1px solid #555;
@@ -89,60 +124,44 @@
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
     }
 
-    .alchemy-cards {
-      display: grid;
-      gap: 12px;
+    .magic-list {
+      margin: 0 0 12px;
+      padding-left: 22px;
     }
 
-    .alchemy-card {
+    .magic-list li + li {
+      margin-top: 8px;
+    }
+
+    .magic-card-grid {
+      display: grid;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .magic-card {
       border: 2px solid #444;
       background: rgba(255, 255, 255, 0.92);
       padding: 10px 12px;
     }
 
-    .alchemy-card h3 {
+    .magic-card h4 {
       margin: 0 0 8px;
-      font-size: 24px;
+      font-size: 23px;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
     }
 
-    .alchemy-fields {
-      margin: 0;
-      display: grid;
-      grid-template-columns: minmax(180px, auto) 1fr;
-      gap: 8px 12px;
+    .magic-meta {
+      margin: 0 0 8px;
       font-size: 18px;
       line-height: 1.45;
+      font-style: italic;
     }
 
-    .alchemy-fields dt {
-      font-weight: bold;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
-    }
-
-    .alchemy-fields dd {
+    .magic-card p {
       margin: 0;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
     }
 
-    .alchemy-help {
-      margin: 16px 0 0;
-      border: 2px dashed #444;
-      background: rgba(255, 255, 255, 0.72);
-      padding: 10px 12px;
-      font-size: 16px;
-    }
-
-    code {
-      background: rgba(0, 0, 0, 0.07);
-      padding: 1px 4px;
-    }
-
-    @media (max-width: 640px) {
-      .alchemy-fields {
-        grid-template-columns: 1fr;
-      }
-    }
   </style>
 </head>
 <body>
@@ -153,100 +172,268 @@
       <header class="magic-heading">
         <h1>Magic</h1>
         <p>Explore different schools and studies of magic in the Parsklands.</p>
+        <nav id="magic-topic-nav" class="magic-topic-nav" aria-label="Magic topics"></nav>
       </header>
 
-      <nav class="tab-row" aria-label="Magic categories">
-        <button class="tab-button" type="button" role="tab" id="tab-alchemy" aria-controls="panel-alchemy" aria-selected="true">Alchemy</button>
-        <button class="tab-button" type="button" role="tab" id="tab-rituals" aria-controls="panel-rituals" aria-selected="false">Rituals</button>
-        <button class="tab-button" type="button" role="tab" id="tab-arcana" aria-controls="panel-arcana" aria-selected="false">Arcana</button>
-      </nav>
-
-      <section class="tab-panel" id="panel-alchemy" role="tabpanel" aria-labelledby="tab-alchemy"></section>
-      <section class="tab-panel" id="panel-rituals" role="tabpanel" aria-labelledby="tab-rituals" hidden>
-        <p class="magic-placeholder">Rituals guide coming soon.</p>
-      </section>
-      <section class="tab-panel" id="panel-arcana" role="tabpanel" aria-labelledby="tab-arcana" hidden>
-        <p class="magic-placeholder">Arcana guide coming soon.</p>
-      </section>
-
-      <p class="alchemy-help">Edit <code>magic-alchemy-data.js</code> to add or update alchemy entries.</p>
+      <div id="magic-sections">
+        <p class="magic-loading">Loading magic entries...</p>
+      </div>
     </section>
   </main>
 
   <div id="footer"></div>
 
-  <script src="magic-alchemy-data.js"></script>
   <script>
-    function renderAlchemyGuide(alchemyData) {
-      const panel = document.getElementById("panel-alchemy");
-      panel.innerHTML = "";
+    const MAGIC_GOOGLE_DOC = "https://docs.google.com/document/d/1IgJxc9Z3OS6OCsRqRBz4gE46WNttjTdUWfhe5NkIaVQ/edit?usp=sharing";
 
-      alchemyData.categories.forEach((category) => {
-        const section = document.createElement("section");
-        section.className = "alchemy-category";
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || "").trim();
+      if (!trimmed) return null;
 
-        const heading = document.createElement("h2");
-        heading.textContent = category.name;
-        section.appendChild(heading);
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
 
-        const cardsWrap = document.createElement("div");
-        cardsWrap.className = "alchemy-cards";
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
 
-        category.cards.forEach((cardData) => {
+    function normalizeDocText(value) {
+      return String(value || "")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function cleanListMarker(value) {
+      return normalizeDocText(value)
+        .replace(/^[-*•]\s*/, "")
+        .replace(/^\.\s*/, "")
+        .trim();
+    }
+
+    function getTopicId(topicName, index) {
+      const slug = normalizeDocText(topicName)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      return `magic-topic-${slug || index + 1}`;
+    }
+
+    function isDottedItem(text) {
+      return /^\s*[.*•-]\s+/.test(text);
+    }
+
+    function parseMaterialLine(text) {
+      const cleaned = cleanListMarker(text);
+      if (!cleaned.includes("|")) return null;
+
+      const parts = cleaned.split("|").map((part) => normalizeDocText(part)).filter(Boolean);
+      if (!parts.length) return null;
+
+      return {
+        name: parts[0],
+        meta: parts.slice(1),
+        details: []
+      };
+    }
+
+    function getCurrentBucket(section, subsection) {
+      return subsection || section;
+    }
+
+    function parseMagicDocFromHtml(rawHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml || "", "text/html");
+      const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
+      const guide = { sections: [] };
+      let currentSection = null;
+      let currentSubsection = null;
+      let currentCard = null;
+
+      const ensureSection = (name) => {
+        const section = { name, blocks: [], subsections: [] };
+        guide.sections.push(section);
+        return section;
+      };
+
+      const ensureSubsection = (name) => {
+        if (!currentSection) currentSection = ensureSection("Notes");
+        const subsection = { name, blocks: [] };
+        currentSection.subsections.push(subsection);
+        return subsection;
+      };
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text) return;
+
+        const tag = node.tagName.toLowerCase();
+        if (tag === "h1") return;
+
+        if (tag === "h2") {
+          currentSection = ensureSection(text);
+          currentSubsection = null;
+          currentCard = null;
+          return;
+        }
+
+        if (/^h[3-6]$/.test(tag)) {
+          currentSubsection = ensureSubsection(text);
+          currentCard = null;
+          return;
+        }
+
+        if (!currentSection) return;
+
+        const bucket = getCurrentBucket(currentSection, currentSubsection);
+        if (isDottedItem(node.textContent || text)) {
+          const material = parseMaterialLine(text);
+          if (material && material.name) {
+            currentCard = material;
+            bucket.blocks.push({ type: "card", card: currentCard });
+            return;
+          }
+
+          bucket.blocks.push({ type: "listItem", text: cleanListMarker(text) });
+          currentCard = null;
+          return;
+        }
+
+        if (currentCard) {
+          currentCard.details.push(text);
+          return;
+        }
+
+        bucket.blocks.push({ type: "paragraph", text });
+      });
+
+      guide.sections = guide.sections.filter((section) =>
+        section.blocks.length || section.subsections.some((subsection) => subsection.blocks.length)
+      );
+
+      return guide;
+    }
+
+    function appendBlocks(parent, blocks) {
+      let activeList = null;
+      let activeCardGrid = null;
+
+      blocks.forEach((block) => {
+        if (block.type !== "listItem") activeList = null;
+        if (block.type !== "card") activeCardGrid = null;
+
+        if (block.type === "paragraph") {
+          const paragraph = document.createElement("p");
+          paragraph.textContent = block.text;
+          parent.appendChild(paragraph);
+          return;
+        }
+
+        if (block.type === "listItem") {
+          if (!activeList) {
+            activeList = document.createElement("ul");
+            activeList.className = "magic-list";
+            parent.appendChild(activeList);
+          }
+
+          const item = document.createElement("li");
+          item.textContent = block.text;
+          activeList.appendChild(item);
+          return;
+        }
+
+        if (block.type === "card") {
+          if (!activeCardGrid) {
+            activeCardGrid = document.createElement("div");
+            activeCardGrid.className = "magic-card-grid";
+            parent.appendChild(activeCardGrid);
+          }
+
           const card = document.createElement("article");
-          card.className = "alchemy-card";
+          card.className = "magic-card";
 
-          const title = document.createElement("h3");
-          title.textContent = cardData.name || "...";
+          const title = document.createElement("h4");
+          title.textContent = block.card.name;
           card.appendChild(title);
 
-          const fields = document.createElement("dl");
-          fields.className = "alchemy-fields";
+          if (block.card.meta.length) {
+            const meta = document.createElement("p");
+            meta.className = "magic-meta";
+            meta.textContent = block.card.meta.join(" | ");
+            card.appendChild(meta);
+          }
 
-          const cardFields = {
-            "Name": cardData.name,
-            "Elements": cardData.elements,
-            "Rarity": cardData.rarity,
-            "Source/Region(s)": cardData.sourceRegions,
-            "Description": cardData.description,
-            "Risks": cardData.risks
-          };
+          if (block.card.details.length) {
+            const details = document.createElement("p");
+            details.textContent = block.card.details.join(" ");
+            card.appendChild(details);
+          }
 
-          Object.entries(cardFields).forEach(([label, value]) => {
-            const term = document.createElement("dt");
-            term.textContent = `${label} -`;
-            fields.appendChild(term);
-
-            const description = document.createElement("dd");
-            description.textContent = value || "...";
-            fields.appendChild(description);
-          });
-
-          card.appendChild(fields);
-          cardsWrap.appendChild(card);
-        });
-
-        section.appendChild(cardsWrap);
-        panel.appendChild(section);
+          activeCardGrid.appendChild(card);
+        }
       });
     }
 
-    function setupTabs() {
-      const tabs = Array.from(document.querySelectorAll(".tab-button"));
-      const panels = Array.from(document.querySelectorAll(".tab-panel"));
+    function renderMagicGuide(magicData) {
+      const sectionsEl = document.getElementById("magic-sections");
+      const topicNav = document.getElementById("magic-topic-nav");
+      sectionsEl.innerHTML = "";
+      topicNav.innerHTML = "";
 
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          tabs.forEach((btn) => btn.setAttribute("aria-selected", "false"));
-          panels.forEach((panel) => { panel.hidden = true; });
+      if (!magicData.sections.length) {
+        sectionsEl.innerHTML = '<p class="magic-error">No magic entries were found in the Google Doc.</p>';
+        return;
+      }
 
-          tab.setAttribute("aria-selected", "true");
-          const targetPanel = document.getElementById(tab.getAttribute("aria-controls"));
-          if (targetPanel) {
-            targetPanel.hidden = false;
-          }
+      magicData.sections.forEach((section, index) => {
+        const sectionId = getTopicId(section.name, index);
+        const navLink = document.createElement("a");
+        navLink.href = `#${sectionId}`;
+        navLink.textContent = section.name;
+        topicNav.appendChild(navLink);
+
+        const sectionEl = document.createElement("section");
+        sectionEl.className = "magic-section";
+        sectionEl.id = sectionId;
+
+        const heading = document.createElement("h2");
+        heading.textContent = section.name;
+        sectionEl.appendChild(heading);
+
+        appendBlocks(sectionEl, section.blocks);
+
+        section.subsections.forEach((subsection) => {
+          const subsectionEl = document.createElement("section");
+          subsectionEl.className = "magic-subsection";
+
+          const subsectionHeading = document.createElement("h3");
+          subsectionHeading.textContent = subsection.name;
+          subsectionEl.appendChild(subsectionHeading);
+
+          appendBlocks(subsectionEl, subsection.blocks);
+          sectionEl.appendChild(subsectionEl);
         });
+
+        sectionsEl.appendChild(sectionEl);
       });
+    }
+
+    async function loadMagicFromGoogleDoc() {
+      const sectionsEl = document.getElementById("magic-sections");
+      const exportUrl = getGoogleDocExportUrl(MAGIC_GOOGLE_DOC);
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        renderMagicGuide(parseMagicDocFromHtml(html));
+      } catch (err) {
+        console.error("Google Doc magic load failed.", err);
+        sectionsEl.innerHTML = '<p class="magic-error">The magic guide could not be loaded from the Google Doc.</p>';
+      }
     }
 
     fetch("header.html")
@@ -259,13 +446,7 @@
       .then(html => { document.getElementById("footer").innerHTML = html; })
       .catch(err => console.error("Footer failed to load.", err));
 
-    setupTabs();
-
-    if (window.ALCHEMY_GUIDE_DATA && Array.isArray(window.ALCHEMY_GUIDE_DATA.categories)) {
-      renderAlchemyGuide(window.ALCHEMY_GUIDE_DATA);
-    } else {
-      document.getElementById("panel-alchemy").innerHTML = '<p class="magic-placeholder">Alchemy guide data failed to load.</p>';
-    }
+    loadMagicFromGoogleDoc();
   </script>
   <script src="under-construction.js"></script>
 </body>
