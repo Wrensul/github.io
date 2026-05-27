@@ -31,11 +31,15 @@
     }
 
     .intro {
-      margin: 0 0 22px;
+      width: min(100%, 760px);
+      margin: 0 auto 22px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(34, 34, 34, 0.45);
       text-align: center;
       font-size: clamp(16px, 1.8vw, 21px);
       line-height: 1.45;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+      color: #111;
     }
 
     .alphabet-nav {
@@ -181,6 +185,14 @@
       border: 1px dashed #666;
       background: #fafafa;
     }
+
+    .glossary-loading,
+    .glossary-error {
+      margin: 18px 0 0;
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.45;
+    }
   </style>
 </head>
 <body>
@@ -189,7 +201,7 @@
   <main>
     <section class="page-shell">
       <h1>Glossary</h1>
-      <p class="intro">Alphabetized placeholders are ready for you to fill in later. Use the A&ndash;Z bar to jump to each letter, and use search to find a term or phrase quickly.</p>
+      <p class="intro">Use the A&ndash;Z bar to jump to each letter, and use search to find a term or phrase quickly.</p>
 
       <nav class="alphabet-nav" aria-label="Glossary letters">
         <ul id="alphabet-links"></ul>
@@ -203,17 +215,9 @@
 
       <div id="no-results" class="empty-msg hidden">No glossary entries match your search yet. Try another word or clear the search.</div>
 
-      <div id="glossary-sections"></div>
-
-      <section class="motifs" aria-labelledby="motifs-heading">
-        <h2 id="motifs-heading">Common Cultural Symbols and Motifs</h2>
-        <ul class="motif-list">
-          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
-          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
-          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
-          <li class="motif-item"><strong>Name/Phrase:</strong> ...<br>- blah blah blah</li>
-        </ul>
-      </section>
+      <div id="glossary-sections">
+        <p class="glossary-loading">Loading glossary entries...</p>
+      </div>
     </section>
   </main>
 
@@ -221,24 +225,78 @@
 
   <script>
     const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+    const GLOSSARY_GOOGLE_DOC = "https://docs.google.com/document/d/1-LnLGhJNSeJxdc2exCZZ58_zYgDq-lhzkCzL7Ub5aoo/edit?usp=sharing";
 
-    const glossaryData = letters.map(letter => ({
-      letter,
-      entries: [
-        {
-          term: `${letter} Word Placeholder 1`,
-          definition: "..."
-        },
-        {
-          term: `${letter} Word Placeholder 2`,
-          definition: "..."
-        },
-        {
-          term: `${letter} Word Placeholder 3`,
-          definition: "..."
+    let glossaryData = [];
+
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || "").trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
+
+    function normalizeDocText(value) {
+      return String(value || "")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function cleanEntryMarker(value) {
+      return normalizeDocText(value)
+        .replace(/^[-*•.]\s*/, "")
+        .trim();
+    }
+
+    function splitGlossaryTerm(text) {
+      const cleaned = cleanEntryMarker(text);
+      const match = cleaned.match(/^(.+?)\s+(?:[-–—]|=)\s*(.*)$/);
+      if (!match) return null;
+
+      return {
+        term: normalizeDocText(match[1]),
+        definition: normalizeDocText(match[2])
+      };
+    }
+
+    function parseGlossaryDocFromHtml(rawHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml || "", "text/html");
+      const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
+      const sectionsByLetter = new Map(letters.map(letter => [letter, { letter, entries: [] }]));
+      let currentLetter = "";
+      let currentEntry = null;
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text) return;
+
+        if (/^[A-Z]$/.test(text)) {
+          currentLetter = text;
+          currentEntry = null;
+          return;
         }
-      ]
-    }));
+
+        const splitEntry = splitGlossaryTerm(text);
+        if (splitEntry && currentLetter) {
+          currentEntry = splitEntry;
+          sectionsByLetter.get(currentLetter).entries.push(currentEntry);
+          return;
+        }
+
+        if (currentEntry && currentLetter) {
+          currentEntry.definition = normalizeDocText(`${currentEntry.definition} ${text}`);
+        }
+      });
+
+      return Array.from(sectionsByLetter.values()).filter(section => section.entries.length);
+    }
 
     function buildAlphabetNav() {
       const navList = document.getElementById("alphabet-links");
@@ -249,6 +307,11 @@
 
     function buildGlossarySections() {
       const container = document.getElementById("glossary-sections");
+
+      if (!glossaryData.length) {
+        container.innerHTML = '<p class="glossary-error">No glossary entries were found in the Google Doc.</p>';
+        return;
+      }
 
       container.innerHTML = glossaryData
         .map(item => `
@@ -303,9 +366,26 @@
       });
     }
 
-    buildAlphabetNav();
-    buildGlossarySections();
-    setupSearch();
+    async function loadGlossaryFromGoogleDoc() {
+      const container = document.getElementById("glossary-sections");
+      const exportUrl = getGoogleDocExportUrl(GLOSSARY_GOOGLE_DOC);
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        glossaryData = parseGlossaryDocFromHtml(html);
+        buildAlphabetNav();
+        buildGlossarySections();
+        setupSearch();
+      } catch (err) {
+        console.error("Google Doc glossary load failed.", err);
+        container.innerHTML = '<p class="glossary-error">The glossary could not be loaded from the Google Doc.</p>';
+      }
+    }
+
+    loadGlossaryFromGoogleDoc();
 
     fetch("header.html")
       .then(r => r.text())
