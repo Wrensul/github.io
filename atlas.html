@@ -42,10 +42,14 @@
     }
 
     .atlas-intro {
-      margin: 0;
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(34, 34, 34, 0.45);
       font-size: clamp(18px, 2vw, 24px);
       line-height: 1.45;
-      text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96);
+      color: #111;
     }
 
     .atlas-region-nav {
@@ -53,7 +57,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
-      margin: 22px 0 0;
+      margin: 14px 0 0;
       padding: 10px;
       border-top: 2px solid #444;
       border-bottom: 2px solid #444;
@@ -193,8 +197,8 @@
       <header class="atlas-heading">
         <h1>Atlas</h1>
         <img class="atlas-map" src="assets/background.jpg" alt="Map of the Parsklands" />
-        <nav id="atlas-region-nav" class="atlas-region-nav" aria-label="Atlas regions"></nav>
         <p class="atlas-intro">A living world map and country register for the Parsklands.</p>
+        <nav id="atlas-region-nav" class="atlas-region-nav" aria-label="Atlas regions"></nav>
       </header>
 
       <div id="atlas-regions">
