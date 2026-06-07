@@ -242,6 +242,11 @@
       return /^\*{8,}$/.test(text.trim());
     }
 
+    function isPrivateAtlasText(value) {
+      const text = normalizeDocText(value);
+      return /^\*{3}/.test(text) && !isDivider(text);
+    }
+
     function isTemplateHeading(text) {
       return /^(Region|Country|Province\/State|City)$/i.test(normalizeDocText(text));
     }
@@ -303,7 +308,7 @@
       const doc = parser.parseFromString(rawHtml || "", "text/html");
       const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
       const hasHeadingOneRegions = nodes.some((node) =>
-        node.tagName.toLowerCase() === "h1" && !isTemplateHeading(node.textContent)
+        node.tagName.toLowerCase() === "h1" && !isTemplateHeading(node.textContent) && !isPrivateAtlasText(node.textContent)
       );
       const regionHeading = hasHeadingOneRegions ? "h1" : "h2";
       const countryHeading = hasHeadingOneRegions ? "h2" : "h3";
@@ -312,6 +317,8 @@
       let currentRegion = null;
       let currentCountry = null;
       let currentField = "";
+      let currentRegionIsPrivate = false;
+      let currentCountryIsPrivate = false;
 
       nodes.forEach((node) => {
         const text = normalizeDocText(node.textContent);
@@ -322,34 +329,72 @@
         const isIndented = node.classList.contains("c4") || node.classList.contains("c21") || /^\s*\./.test(node.textContent || "");
 
         if (tag === regionHeading) {
+          if (isPrivateAtlasText(text)) {
+            currentRegion = null;
+            currentCountry = null;
+            currentField = "";
+            currentRegionIsPrivate = true;
+            currentCountryIsPrivate = false;
+            return;
+          }
+
           currentRegion = ensureRegion(atlas, text);
           currentCountry = null;
           currentField = "";
+          currentRegionIsPrivate = false;
+          currentCountryIsPrivate = false;
           return;
         }
 
+        if (currentRegionIsPrivate) return;
+
         if (tag === countryHeading) {
+          if (isPrivateAtlasText(text)) {
+            currentCountry = null;
+            currentField = "";
+            currentCountryIsPrivate = true;
+            return;
+          }
+
           if (!currentRegion) currentRegion = ensureRegion(atlas, "Unsorted");
           currentCountry = ensureCountry(currentRegion, text);
           currentField = "";
+          currentCountryIsPrivate = false;
           return;
         }
 
-        if (cityHeadingPattern.test(tag)) {
-          if (currentCountry) currentCountry.cities.push(text);
+        if (isPrivateAtlasText(text)) {
+          currentField = "";
           return;
         }
 
         if (!currentRegion) return;
 
         if (/^[-*•]\s*/.test(text)) {
-          currentCountry = ensureCountry(currentRegion, cleanListMarker(text));
+          const countryName = cleanListMarker(text);
+          if (isPrivateAtlasText(countryName)) {
+            currentCountry = null;
+            currentField = "";
+            currentCountryIsPrivate = true;
+            return;
+          }
+
+          currentCountry = ensureCountry(currentRegion, countryName);
           currentField = "";
+          currentCountryIsPrivate = false;
+          return;
+        }
+
+        if (currentCountryIsPrivate) return;
+
+        if (cityHeadingPattern.test(tag)) {
+          if (currentCountry) currentCountry.cities.push(text);
           return;
         }
 
         if (isIndented || /^\.\s*/.test(text)) {
-          if (currentCountry) currentCountry.cities.push(cleanListMarker(text));
+          const cityName = cleanListMarker(text);
+          if (currentCountry && !isPrivateAtlasText(cityName)) currentCountry.cities.push(cityName);
           return;
         }
 
@@ -360,6 +405,11 @@
 
         const field = splitField(text);
         if (field) {
+          if (isPrivateAtlasText(field.label) || isPrivateAtlasText(field.value)) {
+            currentField = "";
+            return;
+          }
+
           currentField = field.label;
           addFieldValue(currentCountry, field.label, field.value);
           return;
