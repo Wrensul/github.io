@@ -11,7 +11,6 @@
     "atlas.html": false,
     "magic.html": false,
     "creatures.html": false,
-    "timeline.html": false,
     "glossary.html": false,
     "words-of-parsk.html": false,
     "fables.html": false,
