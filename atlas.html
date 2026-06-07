@@ -166,6 +166,24 @@
       line-height: 1.4;
     }
 
+    .atlas-province-list {
+      margin: 14px 0 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .atlas-province {
+      border-left: 3px double #555;
+      padding-left: 12px;
+    }
+
+    .atlas-province h4 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      color: #222;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
     .atlas-notes {
       margin: 12px 0 0;
       font-size: 17px;
@@ -251,6 +269,15 @@
       return /^(Region|Country|Province\/State|City)$/i.test(normalizeDocText(text));
     }
 
+    function getNodeTextParts(node) {
+      const clone = node.cloneNode(true);
+      clone.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
+      return clone.textContent
+        .split(/\n+/)
+        .map((part) => normalizeDocText(part))
+        .filter(Boolean);
+    }
+
     function splitField(text) {
       const match = text.match(/^([^:]+):\s*(.*)$/);
       if (!match) return null;
@@ -278,10 +305,30 @@
         fields: {},
         notes: [],
         cities: [],
+        provinces: [],
         timeline: []
       };
       region.countries.push(country);
       return country;
+    }
+
+    function ensureProvince(country, name) {
+      const province = {
+        name,
+        cities: [],
+        notes: []
+      };
+      country.provinces.push(province);
+      return province;
+    }
+
+    function addCity(country, province, name) {
+      if (!country || !name || isPrivateAtlasText(name)) return;
+      if (province) {
+        province.cities.push(name);
+        return;
+      }
+      country.cities.push(name);
     }
 
     function addFieldValue(country, label, value) {
@@ -307,31 +354,37 @@
       const parser = new DOMParser();
       const doc = parser.parseFromString(rawHtml || "", "text/html");
       const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
-      const hasHeadingOneRegions = nodes.some((node) =>
-        node.tagName.toLowerCase() === "h1" && !isTemplateHeading(node.textContent) && !isPrivateAtlasText(node.textContent)
-      );
-      const regionHeading = hasHeadingOneRegions ? "h1" : "h2";
-      const countryHeading = hasHeadingOneRegions ? "h2" : "h3";
-      const cityHeadingPattern = hasHeadingOneRegions ? /^h[3-6]$/ : /^h[4-6]$/;
+      const regionHeading = "h1";
+      const countryHeading = "h2";
+      const provinceHeading = "h3";
+      const cityHeading = "h4";
       const atlas = { regions: [] };
       let currentRegion = null;
       let currentCountry = null;
+      let currentProvince = null;
       let currentField = "";
       let currentRegionIsPrivate = false;
       let currentCountryIsPrivate = false;
 
       nodes.forEach((node) => {
-        const text = normalizeDocText(node.textContent);
-        if (!text || isDivider(text)) return;
+        getNodeTextParts(node).forEach((text) => {
+        if (!text) return;
+        if (isDivider(text)) {
+          currentCountry = null;
+          currentProvince = null;
+          currentField = "";
+          return;
+        }
         if (isTemplateHeading(text)) return;
 
         const tag = node.tagName.toLowerCase();
-        const isIndented = node.classList.contains("c4") || node.classList.contains("c21") || /^\s*\./.test(node.textContent || "");
+        const isIndented = node.classList.contains("c14") || node.classList.contains("c5") || /^\s*\./.test(text);
 
         if (tag === regionHeading) {
           if (isPrivateAtlasText(text)) {
             currentRegion = null;
             currentCountry = null;
+            currentProvince = null;
             currentField = "";
             currentRegionIsPrivate = true;
             currentCountryIsPrivate = false;
@@ -340,6 +393,7 @@
 
           currentRegion = ensureRegion(atlas, text);
           currentCountry = null;
+          currentProvince = null;
           currentField = "";
           currentRegionIsPrivate = false;
           currentCountryIsPrivate = false;
@@ -351,6 +405,7 @@
         if (tag === countryHeading) {
           if (isPrivateAtlasText(text)) {
             currentCountry = null;
+            currentProvince = null;
             currentField = "";
             currentCountryIsPrivate = true;
             return;
@@ -358,6 +413,7 @@
 
           if (!currentRegion) currentRegion = ensureRegion(atlas, "Unsorted");
           currentCountry = ensureCountry(currentRegion, text);
+          currentProvince = null;
           currentField = "";
           currentCountryIsPrivate = false;
           return;
@@ -370,16 +426,40 @@
 
         if (!currentRegion) return;
 
+        if (tag === provinceHeading) {
+          const provinceName = cleanListMarker(text);
+          if (!currentCountry) currentCountry = ensureCountry(currentRegion, provinceName);
+          else currentProvince = ensureProvince(currentCountry, provinceName);
+          currentField = "";
+          return;
+        }
+
+        if (tag === cityHeading) {
+          const cityName = cleanListMarker(text);
+          if (!currentCountry) currentCountry = ensureCountry(currentRegion, cityName);
+          else addCity(currentCountry, currentProvince, cityName);
+          currentField = "";
+          return;
+        }
+
         if (/^[-*•]\s*/.test(text)) {
-          const countryName = cleanListMarker(text);
-          if (isPrivateAtlasText(countryName)) {
+          const placeName = cleanListMarker(text);
+          if (isPrivateAtlasText(placeName)) {
             currentCountry = null;
+            currentProvince = null;
             currentField = "";
             currentCountryIsPrivate = true;
             return;
           }
 
-          currentCountry = ensureCountry(currentRegion, countryName);
+          if (currentProvince || isIndented) {
+            addCity(currentCountry, currentProvince, placeName);
+            currentField = "";
+            return;
+          }
+
+          currentCountry = ensureCountry(currentRegion, placeName);
+          currentProvince = null;
           currentField = "";
           currentCountryIsPrivate = false;
           return;
@@ -387,14 +467,9 @@
 
         if (currentCountryIsPrivate) return;
 
-        if (cityHeadingPattern.test(tag)) {
-          if (currentCountry) currentCountry.cities.push(text);
-          return;
-        }
-
         if (isIndented || /^\.\s*/.test(text)) {
           const cityName = cleanListMarker(text);
-          if (currentCountry && !isPrivateAtlasText(cityName)) currentCountry.cities.push(cityName);
+          addCity(currentCountry, currentProvince, cityName);
           return;
         }
 
@@ -447,6 +522,7 @@
         }
 
         currentCountry.notes.push(text);
+        });
       });
 
       atlas.regions = atlas.regions
@@ -544,6 +620,35 @@
               cityList.appendChild(item);
             });
             countryCard.appendChild(cityList);
+          }
+
+          if (country.provinces?.length) {
+            const provinceList = document.createElement("div");
+            provinceList.className = "atlas-province-list";
+
+            country.provinces.forEach((province) => {
+              const provinceBlock = document.createElement("section");
+              provinceBlock.className = "atlas-province";
+
+              const provinceName = document.createElement("h4");
+              provinceName.textContent = province.name || "...";
+              provinceBlock.appendChild(provinceName);
+
+              if (province.cities?.length) {
+                const cityList = document.createElement("ul");
+                cityList.className = "atlas-city-list";
+                province.cities.forEach((city) => {
+                  const item = document.createElement("li");
+                  item.textContent = city;
+                  cityList.appendChild(item);
+                });
+                provinceBlock.appendChild(cityList);
+              }
+
+              provinceList.appendChild(provinceBlock);
+            });
+
+            countryCard.appendChild(provinceList);
           }
 
           if (country.notes?.length) {
