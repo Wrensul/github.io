@@ -231,6 +231,27 @@
       line-height: 1;
     }
 
+    .chapter-content {
+      margin-top: 18px;
+      max-height: 390px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .book-text {
+      margin: 0 0 12px;
+      font-size: clamp(17px, 1.9vw, 22px);
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .book-section-title {
+      margin: 18px 0 8px;
+      font-size: clamp(20px, 2.2vw, 26px);
+      line-height: 1.15;
+      text-decoration: none;
+    }
+
     .page-marker {
       margin-top: 26px;
       font-size: 15px;
@@ -301,22 +322,22 @@
     const books = {
       domesari: {
         label: 'Domesari',
+        chaptersGoogleDoc: 'https://docs.google.com/document/d/1g9eoON4SNarnV3btbRJy9txQWMDCPyfFgZoak_9sUgA/edit?usp=sharing',
+        docLoaded: false,
         pages: [
           { type: 'cover', title: 'Domesari' },
-          { type: 'toc', title: 'Table of Contents', chapters: [1, 2, 3] },
-          { type: 'chapter', title: 'Chapter 1', content: '1' },
-          { type: 'chapter', title: 'Chapter 2', content: '2' },
-          { type: 'chapter', title: 'Chapter 3', content: '3' }
+          { type: 'toc', title: 'Table of Contents', chapters: [] },
+          { type: 'chapter', title: 'Loading...', blocks: [{ type: 'paragraph', text: 'Opening the Google Doc...' }] }
         ]
       },
       tullamend: {
         label: 'Tullamend',
+        chaptersGoogleDoc: 'https://docs.google.com/document/d/1KwYYtrbw60mQjpJb-zyQkdqmxCRSmUPscgO8i8Q-fss/edit?usp=sharing',
+        docLoaded: false,
         pages: [
           { type: 'cover', title: 'Tullamend' },
-          { type: 'toc', title: 'Table of Contents', chapters: [1, 2, 3] },
-          { type: 'chapter', title: 'Chapter 1', content: '1' },
-          { type: 'chapter', title: 'Chapter 2', content: '2' },
-          { type: 'chapter', title: 'Chapter 3', content: '3' }
+          { type: 'toc', title: 'Table of Contents', chapters: [] },
+          { type: 'chapter', title: 'Loading...', blocks: [{ type: 'paragraph', text: 'Opening the Google Doc...' }] }
         ]
       }
     };
@@ -332,9 +353,162 @@
     let activeBookKey = null;
     let currentIndex = 0;
 
-    function openBook(bookKey) {
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || '').trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function normalizeDocText(value) {
+      return String(value || '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function parseDocChaptersFromHtml(rawHtml) {
+      const html = (rawHtml || '').trim();
+      if (!html) return [];
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const nodes = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li'));
+      const chapters = [];
+      const looseBlocks = [];
+      let current = null;
+
+      const pushCurrent = () => {
+        if (!current) return;
+        const blocks = current.blocks.filter((block) => block.text.trim());
+        if (current.title && blocks.length) chapters.push({ title: current.title, blocks });
+      };
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text || /^table\s+of\s+contents$/i.test(text)) return;
+
+        const tag = node.tagName.toLowerCase();
+        if (tag === 'h1') {
+          pushCurrent();
+          current = { title: text, blocks: [] };
+          return;
+        }
+
+        if (/^h[2-6]$/.test(tag)) {
+          const heading = { type: 'heading', text };
+          if (current) current.blocks.push(heading);
+          else looseBlocks.push(heading);
+          return;
+        }
+
+        const paragraph = { type: 'paragraph', text };
+        if (current) current.blocks.push(paragraph);
+        else looseBlocks.push(paragraph);
+      });
+
+      pushCurrent();
+
+      if (!chapters.length && looseBlocks.length) {
+        chapters.push({ title: 'Chapter 1', blocks: looseBlocks });
+      }
+
+      return chapters;
+    }
+
+    function paginateChapter(chapter) {
+      const pages = [];
+      let blocks = [];
+      let weight = 0;
+      const limit = 3000;
+
+      const pushPage = () => {
+        if (!blocks.length) return;
+        pages.push({
+          type: 'chapter',
+          title: chapter.title,
+          blocks,
+          showTitle: pages.length === 0
+        });
+        blocks = [];
+        weight = 0;
+      };
+
+      (chapter.blocks || []).forEach((block) => {
+        const blockWeight = block.text.length + (block.type === 'heading' ? 140 : 30);
+        if (blocks.length && weight + blockWeight > limit) pushPage();
+        blocks.push(block);
+        weight += blockWeight;
+      });
+
+      pushPage();
+      return pages;
+    }
+
+    function buildPagesFromChapters(bookTitle, chapters) {
+      const chapterRefs = [];
+      const chapterPages = [];
+
+      chapters.forEach((chapter) => {
+        const pages = paginateChapter(chapter);
+        if (!pages.length) return;
+
+        chapterRefs.push({ title: chapter.title, pageIndex: chapterPages.length + 2 });
+        chapterPages.push(...pages);
+      });
+
+      return [
+        { type: 'cover', title: bookTitle },
+        { type: 'toc', title: 'Table of Contents', chapters: chapterRefs },
+        ...chapterPages
+      ];
+    }
+
+    async function hydrateBookFromGoogleDoc(book) {
+      if (!book || book.docLoaded || !book.chaptersGoogleDoc) return;
+
+      const exportUrl = getGoogleDocExportUrl(book.chaptersGoogleDoc);
+      if (!exportUrl) {
+        console.warn('Invalid Google Doc URL or ID for chapters:', book.chaptersGoogleDoc);
+        return;
+      }
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        const chapters = parseDocChaptersFromHtml(html);
+        if (chapters.length) {
+          book.pages = buildPagesFromChapters(book.label, chapters);
+          book.docLoaded = true;
+        }
+      } catch (err) {
+        console.error('Google Doc chapter load failed.', err);
+        book.pages = [
+          { type: 'cover', title: book.label },
+          { type: 'chapter', title: 'Unable to load', blocks: [{ type: 'paragraph', text: 'This Google Doc could not be loaded. Check that it is shared publicly.' }] }
+        ];
+      }
+    }
+
+    async function openBook(bookKey) {
       activeBookKey = bookKey;
       currentIndex = 0;
+      await hydrateBookFromGoogleDoc(books[bookKey]);
       modal.classList.remove('hidden');
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('no-scroll');
@@ -364,30 +538,43 @@
       if (page.type === 'cover') {
         return `
           <section class="book-page ${side}">
-            <div class="cover-wrap">${page.title}</div>
+            <div class="cover-wrap">${escapeHtml(page.title)}</div>
             <p class="page-marker">Cover</p>
           </section>
         `;
       }
 
       if (page.type === 'toc') {
-        const buttons = page.chapters
-          .map((chapter, idx) => `<li><button class="toc-btn" data-page="${idx + 2}">${chapter}</button></li>`)
+        const buttons = (page.chapters || [])
+          .map((chapter) => `<li><button class="toc-btn" data-page="${chapter.pageIndex}">${escapeHtml(chapter.title)}</button></li>`)
           .join('');
 
         return `
           <section class="book-page ${side}">
-            <h2 class="page-title">${page.title}</h2>
+            <h2 class="page-title">${escapeHtml(page.title)}</h2>
             <ol class="toc-list">${buttons}</ol>
             <p class="page-marker">Contents</p>
           </section>
         `;
       }
 
+      const blocks = page.blocks && page.blocks.length
+        ? page.blocks
+        : [{ type: 'paragraph', text: page.content || '' }];
+      const contentHtml = blocks
+        .map((block) => {
+          if (block.type === 'heading') {
+            return `<h3 class="book-section-title">${escapeHtml(block.text)}</h3>`;
+          }
+
+          return `<p class="book-text">${escapeHtml(block.text)}</p>`;
+        })
+        .join('');
+
       return `
         <section class="book-page ${side}">
-          <h2 class="page-title">${page.title}</h2>
-          <p class="chapter-number">${page.content}</p>
+          ${page.showTitle === false ? '' : `<h2 class="page-title">${escapeHtml(page.title)}</h2>`}
+          <div class="chapter-content">${contentHtml}</div>
           <p class="page-marker">Page ${currentIndex + (side === 'right' ? 1 : 0) + 1}</p>
         </section>
       `;
