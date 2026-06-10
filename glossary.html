@@ -62,17 +62,27 @@
       padding: 0;
     }
 
-    .alphabet-nav a {
+    .alphabet-nav a,
+    .alphabet-nav span {
       display: block;
       padding: 5px 0;
       text-align: center;
-      text-decoration: none;
       font-weight: bold;
-      color: #111;
       border: 1px solid #777;
       border-radius: 4px;
+    }
+
+    .alphabet-nav a {
+      text-decoration: none;
+      color: #111;
       background: #f8f8f8;
       transition: background 0.2s ease;
+    }
+
+    .alphabet-nav span {
+      color: #777;
+      background: #eeeeee;
+      border-color: #aaa;
     }
 
     .alphabet-nav a:hover,
@@ -248,9 +258,26 @@
         .trim();
     }
 
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function isHiddenGlossaryNote(text) {
+      return /^\*{3}/.test(normalizeDocText(text));
+    }
+
+    function isNonGlossaryHeading(text) {
+      return /^(Phrases|Common Cultural Symbols and Motifs|Book of Runes|Field Guides\s*-?|Writing\s*-?)$/i.test(text);
+    }
+
     function cleanEntryMarker(value) {
       return normalizeDocText(value)
-        .replace(/^[-*•.]\s*/, "")
+        .replace(/^[-•.]\s*/, "")
         .trim();
     }
 
@@ -276,9 +303,16 @@
       nodes.forEach((node) => {
         const text = normalizeDocText(node.textContent);
         if (!text) return;
+        if (isHiddenGlossaryNote(text)) return;
 
         if (/^[A-Z]$/.test(text)) {
           currentLetter = text;
+          currentEntry = null;
+          return;
+        }
+
+        if (isNonGlossaryHeading(text)) {
+          currentLetter = "";
           currentEntry = null;
           return;
         }
@@ -300,8 +334,15 @@
 
     function buildAlphabetNav() {
       const navList = document.getElementById("alphabet-links");
-      navList.innerHTML = glossaryData
-        .map(item => `<li><a href="#letter-${item.letter}">${item.letter}</a></li>`)
+      const availableLetters = new Set(glossaryData.map(item => item.letter));
+      navList.innerHTML = letters
+        .map(letter => {
+          if (availableLetters.has(letter)) {
+            return `<li><a href="#letter-${letter}">${letter}</a></li>`;
+          }
+
+          return `<li><span aria-disabled="true">${letter}</span></li>`;
+        })
         .join("");
     }
 
@@ -322,8 +363,8 @@
                 .map(
                   entry => `
                   <li class="entry" data-entry>
-                    <p class="entry-term">${entry.term}</p>
-                    <p class="entry-definition">${entry.definition}</p>
+                    <p class="entry-term">${escapeHtml(entry.term)}</p>
+                    <p class="entry-definition">${escapeHtml(entry.definition)}</p>
                   </li>
                 `
                 )
