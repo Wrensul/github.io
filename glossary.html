@@ -142,6 +142,13 @@
       text-transform: uppercase;
     }
 
+    .phrasebook-group-heading {
+      margin: 18px 0 10px;
+      font-size: clamp(20px, 2.5vw, 27px);
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
     .entry-list {
       list-style: none;
       margin: 0;
@@ -287,9 +294,13 @@
 
     function cleanEntryMarker(value) {
       return normalizeDocText(value)
-        .replace(/^\*+\s*/, "")
+        .replace(/^\*+\s*\.?\s*/, "")
         .replace(/^[-•.]\s*/, "")
         .trim();
+    }
+
+    function hasEntryMarker(text) {
+      return /^\*{3}\s*\.?\s*/.test(normalizeDocText(text));
     }
 
     function isTemplateEntry(text) {
@@ -297,6 +308,8 @@
     }
 
     function splitEntryDetail(text) {
+      if (!hasEntryMarker(text)) return null;
+
       const cleaned = cleanEntryMarker(text);
       const match = cleaned.match(/^(Forms|Definition|Notes|Origin|Meaning):\s*(.*)$/i);
       if (!match) return null;
@@ -308,6 +321,8 @@
     }
 
     function splitGlossaryTerm(text) {
+      if (!hasEntryMarker(text)) return null;
+
       const cleaned = cleanEntryMarker(text);
       const match = cleaned.match(/^(.+?)\s+(?:[-–—]|=)\s*(.*)$/);
       if (!match) return null;
@@ -363,7 +378,10 @@
         const splitEntry = splitGlossaryTerm(text);
         if (splitEntry && currentMode === "phrases") {
           currentEntry = splitEntry;
-          phrases.push(currentEntry);
+          phrases.push({
+            type: "entry",
+            entry: currentEntry
+          });
           return;
         }
 
@@ -384,6 +402,10 @@
 
         if (currentMode === "phrases" && /^H[1-6]$/i.test(node.tagName)) {
           currentEntry = null;
+          phrases.push({
+            type: "heading",
+            title: text
+          });
           return;
         }
 
@@ -433,6 +455,33 @@
       `;
     }
 
+    function buildPhrasebookContents(items) {
+      let openEntries = [];
+      let html = "";
+
+      const flushEntries = () => {
+        if (!openEntries.length) return;
+
+        html += buildEntryList(openEntries);
+        openEntries = [];
+      };
+
+      items.forEach(item => {
+        if (item.type === "heading") {
+          flushEntries();
+          html += `<h3 class="phrasebook-group-heading">${escapeHtml(item.title)}</h3>`;
+          return;
+        }
+
+        if (item.type === "entry") {
+          openEntries.push(item.entry);
+        }
+      });
+
+      flushEntries();
+      return html;
+    }
+
     function buildGlossarySections() {
       const container = document.getElementById("glossary-sections");
 
@@ -452,11 +501,11 @@
 
       const phrasebookHtml = phrasebookData.length
         ? `
-          <section class="phrasebook-section" id="phrasebook" data-search-section>
-            <h2 class="phrasebook-heading">Phrase Book</h2>
-            ${buildEntryList(phrasebookData)}
-          </section>
-        `
+            <section class="phrasebook-section" id="phrasebook" data-search-section>
+              <h2 class="phrasebook-heading">Phrase Book</h2>
+            ${buildPhrasebookContents(phrasebookData)}
+            </section>
+          `
         : hasPhrasebook
           ? `
             <section class="phrasebook-section" id="phrasebook">
