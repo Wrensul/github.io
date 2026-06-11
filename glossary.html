@@ -85,6 +85,10 @@
       border-color: #aaa;
     }
 
+    .alphabet-nav .phrasebook-jump {
+      grid-column: span 3;
+    }
+
     .alphabet-nav a:hover,
     .alphabet-nav a:focus-visible {
       background: #e7ecea;
@@ -117,20 +121,25 @@
       color: #333;
     }
 
-    .letter-section {
+    .letter-section,
+    .phrasebook-section {
       border-top: 2px solid #222;
       padding-top: 14px;
       margin-top: 14px;
       scroll-margin-top: 88px;
     }
 
-    .letter-heading {
+    .letter-heading,
+    .phrasebook-heading {
       margin: 0 0 10px;
       font-size: clamp(24px, 3vw, 32px);
       letter-spacing: 1px;
-      text-transform: uppercase;
       text-decoration: underline;
       text-underline-offset: 7px;
+    }
+
+    .letter-heading {
+      text-transform: uppercase;
     }
 
     .entry-list {
@@ -211,7 +220,6 @@
   <main>
     <section class="page-shell">
       <h1>Glossary</h1>
-      <p class="intro">Use the A&ndash;Z bar to jump to each letter, and use search to find a term or phrase quickly.</p>
 
       <nav class="alphabet-nav" aria-label="Glossary letters">
         <ul id="alphabet-links"></ul>
@@ -238,6 +246,8 @@
     const GLOSSARY_GOOGLE_DOC = "https://docs.google.com/document/d/1-LnLGhJNSeJxdc2exCZZ58_zYgDq-lhzkCzL7Ub5aoo/edit?usp=sharing";
 
     let glossaryData = [];
+    let phrasebookData = [];
+    let hasPhrasebook = false;
 
     function getGoogleDocExportUrl(urlOrId) {
       const trimmed = (urlOrId || "").trim();
@@ -267,18 +277,34 @@
         .replace(/'/g, "&#39;");
     }
 
-    function isHiddenGlossaryNote(text) {
-      return /^\*{3}/.test(normalizeDocText(text));
+    function isPhrasebookHeading(text) {
+      return /^(Phrase\s*Book|Phrases)$/i.test(normalizeDocText(text));
     }
 
     function isNonGlossaryHeading(text) {
-      return /^(Phrases|Common Cultural Symbols and Motifs|Book of Runes|Field Guides\s*-?|Writing\s*-?)$/i.test(text);
+      return /^(Common Cultural Symbols and Motifs|Book of Runes|Field Guides\s*-?|Writing\s*-?)$/i.test(text);
     }
 
     function cleanEntryMarker(value) {
       return normalizeDocText(value)
+        .replace(/^\*+\s*/, "")
         .replace(/^[-•.]\s*/, "")
         .trim();
+    }
+
+    function isTemplateEntry(text) {
+      return /^(Word Template|Phrase Template)\s*-?$/i.test(cleanEntryMarker(text));
+    }
+
+    function splitEntryDetail(text) {
+      const cleaned = cleanEntryMarker(text);
+      const match = cleaned.match(/^(Forms|Definition|Notes|Origin|Meaning):\s*(.*)$/i);
+      if (!match) return null;
+
+      return {
+        label: match[1].toLowerCase(),
+        text: normalizeDocText(match[2])
+      };
     }
 
     function splitGlossaryTerm(text) {
@@ -297,39 +323,82 @@
       const doc = parser.parseFromString(rawHtml || "", "text/html");
       const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
       const sectionsByLetter = new Map(letters.map(letter => [letter, { letter, entries: [] }]));
+      const phrases = [];
+      let foundPhrasebook = false;
       let currentLetter = "";
       let currentEntry = null;
+      let currentMode = "glossary";
 
       nodes.forEach((node) => {
         const text = normalizeDocText(node.textContent);
         if (!text) return;
-        if (isHiddenGlossaryNote(text)) return;
 
         if (/^[A-Z]$/.test(text)) {
           currentLetter = text;
           currentEntry = null;
+          currentMode = "glossary";
+          return;
+        }
+
+        if (isPhrasebookHeading(text)) {
+          currentLetter = "";
+          currentEntry = null;
+          currentMode = "phrases";
+          foundPhrasebook = true;
           return;
         }
 
         if (isNonGlossaryHeading(text)) {
           currentLetter = "";
           currentEntry = null;
+          currentMode = "";
+          return;
+        }
+
+        if (isTemplateEntry(text)) {
+          currentEntry = null;
           return;
         }
 
         const splitEntry = splitGlossaryTerm(text);
-        if (splitEntry && currentLetter) {
+        if (splitEntry && currentMode === "phrases") {
+          currentEntry = splitEntry;
+          phrases.push(currentEntry);
+          return;
+        }
+
+        if (splitEntry && currentMode === "glossary" && currentLetter) {
           currentEntry = splitEntry;
           sectionsByLetter.get(currentLetter).entries.push(currentEntry);
           return;
         }
 
-        if (currentEntry && currentLetter) {
+        const entryDetail = splitEntryDetail(text);
+        if (entryDetail && currentEntry) {
+          if (entryDetail.label === "definition" || entryDetail.label === "meaning") {
+            currentEntry.definition = entryDetail.text;
+          }
+
+          return;
+        }
+
+        if (currentMode === "phrases" && /^H[1-6]$/i.test(node.tagName)) {
+          currentEntry = null;
+          return;
+        }
+
+        if (/^\*{3}/.test(text)) return;
+
+        if (currentEntry && (currentMode === "phrases" || currentLetter)) {
           currentEntry.definition = normalizeDocText(`${currentEntry.definition} ${text}`);
         }
       });
 
-      return Array.from(sectionsByLetter.values()).filter(section => section.entries.length);
+      return {
+        sections: Array.from(sectionsByLetter.values()).filter(section => section.entries.length),
+        phrases,
+        hasPhrasebook: foundPhrasebook
+      };
     }
 
     function buildAlphabetNav() {
@@ -343,36 +412,61 @@
 
           return `<li><span aria-disabled="true">${letter}</span></li>`;
         })
+        .concat(hasPhrasebook ? '<li class="phrasebook-jump"><a href="#phrasebook">Phrases</a></li>' : "")
         .join("");
+    }
+
+    function buildEntryList(entries) {
+      return `
+        <ul class="entry-list">
+          ${entries
+            .map(
+              entry => `
+              <li class="entry" data-entry>
+                <p class="entry-term">${escapeHtml(entry.term)}</p>
+                <p class="entry-definition">${escapeHtml(entry.definition)}</p>
+              </li>
+            `
+            )
+            .join("")}
+        </ul>
+      `;
     }
 
     function buildGlossarySections() {
       const container = document.getElementById("glossary-sections");
 
-      if (!glossaryData.length) {
+      if (!glossaryData.length && !phrasebookData.length && !hasPhrasebook) {
         container.innerHTML = '<p class="glossary-error">No glossary entries were found in the Google Doc.</p>';
         return;
       }
 
-      container.innerHTML = glossaryData
+      const glossaryHtml = glossaryData
         .map(item => `
-          <section class="letter-section" id="letter-${item.letter}" data-letter-section>
+          <section class="letter-section" id="letter-${item.letter}" data-letter-section data-search-section>
             <h2 class="letter-heading">${item.letter}</h2>
-            <ul class="entry-list">
-              ${item.entries
-                .map(
-                  entry => `
-                  <li class="entry" data-entry>
-                    <p class="entry-term">${escapeHtml(entry.term)}</p>
-                    <p class="entry-definition">${escapeHtml(entry.definition)}</p>
-                  </li>
-                `
-                )
-                .join("")}
-            </ul>
+            ${buildEntryList(item.entries)}
           </section>
         `)
         .join("");
+
+      const phrasebookHtml = phrasebookData.length
+        ? `
+          <section class="phrasebook-section" id="phrasebook" data-search-section>
+            <h2 class="phrasebook-heading">Phrase Book</h2>
+            ${buildEntryList(phrasebookData)}
+          </section>
+        `
+        : hasPhrasebook
+          ? `
+            <section class="phrasebook-section" id="phrasebook">
+              <h2 class="phrasebook-heading">Phrase Book</h2>
+              <p class="empty-msg">No visible phrasebook entries yet.</p>
+            </section>
+          `
+        : "";
+
+      container.innerHTML = `${glossaryHtml}${phrasebookHtml}`;
     }
 
     function setupSearch() {
@@ -381,7 +475,7 @@
 
       searchInput.addEventListener("input", event => {
         const query = event.target.value.trim().toLowerCase();
-        const sections = document.querySelectorAll("[data-letter-section]");
+        const sections = document.querySelectorAll("[data-search-section]");
 
         let visibleEntryCount = 0;
 
@@ -416,7 +510,10 @@
         if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
 
         const html = await response.text();
-        glossaryData = parseGlossaryDocFromHtml(html);
+        const parsedDoc = parseGlossaryDocFromHtml(html);
+        glossaryData = parsedDoc.sections;
+        phrasebookData = parsedDoc.phrases;
+        hasPhrasebook = parsedDoc.hasPhrasebook;
         buildAlphabetNav();
         buildGlossarySections();
         setupSearch();
