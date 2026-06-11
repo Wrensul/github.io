@@ -303,15 +303,17 @@
       return /^\*{3}\s*\.?\s*/.test(normalizeDocText(text));
     }
 
+    function isDocHeading(node) {
+      return /^H[1-6]$/i.test(node.tagName);
+    }
+
     function isTemplateEntry(text) {
       return /^(Word Template|Phrase Template)\s*-?$/i.test(cleanEntryMarker(text));
     }
 
     function splitEntryDetail(text) {
-      if (!hasEntryMarker(text)) return null;
-
       const cleaned = cleanEntryMarker(text);
-      const match = cleaned.match(/^(Forms|Definition|Notes|Origin|Meaning):\s*(.*)$/i);
+      const match = cleaned.match(/^(Forms|Definition|Description|Notes|Origin|Meaning):\s*(.*)$/i);
       if (!match) return null;
 
       return {
@@ -321,8 +323,6 @@
     }
 
     function splitGlossaryTerm(text) {
-      if (!hasEntryMarker(text)) return null;
-
       const cleaned = cleanEntryMarker(text);
       const match = cleaned.match(/^(.+?)\s+(?:[-–—]|=)\s*(.*)$/);
       if (!match) return null;
@@ -347,6 +347,14 @@
       nodes.forEach((node) => {
         const text = normalizeDocText(node.textContent);
         if (!text) return;
+
+        if (hasEntryMarker(text)) {
+          if (isDocHeading(node)) {
+            currentEntry = null;
+          }
+
+          return;
+        }
 
         if (/^[A-Z]$/.test(text)) {
           currentLetter = text;
@@ -376,6 +384,7 @@
         }
 
         const splitEntry = splitGlossaryTerm(text);
+
         if (splitEntry && currentMode === "phrases") {
           currentEntry = splitEntry;
           phrases.push({
@@ -393,14 +402,14 @@
 
         const entryDetail = splitEntryDetail(text);
         if (entryDetail && currentEntry) {
-          if (entryDetail.label === "definition" || entryDetail.label === "meaning") {
+          if (entryDetail.label === "definition" || entryDetail.label === "description" || entryDetail.label === "meaning") {
             currentEntry.definition = entryDetail.text;
           }
 
           return;
         }
 
-        if (currentMode === "phrases" && /^H[1-6]$/i.test(node.tagName)) {
+        if (currentMode === "phrases" && isDocHeading(node)) {
           currentEntry = null;
           phrases.push({
             type: "heading",
@@ -408,8 +417,6 @@
           });
           return;
         }
-
-        if (/^\*{3}/.test(text)) return;
 
         if (currentEntry && (currentMode === "phrases" || currentLetter)) {
           currentEntry.definition = normalizeDocText(`${currentEntry.definition} ${text}`);
