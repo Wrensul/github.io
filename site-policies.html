@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Art by Wren Willow</title>
+<link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="header"></div>
+
+  <!-- Dragon flanked galaxy box -->
+<div class="hero-shell">
+
+  <div class="hero-rail">
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+    <img src="https://blob.gifcities.org/gifcities/ZJZF3Y3X2WQLXABBLDRWF7ANKI4D2WY6.gif" alt="guardian left"
+         style="transform: scaleX(-1) scale(2.5); height: 120px; margin-top: 60px; margin-bottom: 60px;" />
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+  </div>
+
+  <div class="content">
+    <div style="background-color: rgba(255,255,255,0.85); padding: 30px; border: 4px groove #222; box-shadow: 4px 4px 8px #555; font-size: 1em; line-height: 1.6; text-align: justify; text-justify: inter-word;">
+      <h2 style="text-align: center; margin-top: 0;">Content Usage and Rights:</h2>
+      <p style="margin-bottom: 1em;">
+        ALL ORIGINAL CONTENT INCLUDING ARTWORK, DESIGNS, WRITING, AND FICTIONAL CONCEPTS ON THIS WEBSITE ARE THE INTELLECTUAL PROPERTY OF ZOEE CROCKETT VIA WILLOWHISPER.SPACE, UNLESS OTHERWISE NOTED.
+      </p>
+      <p style="margin-bottom: 1em;">
+        THIS WEBSITE MAY INCLUDE CERTAIN PUBLIC DOMAIN IMAGES OR HISTORICAL ARTWORKS. SUCH MATERIALS REMAIN IN THE PUBLIC DOMAIN AND ARE NOT CLAIMED AS ORIGINAL WORK BY ZOEE CROCKETT.
+      </p>
+      <p style="margin-bottom: 1em;">
+        ORIGINAL CONCEPTS AND IMAGES CREATED BY ZOEE CROCKETT MAY BE USED FOR NON-COMMERCIAL PURPOSES ONLY AND MUST INCLUDE PROPER ATTRIBUTION. FOR ANY OTHER USE, PLEASE SEEK EXPLICIT WRITTEN PERMISSION.
+      </p>
+      <p style="margin-bottom: 1em;">
+        PROPER ATTRIBUTION INCLUDES CLEARLY CREDITING THE NAME “ZOEE CROCKETT” AND PROVIDING REFERENCE TO “WILLOWHISPER.SPACE” FOR ANY VIEWING AUDIENCE. CREDIT MUST BE PROVIDED IN AN ARTWORK’S DESCRIPTION OR TAGS. FOR PHYSICAL MEDIA, CREDIT MUST BE PLACED IN AN OBVIOUS AND ACCESSIBLE FORM ON THE ITEM.
+      </p>
+      <p style="margin-bottom: 1em;">
+        FORMS OF SHARING INCLUDE BUT ARE NOT LIMITED TO INSPIRED TEXTS, VISUAL REPRESENTATIONS, AND REPRODUCTIONS IN ANY ARTISTIC MEDIUM, DIGITAL OR PHYSICAL.
+      </p>
+      <p><strong>ALL RIGHTS RESERVED WITH RESPECT TO ORIGINAL CONTENT.</strong></p>
+    </div>
+  </div>
+
+  <div class="hero-rail">
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+    <img src="https://blob.gifcities.org/gifcities/ZJZF3Y3X2WQLXABBLDRWF7ANKI4D2WY6.gif" alt="guardian right"
+         style="transform: scale(2.5); height: 120px; margin-top: 60px; margin-bottom: 60px;" />
+    <img src="https://blob.gifcities.org/gifcities/NG45PUZDMZYH4N5AEGQILJ4Z6IINUDAU.gif" alt="divider gif" style="height: 60px; margin: 10px 0;" />
+  </div>
+
+</div>
+
+  <div id="footer"></div>
+
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("header").innerHTML = data);
+
+  fetch("footer.html")
+    .then(res => res.text())
+    .then(data => document.getElementById("footer").innerHTML = data);
+</script>
+  <script src="under-construction.js"></script>
+</body>
+</html>

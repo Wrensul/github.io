@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Glossary | Door to the Parsklands</title>
+<link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
+  <style>
+    main {
+      min-height: 100vh;
+      padding: 28px 16px 64px;
+      font-family: 'Baskervville', serif;
+    }
+
+    .page-shell {
+      max-width: 980px;
+      margin: 34px auto;
+      background: rgba(255, 255, 255, 0.95);
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      padding: 24px clamp(16px, 3vw, 32px);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 40px);
+      text-align: center;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96), 1px 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
+    .intro {
+      width: min(100%, 760px);
+      margin: 0 auto 22px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(34, 34, 34, 0.45);
+      text-align: center;
+      font-size: clamp(16px, 1.8vw, 21px);
+      line-height: 1.45;
+      color: #111;
+    }
+
+    .alphabet-nav {
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.96);
+      border: 2px solid #222;
+      border-radius: 8px;
+      padding: 10px 10px 8px;
+      margin-bottom: 12px;
+    }
+
+    .alphabet-nav ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .alphabet-nav a,
+    .alphabet-nav span {
+      display: block;
+      padding: 5px 0;
+      text-align: center;
+      font-weight: bold;
+      border: 1px solid #777;
+      border-radius: 4px;
+    }
+
+    .alphabet-nav a {
+      text-decoration: none;
+      color: #111;
+      background: #f8f8f8;
+      transition: background 0.2s ease;
+    }
+
+    .alphabet-nav span {
+      color: #777;
+      background: #eeeeee;
+      border-color: #aaa;
+    }
+
+    .alphabet-nav .phrasebook-jump {
+      grid-column: span 3;
+    }
+
+    .alphabet-nav a:hover,
+    .alphabet-nav a:focus-visible {
+      background: #e7ecea;
+      outline: 2px solid #666;
+      outline-offset: 1px;
+    }
+
+    .search-wrap {
+      margin-bottom: 20px;
+    }
+
+    .search-label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    #glossary-search {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 2px solid #444;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .search-note {
+      margin: 8px 0 0;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .letter-section,
+    .phrasebook-section {
+      border-top: 2px solid #222;
+      padding-top: 14px;
+      margin-top: 14px;
+      scroll-margin-top: 88px;
+    }
+
+    .letter-heading,
+    .phrasebook-heading {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 32px);
+      letter-spacing: 1px;
+      text-decoration: underline;
+      text-underline-offset: 7px;
+    }
+
+    .letter-heading {
+      text-transform: uppercase;
+    }
+
+    .phrasebook-heading {
+      font-size: clamp(28px, 4vw, 40px);
+      text-align: center;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96), 1px 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
+    .phrasebook-group-heading {
+      margin: 18px 0 10px;
+      font-size: clamp(20px, 2.5vw, 27px);
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
+    .entry-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .entry {
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: #fcfcfc;
+    }
+
+    .entry-term {
+      margin: 0 0 6px;
+      font-size: 1.06rem;
+      text-decoration: underline;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
+    .entry-definition {
+      margin: 0;
+      line-height: 1.35;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
+    .motifs {
+      border-top: 3px double #222;
+      margin-top: 26px;
+      padding-top: 18px;
+    }
+
+    .motifs h2 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 34px);
+      text-align: left;
+    }
+
+    .motif-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .motif-item {
+      line-height: 1.35;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .empty-msg {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px dashed #666;
+      background: #fafafa;
+    }
+
+    .glossary-loading,
+    .glossary-error {
+      margin: 18px 0 0;
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <main>
+    <section class="page-shell">
+      <h1>Glossary</h1>
+
+      <nav class="alphabet-nav" aria-label="Glossary letters">
+        <ul id="alphabet-links"></ul>
+      </nav>
+
+      <div class="search-wrap">
+        <label class="search-label" for="glossary-search">Search glossary terms and definitions:</label>
+        <input id="glossary-search" type="search" placeholder="Type a word or phrase..." autocomplete="off" />
+        <p class="search-note">Tip: search checks both term names and definitions.</p>
+      </div>
+
+      <div id="no-results" class="empty-msg hidden">No glossary entries match your search yet. Try another word or clear the search.</div>
+
+      <div id="glossary-sections">
+        <p class="glossary-loading">Loading glossary entries...</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    const letters = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+    const GLOSSARY_GOOGLE_DOC = "https://docs.google.com/document/d/1-LnLGhJNSeJxdc2exCZZ58_zYgDq-lhzkCzL7Ub5aoo/edit?usp=sharing";
+
+    let glossaryData = [];
+    let phrasebookData = [];
+    let hasPhrasebook = false;
+
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || "").trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
+
+    function normalizeDocText(value) {
+      return String(value || "")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function isPhrasebookHeading(text) {
+      return /^(Phrase\s*Book|Phrases)$/i.test(normalizeDocText(text));
+    }
+
+    function isNonGlossaryHeading(text) {
+      return /^(Common Cultural Symbols and Motifs|Book of Runes|Field Guides\s*-?|Writing\s*-?)$/i.test(text);
+    }
+
+    function cleanEntryMarker(value) {
+      return normalizeDocText(value)
+        .replace(/^\*+\s*\.?\s*/, "")
+        .replace(/^[-•.]\s*/, "")
+        .trim();
+    }
+
+    function hasEntryMarker(text) {
+      return /^\*{3}\s*\.?\s*/.test(normalizeDocText(text));
+    }
+
+    function isDocHeading(node) {
+      return /^H[1-6]$/i.test(node.tagName);
+    }
+
+    function isTemplateEntry(text) {
+      return /^(Word Template|Phrase Template)\s*-?$/i.test(cleanEntryMarker(text));
+    }
+
+    function splitEntryDetail(text) {
+      const cleaned = cleanEntryMarker(text);
+      const match = cleaned.match(/^(Forms|Definition|Description|Notes|Origin|Meaning):\s*(.*)$/i);
+      if (!match) return null;
+
+      return {
+        label: match[1].toLowerCase(),
+        text: normalizeDocText(match[2])
+      };
+    }
+
+    function splitGlossaryTerm(text) {
+      const cleaned = cleanEntryMarker(text);
+      const match = cleaned.match(/^(.+?)\s+(?:[-–—]|=)\s*(.*)$/);
+      if (!match) return null;
+
+      return {
+        term: normalizeDocText(match[1]),
+        definition: normalizeDocText(match[2])
+      };
+    }
+
+    function parseGlossaryDocFromHtml(rawHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml || "", "text/html");
+      const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
+      const sectionsByLetter = new Map(letters.map(letter => [letter, { letter, entries: [] }]));
+      const phrases = [];
+      let foundPhrasebook = false;
+      let currentLetter = "";
+      let currentEntry = null;
+      let currentMode = "glossary";
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text) return;
+
+        if (hasEntryMarker(text)) {
+          if (isDocHeading(node)) {
+            currentEntry = null;
+          }
+
+          return;
+        }
+
+        if (/^[A-Z]$/.test(text)) {
+          currentLetter = text;
+          currentEntry = null;
+          currentMode = "glossary";
+          return;
+        }
+
+        if (isPhrasebookHeading(text)) {
+          currentLetter = "";
+          currentEntry = null;
+          currentMode = "phrases";
+          foundPhrasebook = true;
+          return;
+        }
+
+        if (isNonGlossaryHeading(text)) {
+          currentLetter = "";
+          currentEntry = null;
+          currentMode = "";
+          return;
+        }
+
+        if (isTemplateEntry(text)) {
+          currentEntry = null;
+          return;
+        }
+
+        const splitEntry = splitGlossaryTerm(text);
+
+        if (splitEntry && currentMode === "phrases") {
+          currentEntry = splitEntry;
+          phrases.push({
+            type: "entry",
+            entry: currentEntry
+          });
+          return;
+        }
+
+        if (splitEntry && currentMode === "glossary" && currentLetter) {
+          currentEntry = splitEntry;
+          sectionsByLetter.get(currentLetter).entries.push(currentEntry);
+          return;
+        }
+
+        const entryDetail = splitEntryDetail(text);
+        if (entryDetail && currentEntry) {
+          if (entryDetail.label === "definition" || entryDetail.label === "description" || entryDetail.label === "meaning") {
+            currentEntry.definition = entryDetail.text;
+          }
+
+          return;
+        }
+
+        if (currentMode === "phrases" && isDocHeading(node)) {
+          currentEntry = null;
+          phrases.push({
+            type: "heading",
+            title: text
+          });
+          return;
+        }
+
+        if (currentEntry && (currentMode === "phrases" || currentLetter)) {
+          currentEntry.definition = normalizeDocText(`${currentEntry.definition} ${text}`);
+        }
+      });
+
+      return {
+        sections: Array.from(sectionsByLetter.values()).filter(section => section.entries.length),
+        phrases,
+        hasPhrasebook: foundPhrasebook
+      };
+    }
+
+    function buildAlphabetNav() {
+      const navList = document.getElementById("alphabet-links");
+      const availableLetters = new Set(glossaryData.map(item => item.letter));
+      navList.innerHTML = letters
+        .map(letter => {
+          if (availableLetters.has(letter)) {
+            return `<li><a href="#letter-${letter}">${letter}</a></li>`;
+          }
+
+          return `<li><span aria-disabled="true">${letter}</span></li>`;
+        })
+        .concat(hasPhrasebook ? '<li class="phrasebook-jump"><a href="#phrasebook">Phrases</a></li>' : "")
+        .join("");
+    }
+
+    function buildEntryList(entries) {
+      return `
+        <ul class="entry-list">
+          ${entries
+            .map(
+              entry => `
+              <li class="entry" data-entry>
+                <p class="entry-term">${escapeHtml(entry.term)}</p>
+                <p class="entry-definition">${escapeHtml(entry.definition)}</p>
+              </li>
+            `
+            )
+            .join("")}
+        </ul>
+      `;
+    }
+
+    function buildPhrasebookContents(items) {
+      let openEntries = [];
+      let html = "";
+
+      const flushEntries = () => {
+        if (!openEntries.length) return;
+
+        html += buildEntryList(openEntries);
+        openEntries = [];
+      };
+
+      items.forEach(item => {
+        if (item.type === "heading") {
+          flushEntries();
+          html += `<h3 class="phrasebook-group-heading">${escapeHtml(item.title)}</h3>`;
+          return;
+        }
+
+        if (item.type === "entry") {
+          openEntries.push(item.entry);
+        }
+      });
+
+      flushEntries();
+      return html;
+    }
+
+    function buildGlossarySections() {
+      const container = document.getElementById("glossary-sections");
+
+      if (!glossaryData.length && !phrasebookData.length && !hasPhrasebook) {
+        container.innerHTML = '<p class="glossary-error">No glossary entries were found in the Google Doc.</p>';
+        return;
+      }
+
+      const glossaryHtml = glossaryData
+        .map(item => `
+          <section class="letter-section" id="letter-${item.letter}" data-letter-section data-search-section>
+            <h2 class="letter-heading">${item.letter}</h2>
+            ${buildEntryList(item.entries)}
+          </section>
+        `)
+        .join("");
+
+      const phrasebookHtml = phrasebookData.length
+        ? `
+            <section class="phrasebook-section" id="phrasebook" data-search-section>
+              <h2 class="phrasebook-heading">Phrase Book</h2>
+            ${buildPhrasebookContents(phrasebookData)}
+            </section>
+          `
+        : hasPhrasebook
+          ? `
+            <section class="phrasebook-section" id="phrasebook">
+              <h2 class="phrasebook-heading">Phrase Book</h2>
+              <p class="empty-msg">No visible phrasebook entries yet.</p>
+            </section>
+          `
+        : "";
+
+      container.innerHTML = `${glossaryHtml}${phrasebookHtml}`;
+    }
+
+    function setupSearch() {
+      const searchInput = document.getElementById("glossary-search");
+      const noResults = document.getElementById("no-results");
+
+      searchInput.addEventListener("input", event => {
+        const query = event.target.value.trim().toLowerCase();
+        const sections = document.querySelectorAll("[data-search-section]");
+
+        let visibleEntryCount = 0;
+
+        sections.forEach(section => {
+          const entries = section.querySelectorAll("[data-entry]");
+          let sectionHasVisibleEntries = false;
+
+          entries.forEach(entry => {
+            const text = entry.textContent.toLowerCase();
+            const isVisible = query === "" || text.includes(query);
+            entry.classList.toggle("hidden", !isVisible);
+
+            if (isVisible) {
+              sectionHasVisibleEntries = true;
+              visibleEntryCount += 1;
+            }
+          });
+
+          section.classList.toggle("hidden", !sectionHasVisibleEntries);
+        });
+
+        noResults.classList.toggle("hidden", visibleEntryCount !== 0);
+      });
+    }
+
+    async function loadGlossaryFromGoogleDoc() {
+      const container = document.getElementById("glossary-sections");
+      const exportUrl = getGoogleDocExportUrl(GLOSSARY_GOOGLE_DOC);
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        const parsedDoc = parseGlossaryDocFromHtml(html);
+        glossaryData = parsedDoc.sections;
+        phrasebookData = parsedDoc.phrases;
+        hasPhrasebook = parsedDoc.hasPhrasebook;
+        buildAlphabetNav();
+        buildGlossarySections();
+        setupSearch();
+      } catch (err) {
+        console.error("Google Doc glossary load failed.", err);
+        container.innerHTML = '<p class="glossary-error">The glossary could not be loaded from the Google Doc.</p>';
+      }
+    }
+
+    loadGlossaryFromGoogleDoc();
+
+    fetch("header.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("header").innerHTML = html;
+      })
+      .catch(err => console.error("Header failed to load.", err));
+
+    fetch("footer.html")
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById("footer").innerHTML = html;
+      })
+      .catch(err => console.error("Footer failed to load.", err));
+  </script>
+  <script src="under-construction.js"></script>
+</body>
+</html>

@@ -1,0 +1,697 @@
+
+<!-- calendar.html (layout fix: scroll 12 months horizontally + top overview blurb) -->
+<div class="owcal" id="owcal">
+  <!-- TOP BAR: TODAY / SELECTED DAY -->
+  <div class="owcal-topbar" role="region" aria-label="Selected day overview">
+    <div class="owcal-top-left">
+      <div class="owcal-top-line" id="owcalTopLine">Loading…</div>
+      <div class="owcal-top-sub" id="owcalTopSub"></div>
+      <div class="owcal-top-blurb" id="owcalTopBlurb"></div>
+    </div>
+
+    <div class="owcal-top-right">
+      <button class="owcal-btn" id="jumpToday" type="button">Jump to Today</button>
+    </div>
+  </div>
+
+  <!-- MONTH SCROLLER (12 “pages”) -->
+  <div class="owcal-shell">
+    <div class="owcal-calendar" id="calendar"></div>
+  </div>
+</div>
+
+<style>
+.owcal {
+  font-family: inherit;
+  color: inherit;
+  font-size: 16px;
+  line-height: 1.2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.owcal .owcal-topbar{
+  background-color: rgba(255,255,255,0.85);
+  border: 4px groove #222;
+  box-shadow: 4px 4px 8px #555;
+  padding: 12px 14px;
+  display:flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.owcal .owcal-top-title{ font-weight: bold; margin-bottom: 4px; }
+.owcal .owcal-top-line{ font-weight: bold; }
+.owcal .owcal-top-sub{ margin-top: 4px; font-size: 0.92em; color: #333; }
+.owcal .owcal-top-blurb{
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fffbe0;
+  border: 2px outset #ccc;
+  font-size: 0.92em;
+  min-height: 18px; /* keeps layout stable even when empty */
+}
+
+.owcal .owcal-top-right{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items:center;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.owcal .owcal-btn{
+  text-decoration: none;
+  color: #000;
+  background-color: #ffe;
+  padding: 4px 8px;
+  border: 2px outset #ccc;
+  font-weight: bold;
+  font-family: inherit;   /* follow site stylesheet */
+  cursor: pointer;
+}
+.owcal .owcal-btn:hover{
+  color: #900;
+  text-decoration: underline wavy #900;
+  background-color: #fffbe0;
+}
+
+.owcal .owcal-small{ font-size: 0.88em; }
+.owcal code{ font-family: inherit; }
+
+.owcal .owcal-shell{
+  padding: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Horizontal month scroller */
+.owcal .owcal-calendar{
+  display:flex;
+  flex-wrap: nowrap;          /* critical: never stack */
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0 0 8px 0;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  align-items: stretch;       /* makes spacer match month height */
+  height: 100%;
+}
+
+/* Special single-day page (start / between seasons / end) */
+.owcal .owcal-specialPage{
+  flex: 0 0 46%;
+  max-width: 46%;
+  scroll-snap-align: start;
+  border: 4px ridge #333;
+  box-shadow: 6px 6px 10px #444;
+  background: rgba(255,255,255,0.88);
+  display:flex;
+  flex-direction: column;
+}
+
+.owcal .owcal-specialHead{
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 3px double #000;
+  padding: 14px 12px;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.owcal .owcal-specialTitle{
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.75);
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+  font-family: inherit;
+}
+
+.owcal .owcal-specialBody{
+  padding: 12px;
+  font-size: 0.95em;
+}
+
+/* Each month is one “page” */
+.owcal .owcal-monthPage{
+  flex: 0 0 92%;
+  max-width: 92%;
+  scroll-snap-align: start;
+  border: 4px ridge #333;
+  box-shadow: 6px 6px 10px #444;
+  background: rgba(255,255,255,0.88);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.owcal .owcal-monthHead{
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+  border-bottom: 3px double #000;
+  padding: 14px 12px;
+  display:flex;
+  justify-content: center;   /* center horizontally */
+  align-items: center;       /* center vertically */
+  text-align: center;
+}
+
+.owcal .owcal-monthTitle{
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.75);
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+  font-family: inherit;   /* follow site stylesheet */
+}
+.owcal .owcal-monthMeta{ font-size: 0.9em; color:#222; }
+
+.owcal .owcal-headLabelBackdrop{
+  background: transparent;
+  padding: 8px 12px;
+  border: 0;
+}
+
+
+.owcal .owcal-weekNames{
+  display:grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  font-size: clamp(0.76rem, 0.75vw, 0.88rem);
+}
+.owcal .owcal-weekNames div{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height: 46px;
+  text-align:center;
+  border: 2px outset #999;
+  background: #fffbe0;
+  padding: 6px 7px;
+  font-family: inherit;   /* follow site stylesheet */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.1;
+}
+
+/* Day grid: 6 columns (weeks) x 5 rows (weekdays)
+   This makes weekdays run TOP→BOTTOM, weeks run LEFT→RIGHT */
+.owcal .owcal-grid{
+  display:grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: repeat(5, minmax(52px, 1fr));
+  gap: 8px;
+  padding: 12px;
+  min-height: 0;
+}
+
+.owcal .owcal-day{ 
+  background: #fffefc;
+  border: 2px outset #999;
+  padding: 6px 7px;
+  cursor: pointer;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.owcal .owcal-day:hover{ outline: 2px dashed #900; outline-offset: 1px; }
+/* Two-line locked layout for day tiles */
+.owcal .owcal-dayName{
+  display:block;
+  font-weight: bold;
+  line-height:1.12;
+  font-size: clamp(0.78rem, 0.78vw, 0.92rem);
+  overflow-wrap:anywhere;
+}
+.owcal .owcal-dayNum{
+  display:block;
+  margin-top: 2px;
+  font-weight: bold;
+  line-height:1.08;
+  font-size: clamp(0.76rem, 0.72vw, 0.88rem);
+}
+
+.owcal .owcal-today{ box-shadow: inset 0 0 0 2px #900; }
+.owcal .owcal-holiday{ background: #fffae0; border-color: #900; }
+.owcal .owcal-selected{ outline: 2px solid #222; outline-offset: 1px; }
+
+@media (max-width: 700px){
+  .owcal .owcal-topbar{ flex-direction: column; align-items: stretch; }
+  .owcal .owcal-top-right{ justify-content: flex-start; text-align: left; }
+  .owcal .owcal-monthPage{ flex-basis: 98%; max-width: 98%; }
+  .owcal .owcal-specialPage{ flex-basis: 80%; max-width: 80%; }
+}
+</style>
+
+<script>
+/* ==========================
+   EDIT THIS CONFIG BLOCK
+   ========================== */
+const CFG = {
+  anchor: { year: 2026, month: 3, day: 20 }, // March 20 => Day 1
+
+  daysPerWeek: 5,
+  weeksPerMonth: 6,
+
+  weekdayNames: ["Affday", "Yuleday", "Tolsday", "Thulsday", "Sealday"],
+  weekNames: ["Inn", "Uon", "Dres", "Virse", "Vess", "Vix"],
+
+  // Single-day pages (edit these labels/blurbs)
+  specialDays: {
+    start: { name: "Year Dawning", blurb: "The year begins." },
+    springSummer: { name: "Between Sprimmul & Summern", blurb: "" },
+    summerFall: { name: "Between Summern & Auntaell", blurb: "" },
+    fallWinter: { name: "Between Auntaell & Wintern", blurb: "" },
+    end: { name: "Year’s End", blurb: "The year closes." }
+  },
+
+  seasons: [
+    { name:"Sprimmul", months:[
+        { name:"Sohllift (1)",   zodiac:"Abral" },
+        { name:"Saellift (2)",  zodiac:"Isthmus" },
+        { name:"Erllift (3)", zodiac:"Lusillum" }
+      ]
+    },
+    { name:"Summern", months:[
+        { name:"Ifter (4)", zodiac:"Dontoré" },
+        { name:"Olter (5)",  zodiac: "Parsifal" },
+        { name:"Halter (6)", zodiac:"Arllund" }
+      ]
+    },
+    { name:"Auntaell", months:[
+        { name:"Thallas (7)",  zodiac:"Annyu" },
+        { name:"Illas (8)", zodiac:"Ninurtia" },
+        { name:"Ohllas (9)",   zodiac:"Thelrose" }
+      ]
+    },
+    { name:"Wintern", months:[
+        { name:"Foalwind (10)",  zodiac:"Emefin" },
+        { name:"Tillwind (11)", zodiac:"Oslon" },
+        { name:"Hallwind (12)",zodiac:"Wrensul" }
+      ]
+    }
+  ],
+
+  // Holidays keyed by absolute day number (your Day 1..whatever)
+  holidays: {
+    // 1: { name:"Holiday Name", blurb:"Short blurb." }
+  }
+};
+/* ==========================
+   STOP EDITING HERE
+   ========================== */
+
+const DAYS_PER_MONTH = CFG.daysPerWeek * CFG.weeksPerMonth; // 30
+
+function toUTCDate(y,m,d){ return new Date(Date.UTC(y, m-1, d)); }
+
+// Flatten months (12) with season info
+function flatMonths(){
+  const months = [];
+  for (let si=0; si<CFG.seasons.length; si++){
+    const s = CFG.seasons[si];
+    for (let mi=0; mi<s.months.length; mi++){
+      months.push({
+        seasonIndex: si,
+        season: s.name,
+        monthIndexInSeason: mi,
+        monthIndexAbs: months.length, // 0..11
+        name: s.months[mi].name,
+        zodiac: s.months[mi].zodiac
+      });
+    }
+  }
+  return months;
+}
+
+const MONTHS = flatMonths();
+
+function fictionalTodayAbs(now=new Date()){
+  const a = toUTCDate(CFG.anchor.year, CFG.anchor.month, CFG.anchor.day);
+  const t = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const diff = Math.floor((t - a) / 86400000);
+
+  // IMPORTANT: use the actual generated calendar length so between-days + year-end days count.
+  // Day 1 is exactly the anchor date (e.g., 2026-03-20).
+  const yearLen = (typeof YEAR !== "undefined" && YEAR && YEAR.length) ? YEAR.length : 365;
+
+  return ((diff % yearLen) + yearLen) % yearLen + 1;
+}
+
+function buildYear(){
+  const out = [];
+  let abs = 1;
+
+  // START single-day page (this is Day 1 / Abs 1)
+  out.push({
+    abs,
+    type:"special",
+    key:"start",
+    label: CFG.specialDays.start.name,
+    blurb: CFG.specialDays.start.blurb || "",
+    seasonIndex: 0,
+    season: CFG.seasons[0].name,
+    holiday: CFG.holidays[abs] || null
+  });
+  abs++;
+
+  for (let si=0; si<CFG.seasons.length; si++){
+    const season = CFG.seasons[si];
+
+    for (let mi=0; mi<season.months.length; mi++){
+      const month = season.months[mi];
+
+      for (let d=1; d<=DAYS_PER_MONTH; d++){
+        const weekIdx = Math.ceil(d / CFG.daysPerWeek); // 1..6
+        const weekDayIdx = (d-1) % CFG.daysPerWeek;     // 0..4
+
+        out.push({
+          abs,
+          type:"day",
+          seasonIndex: si,
+          season: season.name,
+          monthIndexInSeason: mi,
+          monthIndexAbs: si*3 + mi,
+          month: month.name,
+          zodiac: month.zodiac,
+          dayInMonth: d,
+          week: weekIdx,
+          weekName: CFG.weekNames[weekIdx-1] || `Week ${weekIdx}`,
+          weekday: CFG.weekdayNames[weekDayIdx] || `Day ${weekDayIdx+1}`,
+          holiday: CFG.holidays[abs] || null
+        });
+        abs++;
+      }
+    }
+
+    // BETWEEN season single-day pages after seasons 0,1,2
+    if (si === 0){
+      out.push({
+        abs, type:"special", key:"springSummer",
+        label: CFG.specialDays.springSummer.name,
+        blurb: CFG.specialDays.springSummer.blurb || "",
+        seasonIndex: si,
+        season: season.name,
+        holiday: CFG.holidays[abs] || null
+      });
+      abs++;
+    }
+    if (si === 1){
+      out.push({
+        abs, type:"special", key:"summerFall",
+        label: CFG.specialDays.summerFall.name,
+        blurb: CFG.specialDays.summerFall.blurb || "",
+        seasonIndex: si,
+        season: season.name,
+        holiday: CFG.holidays[abs] || null
+      });
+      abs++;
+    }
+    if (si === 2){
+      out.push({
+        abs, type:"special", key:"fallWinter",
+        label: CFG.specialDays.fallWinter.name,
+        blurb: CFG.specialDays.fallWinter.blurb || "",
+        seasonIndex: si,
+        season: season.name,
+        holiday: CFG.holidays[abs] || null
+      });
+      abs++;
+    }
+  }
+
+  // END single-day page
+  out.push({
+    abs,
+    type:"special",
+    key:"end",
+    label: CFG.specialDays.end.name,
+    blurb: CFG.specialDays.end.blurb || "",
+    seasonIndex: 3,
+    season: CFG.seasons[3].name,
+    holiday: CFG.holidays[abs] || null
+  });
+  abs++;
+
+  return out;
+}
+
+const YEAR = buildYear();
+const TODAY_ABS = fictionalTodayAbs();
+let selectedAbs = TODAY_ABS;
+
+const MONTH_ART = {
+  0: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Ivan_Endogurov_Mkhi.jpg/1920px-Ivan_Endogurov_Mkhi.jpg?_=20120102132218",
+  1: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Vonnoh%2C_Robert_William_-_Poppies_-_Google_Art_Project.jpg/1920px-Vonnoh%2C_Robert_William_-_Poppies_-_Google_Art_Project.jpg?_=20121101020038",
+  2: "https://upload.wikimedia.org/wikipedia/commons/6/66/William_Trost_Richards_-_Sunset_on_the_Meadow_-_1996.194_-_Museum_of_Fine_Arts.jpg?_=20190403014005",
+  3: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Cole_Thomas_The_Oxbow_%28The_Connecticut_River_near_Northampton_1836%29.jpg",
+  4: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Frederick_Edwin_Church%2C_New_England_Scenery_%281851%29.jpg/1920px-Frederick_Edwin_Church%2C_New_England_Scenery_%281851%29.jpg?_=20230120215527",
+  5: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Twilight_in_the_Wilderness_by_Frederic_Edwin_Church_%283%29.jpg/3840px-Twilight_in_the_Wilderness_by_Frederic_Edwin_Church_%283%29.jpg",
+  6: "https://uploads1.wikiart.org/images/grigoriy-myasoyedov/autumn-morning-1893.jpg!Large.jpg",
+  7: "https://uploads5.wikiart.org/images/henry-ossawa-tanner/edge-of-the-forest-1893.jpg!Large.jpg",
+  8: "https://upload.wikimedia.org/wikipedia/commons/d/d6/Caspar_David_Friedrich_-_Autumn_%E2%80%93_Evening_%E2%80%93_Maturity_%28from_the_seasons%2C_times_of_day%2C_and_ages_of_man_cycle_of_1803%29_-_Google_Art_Project.jpg",
+  9: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Caspar_David_Friedrich_-_Abtei_im_Eichwald_-_Google_Art_Project.jpg/3840px-Caspar_David_Friedrich_-_Abtei_im_Eichwald_-_Google_Art_Project.jpg",
+  10: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/The_Icebergs_%28Frederic_Edwin_Church%29%2C_1861_%28color%29.jpg/3840px-The_Icebergs_%28Frederic_Edwin_Church%29%2C_1861_%28color%29.jpg",
+  11: "https://uploads3.wikiart.org/00161/images/peder-balke/peder-balke-nordlys.jpg"
+};
+
+const SPECIAL_ART = {
+  start: "https://upload.wikimedia.org/wikipedia/commons/a/ad/Endogurov_Georgievskiy_monastyr%27.jpg",
+  springSummer: "https://uploads8.wikiart.org/images/ivan-shishkin/oak-grove-1887.jpg!Large.jpg",
+  summerFall: "https://uploads8.wikiart.org/images/ivan-shishkin/the-field-of-wheat-1878.jpg!Large.jpg",
+  fallWinter: "https://uploads1.wikiart.org/images/vasily-polenov/first-snow-1891.jpg!Large.jpg",
+  end: "https://uploads3.wikiart.org/images/johan-christian-dahl/megalith-grave-in-winter-1825.jpg!Large.jpg"
+};
+
+function esc(s){
+  return String(s)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function findByAbs(abs){ return YEAR.find(x => x.abs === abs); }
+
+function realWorldLabel(abs){
+  // Real-world date corresponding to Abs day, where Abs 1 == anchor date
+  const a = toUTCDate(CFG.anchor.year, CFG.anchor.month, CFG.anchor.day);
+  const d = new Date(a.getTime() + (abs - 1) * 86400000);
+  const monthName = d.toLocaleString(undefined, { month: "long", timeZone: "UTC" });
+  const dayNum = d.getUTCDate();
+  return `${monthName} ${dayNum}`;
+}
+
+function setTopBar(obj){
+  const line  = document.getElementById("owcalTopLine");
+  const sub   = document.getElementById("owcalTopSub");
+  const blurb = document.getElementById("owcalTopBlurb");
+
+    if (!obj){
+    line.textContent = "…";
+    sub.textContent = "";
+    blurb.textContent = "";
+    return;
+  }
+
+  const real = realWorldLabel(obj.abs);
+
+  if (obj.type === "day"){
+    // (Real world) Month day - (Fantasy) Month / Week / Day (num)
+    line.textContent = `${real} - ${obj.month} / ${obj.weekName} / ${obj.weekday} (${obj.dayInMonth})`;
+
+    // Season - Zodiac
+    sub.textContent = `${obj.season} - ${obj.zodiac}`;
+
+    // Info blurb: holiday takes priority
+    if (obj.holiday){
+      blurb.textContent = `${obj.holiday.name}${obj.holiday.blurb ? ": " + obj.holiday.blurb : ""}`;
+    } else {
+      blurb.textContent = "";
+    }
+  } else {
+    // Special single-day pages: still show the real-world date, fantasy label
+    line.textContent = `${real} - ${obj.label}`;
+    sub.textContent = `${obj.season}`;
+
+    if (obj.holiday){
+      blurb.textContent = `${obj.holiday.name}${obj.holiday.blurb ? ": " + obj.holiday.blurb : ""}`;
+    } else {
+      blurb.textContent = obj.blurb || "";
+    }
+  }
+}
+
+function markSelected(){
+  document.querySelectorAll(".owcal [data-abs]").forEach(n => {
+    n.classList.toggle("owcal-selected", Number(n.dataset.abs) === selectedAbs);
+  });
+}
+
+function scrollToAbs(abs){
+  const node = document.querySelector(`.owcal [data-abs="${abs}"]`);
+  if (node) node.scrollIntoView({ behavior:"smooth", block:"center", inline:"center" });
+}
+
+function scrollToMonth(monthIndexAbs){
+  const node = document.querySelector(`.owcal [data-month="${monthIndexAbs}"]`);
+  if (node) node.scrollIntoView({ behavior:"smooth", block:"nearest", inline:"start" });
+}
+
+function render(){
+    const root = document.getElementById("calendar");
+  root.innerHTML = "";
+
+  // Helper: build a clickable special single-day page
+  const makeSpecialPage = (obj) => {
+    const page = document.createElement("div");
+    page.className = "owcal-specialPage";
+    page.setAttribute("data-abs", obj.abs);
+
+    if (obj.abs === TODAY_ABS) page.classList.add("owcal-today");
+    if (obj.holiday) page.classList.add("owcal-holiday");
+
+    const head = document.createElement("div");
+    head.className = "owcal-specialHead";
+    if (SPECIAL_ART[obj.key]) head.style.backgroundImage = `url('${SPECIAL_ART[obj.key]}')`;
+    head.innerHTML = `<div class="owcal-headLabelBackdrop"><div class="owcal-specialTitle">${esc(obj.label)}</div></div>`;
+
+    const body = document.createElement("div");
+    body.className = "owcal-specialBody";
+    const holidayTxt = obj.holiday
+      ? `<div><b>${esc(obj.holiday.name)}</b>${obj.holiday.blurb ? ": " + esc(obj.holiday.blurb) : ""}</div>`
+      : "";
+    body.innerHTML = `${holidayTxt}${esc(obj.blurb || "")}`;
+
+    page.appendChild(head);
+    page.appendChild(body);
+
+    page.addEventListener("click", () => {
+      selectedAbs = obj.abs;
+      setTopBar(obj);
+      markSelected();
+    });
+
+    return page;
+  };
+
+  // Special pages by key
+  const startObj = YEAR.find(x => x.type === "special" && x.key === "start");
+  const spSuObj  = YEAR.find(x => x.type === "special" && x.key === "springSummer");
+  const suFaObj  = YEAR.find(x => x.type === "special" && x.key === "summerFall");
+  const faWiObj  = YEAR.find(x => x.type === "special" && x.key === "fallWinter");
+  const endObj   = YEAR.find(x => x.type === "special" && x.key === "end");
+
+  if (startObj) root.appendChild(makeSpecialPage(startObj));
+
+  // Build 12 month pages, each with 30 day tiles
+  for (let m=0; m<MONTHS.length; m++){
+    const meta = MONTHS[m];
+
+    const page = document.createElement("div");
+    page.className = "owcal-monthPage";
+    page.setAttribute("data-month", meta.monthIndexAbs);
+
+    const head = document.createElement("div");
+    head.className = "owcal-monthHead";
+    if (MONTH_ART[meta.monthIndexAbs]) head.style.backgroundImage = `url('${MONTH_ART[meta.monthIndexAbs]}')`;
+    head.innerHTML = `
+      <div class="owcal-headLabelBackdrop">
+        <div class="owcal-monthTitle">${esc(meta.season)} - ${esc(meta.name)} - ${esc(meta.zodiac)}</div>
+      </div>
+    `;
+    page.appendChild(head);
+
+    const weekRow = document.createElement("div");
+    weekRow.className = "owcal-weekNames";
+    for (let w=0; w<CFG.weeksPerMonth; w++){
+      const cell = document.createElement("div");
+      cell.textContent = CFG.weekNames[w] || `Week ${w+1}`;
+      weekRow.appendChild(cell);
+    }
+    page.appendChild(weekRow);
+
+    const grid = document.createElement("div");
+    grid.className = "owcal-grid";
+
+    // Month’s 30 absolute days are contiguous in YEAR for the day objects.
+    // Find the first day object for this month index.
+    const monthDays = YEAR.filter(x => x.type === "day" && x.monthIndexAbs === m);
+
+    for (const obj of monthDays){
+      const tile = document.createElement("div");
+      tile.className = "owcal-day";
+      tile.setAttribute("data-abs", obj.abs);
+
+      if (obj.abs === TODAY_ABS) tile.classList.add("owcal-today");
+      if (obj.holiday) tile.classList.add("owcal-holiday");
+
+      // Place into a 6x5 grid: column = week, row = weekday (top→bottom)
+      tile.style.gridColumnStart = obj.week;            // 1..6
+      tile.style.gridRowStart = (obj.dayInMonth - 1) % CFG.daysPerWeek + 1; // 1..5
+
+      // Show weekday + day-in-month number, no Abs label
+      tile.innerHTML = `
+        <span class="owcal-dayName">${esc(obj.weekday)}</span>
+        <span class="owcal-dayNum">(${obj.dayInMonth})</span>
+      `;
+
+      tile.addEventListener("click", () => {
+        selectedAbs = obj.abs;
+        setTopBar(obj, "Selected");
+        markSelected();
+      });
+
+      grid.appendChild(tile);
+    }
+
+    page.appendChild(grid);
+    root.appendChild(page);
+
+    // Insert between-season special pages after months 3, 6, 9
+    if (m === 2 && spSuObj) root.appendChild(makeSpecialPage(spSuObj));
+    if (m === 5 && suFaObj) root.appendChild(makeSpecialPage(suFaObj));
+    if (m === 8 && faWiObj) root.appendChild(makeSpecialPage(faWiObj));
+  }
+
+  // End-of-year special page after Month 12
+  if (endObj) root.appendChild(makeSpecialPage(endObj));
+
+  // Init top bar
+  const todayObj = findByAbs(TODAY_ABS);
+  setTopBar(todayObj);
+  selectedAbs = TODAY_ABS;
+  markSelected();
+}
+
+document.getElementById("jumpToday").addEventListener("click", () => {
+  const obj = findByAbs(TODAY_ABS);
+  selectedAbs = TODAY_ABS;
+  setTopBar(obj);
+  markSelected();
+  scrollToAbs(TODAY_ABS);
+});
+
+render();
+</script>
+<script src="under-construction.js"></script>

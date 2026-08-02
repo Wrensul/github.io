@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Creatures | Door to the Parsklands</title>
+<link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
+  <style>
+    main {
+      min-height: 100vh;
+      padding: 36px 16px 64px;
+      font-family: 'Baskervville', serif;
+    }
+
+    .creatures-shell {
+      max-width: 920px;
+      margin: 40px auto;
+      background: rgba(255, 255, 255, 0.93);
+      border: 4px groove #222;
+      box-shadow: 4px 4px 8px #555;
+      padding: 28px 24px;
+    }
+
+    .creatures-heading {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .creatures-heading h1 {
+      margin: 0 0 18px;
+      font-size: clamp(28px, 4vw, 42px);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.98), 0 0 6px rgba(255, 255, 255, 0.96), 1px 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
+    .creatures-image {
+      width: min(100%, 560px);
+      margin: 0 auto 16px;
+      display: block;
+      border: 3px solid #222;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .creatures-intro {
+      width: min(100%, 760px);
+      margin: 0 auto;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(34, 34, 34, 0.45);
+      font-size: clamp(18px, 2vw, 24px);
+      line-height: 1.4;
+      color: #111;
+    }
+
+    .creature-category {
+      margin-top: 24px;
+      scroll-margin-top: 16px;
+    }
+
+    .creature-category h2 {
+      margin: 0 0 12px;
+      border-bottom: 2px solid #444;
+      padding-bottom: 6px;
+      font-size: clamp(26px, 3vw, 34px);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
+    .creature-category-description {
+      margin: 0 0 14px;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .creature-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .creature-card {
+      border: 3px groove #333;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 14px 16px;
+    }
+
+    .creature-card h3 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 3vw, 32px);
+      border-bottom: 1px solid #444;
+      padding-bottom: 6px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
+    .creature-fields {
+      margin: 0;
+      display: grid;
+      grid-template-columns: minmax(180px, auto) 1fr;
+      gap: 8px 12px;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .creature-fields dt {
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
+    .creature-fields dd {
+      margin: 0;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.97), 0 0 4px rgba(255, 255, 255, 0.95);
+    }
+
+    .creature-notes {
+      margin: 10px 0 0;
+      padding-left: 20px;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .creatures-loading,
+    .creatures-error {
+      margin: 20px 0 0;
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 620px) {
+      .creature-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+
+  <main>
+    <section class="creatures-shell">
+      <header class="creatures-heading">
+        <h1>Creatures Field Guide</h1>
+        <img class="creatures-image" src="assets/background.jpg" alt="Creature field guide illustration" />
+        <p class="creatures-intro">A field guide to the peoples, animals, spirits, and stranger beings of the Parsklands.</p>
+      </header>
+
+      <div id="creature-list">
+        <p class="creatures-loading">Loading field guide entries...</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script>
+    const CREATURES_GOOGLE_DOC = "https://docs.google.com/document/d/1VVxQ8cQGmfI7ZjKmjw3PMrQdagl4GblXL7wpi1Nt9_c/edit?usp=sharing";
+    const CREATURE_CATEGORY_NAMES = [
+      "Peoples",
+      "Animals",
+      "Jinxed Souls",
+      "Wraiths",
+      "Revenants",
+      "Memoriums",
+      "Spirit Entities",
+      "Spirits",
+      "Titans",
+      "Gods",
+      "The Time Saints",
+      "The Earthen Gods",
+      "Lasting Shadows - Named Entities",
+      "The Neighbors"
+    ];
+
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || "").trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
+
+    function normalizeDocText(value) {
+      return String(value || "")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")
+        .replace(/\u00A0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function cleanListMarker(value) {
+      return normalizeDocText(value)
+        .replace(/^[-*•.]\s*/, "")
+        .trim();
+    }
+
+    function splitField(text) {
+      const match = normalizeDocText(text).match(/^([^:–—-]{2,40})\s*(?:[:–—-])\s*(.*)$/);
+      if (!match) return null;
+
+      const label = normalizeDocText(match[1]);
+      const value = normalizeDocText(match[2]);
+      if (!label || /^\.?$/.test(label)) return null;
+
+      return { label, value };
+    }
+
+    function isCategoryName(text) {
+      const cleaned = normalizeDocText(text).replace(/\s+-$/, "");
+      return CREATURE_CATEGORY_NAMES.some((name) => name.toLowerCase() === cleaned.toLowerCase());
+    }
+
+    function startsCreatureEntry(text) {
+      const cleaned = cleanListMarker(text);
+      if (!cleaned) return false;
+      if (isCategoryName(cleaned)) return false;
+      if (/^(Lifespan|General Appearance|Behavior|Variants\/Regions|Magic|Legend|Description|Domain|Symbols|Region\/Origin|Representations)\s*[-:–—]?/i.test(cleaned)) return false;
+      return /[:–—-]\s*$/.test(cleaned) || /^[A-Z0-9ÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÄËÏÖÜÆŒ][^.!?]{1,80}$/.test(cleaned);
+    }
+
+    function creatureNameFromLine(text) {
+      return cleanListMarker(text).replace(/\s*[:–—-]\s*$/, "").trim();
+    }
+
+    function parseCreaturesDocFromHtml(rawHtml) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(rawHtml || "", "text/html");
+      const nodes = Array.from(doc.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p, li"));
+      const guide = { categories: [] };
+      let currentCategory = null;
+      let currentCreature = null;
+      let currentField = "";
+
+      const ensureCategory = (name) => {
+        const cleanName = normalizeDocText(name).replace(/\s+[-–—]$/, "");
+        const existing = guide.categories.find((category) =>
+          category.name.toLowerCase() === cleanName.toLowerCase()
+        );
+        if (existing) return existing;
+
+        const category = { name: cleanName, description: [], creatures: [] };
+        guide.categories.push(category);
+        return category;
+      };
+
+      const ensureCreature = (name) => {
+        if (!currentCategory) currentCategory = ensureCategory("Creatures");
+        const creature = { name, fields: {}, notes: [] };
+        currentCategory.creatures.push(creature);
+        return creature;
+      };
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text || /^[-—–]{8,}$/.test(text)) return;
+
+        if (isCategoryName(text)) {
+          currentCategory = ensureCategory(text.replace(/\s+-$/, ""));
+          currentCreature = null;
+          currentField = "";
+          return;
+        }
+
+        if (!currentCategory) return;
+
+        const field = splitField(text);
+        if (field && currentCreature) {
+          currentField = field.label;
+          currentCreature.fields[field.label] = field.value || "";
+          return;
+        }
+
+        if (startsCreatureEntry(text)) {
+          currentCreature = ensureCreature(creatureNameFromLine(text));
+          currentField = "";
+          return;
+        }
+
+        if (!currentCreature) {
+          currentCategory.description.push(text);
+          return;
+        }
+
+        if (currentField && currentCreature.fields[currentField] === "") {
+          currentCreature.fields[currentField] = text;
+          return;
+        }
+
+        if (currentField && currentCreature.fields[currentField]) {
+          currentCreature.fields[currentField] = `${currentCreature.fields[currentField]} ${text}`;
+          return;
+        }
+
+        currentCreature.notes.push(cleanListMarker(text));
+      });
+
+      guide.categories = guide.categories.filter((category) =>
+        category.description.length || category.creatures.length
+      );
+
+      return guide;
+    }
+
+    function renderCreatureGuide(guideData) {
+      const listEl = document.getElementById("creature-list");
+      listEl.innerHTML = "";
+
+      if (!guideData.categories.length) {
+        listEl.innerHTML = '<p class="creatures-error">No creature entries were found in the Google Doc.</p>';
+        return;
+      }
+
+      guideData.categories.forEach((category) => {
+        const section = document.createElement("section");
+        section.className = "creature-category";
+
+        const heading = document.createElement("h2");
+        heading.textContent = category.name;
+        section.appendChild(heading);
+
+        if (category.description.length) {
+          const description = document.createElement("p");
+          description.className = "creature-category-description";
+          description.textContent = category.description.join(" ");
+          section.appendChild(description);
+        }
+
+        const cards = document.createElement("div");
+        cards.className = "creature-list";
+
+        category.creatures.forEach((creature) => {
+          const card = document.createElement("article");
+          card.className = "creature-card";
+
+          const creatureHeading = document.createElement("h3");
+          creatureHeading.textContent = creature.name;
+          card.appendChild(creatureHeading);
+
+          const fields = document.createElement("dl");
+          fields.className = "creature-fields";
+
+          Object.entries(creature.fields).forEach(([label, value]) => {
+            const term = document.createElement("dt");
+            term.textContent = `${label} -`;
+            fields.appendChild(term);
+
+            const description = document.createElement("dd");
+            description.textContent = value || "...";
+            fields.appendChild(description);
+          });
+
+          if (fields.children.length) card.appendChild(fields);
+
+          if (creature.notes.length) {
+            const notes = document.createElement("ul");
+            notes.className = "creature-notes";
+            creature.notes.forEach((note) => {
+              const item = document.createElement("li");
+              item.textContent = note;
+              notes.appendChild(item);
+            });
+            card.appendChild(notes);
+          }
+
+          cards.appendChild(card);
+        });
+
+        section.appendChild(cards);
+        listEl.appendChild(section);
+      });
+    }
+
+    async function loadCreaturesFromGoogleDoc() {
+      const listEl = document.getElementById("creature-list");
+      const exportUrl = getGoogleDocExportUrl(CREATURES_GOOGLE_DOC);
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        renderCreatureGuide(parseCreaturesDocFromHtml(html));
+      } catch (err) {
+        console.error("Google Doc creatures load failed.", err);
+        listEl.innerHTML = '<p class="creatures-error">The creature field guide could not be loaded from the Google Doc.</p>';
+      }
+    }
+
+    fetch("header.html")
+      .then(r => r.text())
+      .then(html => { document.getElementById("header").innerHTML = html; })
+      .catch(err => console.error("Header failed to load.", err));
+
+    fetch("footer.html")
+      .then(r => r.text())
+      .then(html => { document.getElementById("footer").innerHTML = html; })
+      .catch(err => console.error("Footer failed to load.", err));
+
+    loadCreaturesFromGoogleDoc();
+  </script>
+  <script src="under-construction.js"></script>
+</body>
+</html>

@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Words of Parsk | Door to the Parsklands</title>
+<link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Baskervville&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --tile-size: 250px;
+      --paper: #fbf7eb;
+      --paper-edge: #ddcfad;
+      --ink: #151515;
+      --overlay: rgba(0, 0, 0, 0.72);
+    }
+
+    body { font-family: 'Baskervville', serif; }
+    body.no-scroll { overflow: hidden; }
+
+    main.page {
+      margin-top: 40px;
+      background-image: url('https://i.imgur.com/SiSbdVZ.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .square-placeholder {
+      width: 200px;
+      height: 200px;
+      border: 2px solid #444;
+      box-shadow: 3px 3px 8px #888;
+      background: #111;
+    }
+
+    .book-grid {
+      display: grid;
+      grid-template-columns: repeat(2, var(--tile-size));
+      gap: 40px;
+      margin: 40px auto;
+      justify-content: center;
+    }
+
+    .book-card { text-align: center; color: #111; }
+
+    .book-tile {
+      width: var(--tile-size);
+      height: var(--tile-size);
+      margin: 0 auto 12px;
+      border: 2px solid #222;
+      background: #000;
+      box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .book-tile:hover,
+    .book-tile:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.6);
+      outline: none;
+    }
+
+    .book-name {
+      margin: 0;
+      font-size: 24px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 700px) {
+      .book-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+      }
+    }
+
+    .hidden { display: none !important; }
+
+    .book-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--overlay);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .book-shell {
+      width: min(1050px, 96vw);
+      max-height: 92vh;
+      background: #303030;
+      border: 2px solid #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .book-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #1f1f1f;
+      color: #f1f1f1;
+      font-size: 14px;
+    }
+
+    .book-controls button {
+      background: #2c2c2c;
+      border: 1px solid #4a4a4a;
+      color: #f1f1f1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .book-stage {
+      overflow: auto;
+      padding: 18px;
+      background: #2a2a2a;
+    }
+
+    .spread {
+      position: relative;
+      width: min(960px, 100%);
+      min-height: 520px;
+      margin: 0 auto;
+      background: #f2ebd6;
+      border: 4px groove #232323;
+      box-shadow: 4px 4px 8px #111;
+      overflow: hidden;
+    }
+
+    .spread::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 14px;
+      transform: translateX(-50%);
+      background: linear-gradient(to right, rgba(0,0,0,.22), rgba(255,255,255,.15), rgba(0,0,0,.22));
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .spread-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      min-height: 100%;
+    }
+
+    .book-page {
+      position: relative;
+      padding: clamp(18px, 2.6vw, 34px);
+      background: var(--paper);
+      color: var(--ink);
+      border-top: 1px solid var(--paper-edge);
+      border-bottom: 1px solid var(--paper-edge);
+      opacity: 0;
+      transform: translateX(12px);
+      animation: pageShift .24s ease forwards;
+    }
+
+    .book-page.left {
+      border-right: 1px solid rgba(0,0,0,.2);
+      box-shadow: inset -18px 0 24px rgba(0,0,0,.08);
+      transform: translateX(-12px);
+    }
+
+    .book-page.right { box-shadow: inset 18px 0 24px rgba(0,0,0,.08); }
+
+    @keyframes pageShift {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .cover-wrap {
+      min-height: 340px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #b89b74;
+      background: linear-gradient(135deg, #dbc49a 0%, #f7ebca 100%);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: clamp(40px, 5vw, 62px);
+      text-align: center;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(28px, 3.4vw, 40px);
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    .toc-list {
+      list-style: none;
+      margin: 16px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      max-width: 220px;
+    }
+
+    .toc-btn {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #8a7759;
+      background: #f9f3e5;
+      padding: 8px 10px;
+      font-family: inherit;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .chapter-number {
+      margin-top: 20px;
+      font-size: 54px;
+      text-align: center;
+      line-height: 1;
+    }
+
+    .chapter-content {
+      margin-top: 18px;
+      max-height: 390px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .book-text {
+      margin: 0 0 12px;
+      font-size: clamp(17px, 1.9vw, 22px);
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .book-section-title {
+      margin: 18px 0 8px;
+      font-size: clamp(20px, 2.2vw, 26px);
+      line-height: 1.15;
+      text-decoration: none;
+    }
+
+    .page-marker {
+      margin-top: 26px;
+      font-size: 15px;
+      opacity: 0.72;
+    }
+
+    .blank-page {
+      display: grid;
+      place-items: center;
+      color: rgba(0,0,0,.5);
+      font-style: italic;
+    }
+
+    @media (max-width: 860px) {
+      .spread { min-height: 620px; }
+      .spread::before { display: none; }
+      .spread-inner { grid-template-columns: 1fr; }
+      .book-page.left { border-right: none; border-bottom: 1px solid rgba(0,0,0,.18); box-shadow: inset 0 -18px 24px rgba(0,0,0,.08); }
+      .book-page.right { box-shadow: inset 0 18px 24px rgba(0,0,0,.08); }
+    }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="page">
+    <section class="intro">
+      <div class="square-placeholder"></div>
+      <div class="title-block">
+        <h1>Words of Parsk</h1>
+        <p class="tagline">open the books and step into their pages...</p>
+      </div>
+    </section>
+  </main>
+
+  <section class="book-grid" aria-label="Books">
+      <article class="book-card">
+        <button class="book-tile" data-book="domesari" aria-label="Open Domesari"></button>
+        <p class="book-name">Domesari</p>
+      </article>
+      <article class="book-card">
+        <button class="book-tile" data-book="tullamend" aria-label="Open Tullamend"></button>
+        <p class="book-name">Tullamend</p>
+      </article>
+  </section>
+
+  <div id="book-modal" class="book-modal hidden" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="book-shell">
+      <div class="book-controls">
+        <span id="book-status">Book</span>
+        <div>
+          <button id="prev-page" aria-label="Previous page">◀ Prev Page</button>
+          <button id="next-page" aria-label="Next page">Next Page ▶</button>
+          <button id="close-book" aria-label="Close book">✕ Close</button>
+        </div>
+      </div>
+      <div class="book-stage">
+        <div class="spread">
+          <div id="spread-inner" class="spread-inner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="site-footer"></footer>
+
+  <script>
+    const books = {
+      domesari: {
+        label: 'Domesari',
+        chaptersGoogleDoc: 'https://docs.google.com/document/d/1g9eoON4SNarnV3btbRJy9txQWMDCPyfFgZoak_9sUgA/edit?usp=sharing',
+        docLoaded: false,
+        pages: [
+          { type: 'cover', title: 'Domesari' },
+          { type: 'toc', title: 'Table of Contents', chapters: [] },
+          { type: 'chapter', title: 'Loading...', blocks: [{ type: 'paragraph', text: 'Opening the Google Doc...' }] }
+        ]
+      },
+      tullamend: {
+        label: 'Tullamend',
+        chaptersGoogleDoc: 'https://docs.google.com/document/d/1KwYYtrbw60mQjpJb-zyQkdqmxCRSmUPscgO8i8Q-fss/edit?usp=sharing',
+        docLoaded: false,
+        pages: [
+          { type: 'cover', title: 'Tullamend' },
+          { type: 'toc', title: 'Table of Contents', chapters: [] },
+          { type: 'chapter', title: 'Loading...', blocks: [{ type: 'paragraph', text: 'Opening the Google Doc...' }] }
+        ]
+      }
+    };
+
+    const modal = document.getElementById('book-modal');
+    const spreadInner = document.getElementById('spread-inner');
+    const statusEl = document.getElementById('book-status');
+    const closeBtn = document.getElementById('close-book');
+    const prevBtn = document.getElementById('prev-page');
+    const nextBtn = document.getElementById('next-page');
+    const tiles = Array.from(document.querySelectorAll('.book-tile'));
+
+    let activeBookKey = null;
+    let currentIndex = 0;
+
+    function getGoogleDocExportUrl(urlOrId) {
+      const trimmed = (urlOrId || '').trim();
+      if (!trimmed) return null;
+
+      const idMatch = trimmed.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      const docId = idMatch ? idMatch[1] : (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed) ? trimmed : null);
+      if (!docId) return null;
+
+      return `https://docs.google.com/document/d/${docId}/export?format=html`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function normalizeDocText(value) {
+      return String(value || '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function parseDocChaptersFromHtml(rawHtml) {
+      const html = (rawHtml || '').trim();
+      if (!html) return [];
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const nodes = Array.from(doc.body.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li'));
+      const chapters = [];
+      const looseBlocks = [];
+      let current = null;
+
+      const pushCurrent = () => {
+        if (!current) return;
+        const blocks = current.blocks.filter((block) => block.text.trim());
+        if (current.title && blocks.length) chapters.push({ title: current.title, blocks });
+      };
+
+      nodes.forEach((node) => {
+        const text = normalizeDocText(node.textContent);
+        if (!text || /^table\s+of\s+contents$/i.test(text)) return;
+
+        const tag = node.tagName.toLowerCase();
+        if (tag === 'h1') {
+          pushCurrent();
+          current = { title: text, blocks: [] };
+          return;
+        }
+
+        if (/^h[2-6]$/.test(tag)) {
+          const heading = { type: 'heading', text };
+          if (current) current.blocks.push(heading);
+          else looseBlocks.push(heading);
+          return;
+        }
+
+        const paragraph = { type: 'paragraph', text };
+        if (current) current.blocks.push(paragraph);
+        else looseBlocks.push(paragraph);
+      });
+
+      pushCurrent();
+
+      if (!chapters.length && looseBlocks.length) {
+        chapters.push({ title: 'Chapter 1', blocks: looseBlocks });
+      }
+
+      return chapters;
+    }
+
+    function paginateChapter(chapter) {
+      const pages = [];
+      let blocks = [];
+      let weight = 0;
+      const limit = 3000;
+
+      const pushPage = () => {
+        if (!blocks.length) return;
+        pages.push({
+          type: 'chapter',
+          title: chapter.title,
+          blocks,
+          showTitle: pages.length === 0
+        });
+        blocks = [];
+        weight = 0;
+      };
+
+      (chapter.blocks || []).forEach((block) => {
+        const blockWeight = block.text.length + (block.type === 'heading' ? 140 : 30);
+        if (blocks.length && weight + blockWeight > limit) pushPage();
+        blocks.push(block);
+        weight += blockWeight;
+      });
+
+      pushPage();
+      return pages;
+    }
+
+    function buildPagesFromChapters(bookTitle, chapters) {
+      const chapterRefs = [];
+      const chapterPages = [];
+
+      chapters.forEach((chapter) => {
+        const pages = paginateChapter(chapter);
+        if (!pages.length) return;
+
+        chapterRefs.push({ title: chapter.title, pageIndex: chapterPages.length + 2 });
+        chapterPages.push(...pages);
+      });
+
+      return [
+        { type: 'cover', title: bookTitle },
+        { type: 'toc', title: 'Table of Contents', chapters: chapterRefs },
+        ...chapterPages
+      ];
+    }
+
+    async function hydrateBookFromGoogleDoc(book) {
+      if (!book || book.docLoaded || !book.chaptersGoogleDoc) return;
+
+      const exportUrl = getGoogleDocExportUrl(book.chaptersGoogleDoc);
+      if (!exportUrl) {
+        console.warn('Invalid Google Doc URL or ID for chapters:', book.chaptersGoogleDoc);
+        return;
+      }
+
+      try {
+        const response = await fetch(exportUrl);
+        if (!response.ok) throw new Error(`Google Doc request failed: ${response.status}`);
+
+        const html = await response.text();
+        const chapters = parseDocChaptersFromHtml(html);
+        if (chapters.length) {
+          book.pages = buildPagesFromChapters(book.label, chapters);
+          book.docLoaded = true;
+        }
+      } catch (err) {
+        console.error('Google Doc chapter load failed.', err);
+        book.pages = [
+          { type: 'cover', title: book.label },
+          { type: 'chapter', title: 'Unable to load', blocks: [{ type: 'paragraph', text: 'This Google Doc could not be loaded. Check that it is shared publicly.' }] }
+        ];
+      }
+    }
+
+    async function openBook(bookKey) {
+      activeBookKey = bookKey;
+      currentIndex = 0;
+      await hydrateBookFromGoogleDoc(books[bookKey]);
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('no-scroll');
+      renderSpread();
+    }
+
+    function closeBook() {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('no-scroll');
+      activeBookKey = null;
+      currentIndex = 0;
+    }
+
+    function goToPage(index) {
+      const book = books[activeBookKey];
+      if (!book) return;
+      currentIndex = Math.max(0, Math.min(index, book.pages.length - 1));
+      renderSpread();
+    }
+
+    function pageHtml(page, side) {
+      if (!page) {
+        return `<section class="book-page ${side} blank-page"><p>Blank Page</p></section>`;
+      }
+
+      if (page.type === 'cover') {
+        return `
+          <section class="book-page ${side}">
+            <div class="cover-wrap">${escapeHtml(page.title)}</div>
+            <p class="page-marker">Cover</p>
+          </section>
+        `;
+      }
+
+      if (page.type === 'toc') {
+        const buttons = (page.chapters || [])
+          .map((chapter) => `<li><button class="toc-btn" data-page="${chapter.pageIndex}">${escapeHtml(chapter.title)}</button></li>`)
+          .join('');
+
+        return `
+          <section class="book-page ${side}">
+            <h2 class="page-title">${escapeHtml(page.title)}</h2>
+            <ol class="toc-list">${buttons}</ol>
+            <p class="page-marker">Contents</p>
+          </section>
+        `;
+      }
+
+      const blocks = page.blocks && page.blocks.length
+        ? page.blocks
+        : [{ type: 'paragraph', text: page.content || '' }];
+      const contentHtml = blocks
+        .map((block) => {
+          if (block.type === 'heading') {
+            return `<h3 class="book-section-title">${escapeHtml(block.text)}</h3>`;
+          }
+
+          return `<p class="book-text">${escapeHtml(block.text)}</p>`;
+        })
+        .join('');
+
+      return `
+        <section class="book-page ${side}">
+          ${page.showTitle === false ? '' : `<h2 class="page-title">${escapeHtml(page.title)}</h2>`}
+          <div class="chapter-content">${contentHtml}</div>
+          <p class="page-marker">Page ${currentIndex + (side === 'right' ? 1 : 0) + 1}</p>
+        </section>
+      `;
+    }
+
+    function renderSpread() {
+      const book = books[activeBookKey];
+      if (!book) return;
+
+      const leftPage = book.pages[currentIndex];
+      const rightPage = book.pages[currentIndex + 1];
+
+      statusEl.textContent = `${book.label} • Showing pages ${currentIndex + 1}${rightPage ? `-${currentIndex + 2}` : ''} of ${book.pages.length}`;
+
+      spreadInner.innerHTML = `${pageHtml(leftPage, 'left')}${pageHtml(rightPage, 'right')}`;
+
+      spreadInner.querySelectorAll('.toc-btn').forEach((btn) => {
+        btn.addEventListener('click', () => goToPage(Number(btn.dataset.page)));
+      });
+    }
+
+    tiles.forEach((tile) => {
+      tile.addEventListener('click', () => openBook(tile.dataset.book));
+    });
+
+    closeBtn.addEventListener('click', closeBook);
+    prevBtn.addEventListener('click', () => goToPage(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goToPage(currentIndex + 1));
+
+    window.addEventListener('keydown', (event) => {
+      if (modal.classList.contains('hidden')) return;
+      if (event.key === 'Escape') closeBook();
+      if (event.key === 'ArrowLeft') goToPage(currentIndex - 1);
+      if (event.key === 'ArrowRight') goToPage(currentIndex + 1);
+    });
+
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) closeBook();
+    });
+
+    fetch('header.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('site-header').innerHTML = html; })
+      .catch(err => console.error('Header failed to load.', err));
+
+    fetch('footer.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('site-footer').innerHTML = html; })
+      .catch(err => console.error('Footer failed to load.', err));
+  </script>
+  <script src="under-construction.js"></script>
+</body>
+</html>
